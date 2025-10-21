@@ -1,0 +1,62 @@
+# Grafana datasources configuration
+
+apiVersion: 1
+
+datasources:
+  # Prometheus
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+  # TimescaleDB
+  - name: TimescaleDB
+    type: postgres
+    access: proxy
+    url: timescaledb:5432
+    database: mantis_timeseries
+    user: mantis
+    secureJsonData:
+      password: mantis_password
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: true
+    editable: true
+
+  # PostgreSQL (Metadata)
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    database: mantis
+    user: mantis
+    secureJsonData:
+      password: mantis_password
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+    editable: true
+
+  # InfluxDB
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: mantis-org
+      defaultBucket: sensors
+      tlsSkipVerify: true
+    secureJsonData:
+      token: mantis-super-secret-token
+    editable: true
+
+  # Jaeger (Tracing)
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: true

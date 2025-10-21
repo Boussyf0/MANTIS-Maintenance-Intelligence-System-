@@ -1,0 +1,175 @@
+spring:
+  application:
+    name: mantis-ingestion-iiot
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      compression-type: lz4
+      batch-size: 16384
+      linger-ms: 10
+      properties:
+        max.in.flight.requests.per.connection: 5
+        enable.idempotence: true
+
+    # Topics
+    topics:
+      sensor-raw: sensor.raw
+      sensor-preprocessed: sensor.preprocessed
+
+  # Database (PostgreSQL)
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:mantis}
+    username: ${POSTGRES_USER:mantis}
+    password: ${POSTGRES_PASSWORD:mantis_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+
+  # Jackson
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8001}
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  shutdown: graceful
+
+# Management & Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT:development}
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.mantis.ingestion: DEBUG
+    org.springframework.kafka: INFO
+    org.eclipse.milo: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Custom Application Properties
+mantis:
+  ingestion:
+    # OPC UA Configuration
+    opcua:
+      enabled: ${OPCUA_ENABLED:true}
+      endpoint: ${OPCUA_ENDPOINT:opc.tcp://localhost:4840}
+      security-mode: ${OPCUA_SECURITY_MODE:None}
+      subscription-interval-ms: ${OPCUA_SUBSCRIPTION_INTERVAL_MS:100}
+      request-timeout-ms: 5000
+      session-timeout-ms: 120000
+      max-reconnect-attempts: 5
+      reconnect-delay-ms: 5000
+
+    # MQTT Configuration
+    mqtt:
+      enabled: ${MQTT_ENABLED:true}
+      broker-url: ${MQTT_BROKER_URL:tcp://localhost:1883}
+      client-id: ${MQTT_CLIENT_ID:mantis-ingestion-${random.uuid}}
+      username: ${MQTT_USERNAME:}
+      password: ${MQTT_PASSWORD:}
+      topic-prefix: ${MQTT_TOPIC_PREFIX:factory/sensors/#}
+      qos: ${MQTT_QOS:1}
+      clean-session: true
+      connection-timeout: 30
+      keep-alive-interval: 60
+      max-reconnect-attempts: 5
+      reconnect-delay-ms: 5000
+
+    # Modbus Configuration
+    modbus:
+      enabled: ${MODBUS_ENABLED:false}
+      host: ${MODBUS_HOST:localhost}
+      port: ${MODBUS_PORT:502}
+      poll-interval-ms: ${MODBUS_POLL_INTERVAL_MS:1000}
+      unit-id: 1
+      timeout-ms: 3000
+      max-reconnect-attempts: 5
+
+    # Edge Buffer Configuration
+    edge-buffer:
+      enabled: ${EDGE_BUFFER_ENABLED:true}
+      max-size: ${EDGE_BUFFER_MAX_SIZE:100000}
+      flush-interval-ms: ${EDGE_BUFFER_FLUSH_INTERVAL_MS:60000}
+      persistence-enabled: false
+      persistence-path: /tmp/mantis-buffer
+
+# Resilience4j Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      kafka:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      opcua:
+        sliding-window-size: 5
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 60s
+
+  retry:
+    instances:
+      kafka:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+      opcua:
+        max-attempts: 5
+        wait-duration: 2s
+        exponential-backoff-multiplier: 2
+
+# Springdoc OpenAPI
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

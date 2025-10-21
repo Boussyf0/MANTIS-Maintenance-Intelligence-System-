@@ -1,0 +1,73 @@
+# Prometheus configuration for MANTIS
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'mantis-cluster'
+    environment: 'development'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  # - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # MANTIS microservices
+  - job_name: 'ingestion-iiot'
+    static_configs:
+      - targets: ['ingestion-iiot:9091']
+    metrics_path: '/metrics'
+
+  - job_name: 'preprocessing'
+    static_configs:
+      - targets: ['preprocessing:9092']
+    metrics_path: '/metrics'
+
+  - job_name: 'feature-extraction'
+    static_configs:
+      - targets: ['feature-extraction:9093']
+    metrics_path: '/metrics'
+
+  - job_name: 'anomaly-detection'
+    static_configs:
+      - targets: ['anomaly-detection:9094']
+    metrics_path: '/metrics'
+
+  - job_name: 'rul-prediction'
+    static_configs:
+      - targets: ['rul-prediction:9095']
+    metrics_path: '/metrics'
+
+  - job_name: 'maintenance-orchestrator'
+    static_configs:
+      - targets: ['maintenance-orchestrator:9096']
+    metrics_path: '/metrics'
+
+  # Infrastructure services
+  - job_name: 'kafka-exporter'
+    static_configs:
+      - targets: []
+        # - kafka-exporter:9308
+
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: []
+        # - postgres-exporter:9187
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: []
+        # - node-exporter:9100

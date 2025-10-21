@@ -1,0 +1,275 @@
+version: '3.8'
+
+services:
+  # Zookeeper pour Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: mantis-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+    networks:
+      - mantis-network
+
+  # Kafka pour streaming
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: mantis-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - mantis-network
+
+  # Kafka UI
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: mantis-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: mantis-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - mantis-network
+
+  # PostgreSQL pour métadonnées
+  postgres:
+    image: postgres:15-alpine
+    container_name: mantis-postgres
+    environment:
+      POSTGRES_DB: mantis
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: mantis_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - mantis-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mantis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # TimescaleDB pour séries temporelles
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: mantis-timescaledb
+    environment:
+      POSTGRES_DB: mantis_timeseries
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: mantis_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./init-scripts/timescaledb:/docker-entrypoint-initdb.d
+    networks:
+      - mantis-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mantis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # InfluxDB pour métriques haute fréquence
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: mantis-influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: mantis
+      DOCKER_INFLUXDB_INIT_PASSWORD: mantis_password
+      DOCKER_INFLUXDB_INIT_ORG: mantis-org
+      DOCKER_INFLUXDB_INIT_BUCKET: sensors
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: mantis-super-secret-token
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    networks:
+      - mantis-network
+
+  # MinIO pour stockage objet
+  minio:
+    image: minio/minio:latest
+    container_name: mantis-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - mantis-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # MinIO client pour initialisation
+  minio-init:
+    image: minio/mc:latest
+    container_name: mantis-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc alias set mantis http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb mantis/raw-data --ignore-existing;
+      /usr/bin/mc mb mantis/processed-data --ignore-existing;
+      /usr/bin/mc mb mantis/models --ignore-existing;
+      /usr/bin/mc mb mantis/mlflow --ignore-existing;
+      /usr/bin/mc mb mantis/feast --ignore-existing;
+      exit 0;
+      "
+    networks:
+      - mantis-network
+
+  # MLflow pour tracking et registry
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.5.0
+    container_name: mantis-mlflow
+    depends_on:
+      - postgres
+      - minio
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_BACKEND_STORE_URI: postgresql://mantis:mantis_password@postgres:5432/mantis
+      MLFLOW_ARTIFACT_ROOT: s3://mlflow
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://mantis:mantis_password@postgres:5432/mantis
+      --default-artifact-root s3://mlflow
+      --host 0.0.0.0
+      --port 5000
+    networks:
+      - mantis-network
+
+  # Redis pour Feast feature store
+  redis:
+    image: redis:7-alpine
+    container_name: mantis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - mantis-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Grafana pour visualisation
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: mantis-grafana
+    depends_on:
+      - timescaledb
+      - influxdb
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - mantis-network
+
+  # Prometheus pour métriques
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: mantis-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - mantis-network
+
+  # Jaeger pour tracing distribué
+  jaeger:
+    image: jaegertracing/all-in-one:1.48
+    container_name: mantis-jaeger
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: :9411
+    networks:
+      - mantis-network
+
+volumes:
+  zookeeper-data:
+  zookeeper-logs:
+  kafka-data:
+  postgres-data:
+  timescaledb-data:
+  influxdb-data:
+  influxdb-config:
+  minio-data:
+  redis-data:
+  grafana-data:
+  prometheus-data:
+
+networks:
+  mantis-network:
+    driver: bridge
