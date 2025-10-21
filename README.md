@@ -248,12 +248,7 @@ pytest --cov=mantis tests/
 
 MIT License
 
-## Contact
 
-Pour toute question ou collaboration :
-- Pr. Oumayma OUEDRHIRI (O.ouedrhiri@emsi.ma)
-- Pr. Hiba TABBAA (H.Tabbaa@emsi.ma)
-- Pr. Mohamed LACHGAR (lachgar.m@gmail.com)
 
 ## Citation
 
