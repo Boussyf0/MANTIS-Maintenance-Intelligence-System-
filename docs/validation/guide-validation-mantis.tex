@@ -1,0 +1,1020 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fontawesome5}
+\usepackage{tocloft}
+
+% Configuration de la géométrie
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=3cm,
+    bottom=3cm
+}
+
+% Configuration des liens
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Guide de Validation MANTIS},
+    pdfauthor={MANTIS Team - EMSI},
+}
+
+% Configuration des listings de code
+\lstdefinestyle{bash}{
+    language=bash,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray!30},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+}
+
+\lstdefinestyle{git}{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{blue!5},
+    frame=single,
+    rulecolor=\color{blue!30},
+    breaklines=true,
+}
+
+% Configuration des boîtes
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{infobox}[1][]{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    fonttitle=\bfseries,
+    title=#1,
+    breakable
+}
+
+\newtcolorbox{warningbox}[1][]{
+    colback=orange!5!white,
+    colframe=orange!75!black,
+    fonttitle=\bfseries,
+    title=#1,
+    breakable
+}
+
+\newtcolorbox{successbox}[1][]{
+    colback=green!5!white,
+    colframe=green!75!black,
+    fonttitle=\bfseries,
+    title=#1,
+    breakable
+}
+
+\newtcolorbox{errorbox}[1][]{
+    colback=red!5!white,
+    colframe=red!75!black,
+    fonttitle=\bfseries,
+    title=#1,
+    breakable
+}
+
+% En-têtes et pieds de page
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\includegraphics[height=1cm]{logo.png}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Commandes personnalisées
+\newcommand{\mantis}{\textbf{MANTIS}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\important}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\success}[1]{\textcolor{green!60!black}{\textbf{#1}}}
+\newcommand{\warning}[1]{\textcolor{orange}{\textbf{#1}}}
+
+\begin{document}
+
+% Page de titre
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    {\Huge\bfseries Guide du Système de Validation\par}
+    \vspace{0.5cm}
+    {\Large\bfseries MANTIS\par}
+    \vspace{0.3cm}
+    {\large MAiNtenance prédictive Temps-réel pour usines Intelligentes\par}
+
+    \vspace{2cm}
+
+    \begin{tikzpicture}
+        \draw[blue!50, line width=3pt] (0,0) circle (3cm);
+        \node[align=center] at (0,0) {\Huge\faCheckCircle[regular]};
+        \node[align=center] at (0,-1.5) {\Large Qualité};
+        \node[align=center] at (0,-2) {\Large Garantie};
+    \end{tikzpicture}
+
+    \vspace{2cm}
+
+    {\Large Guide Complet par Profil\par}
+
+    \vspace{1cm}
+
+    \begin{tabular}{rl}
+        \faUsers & Développeurs Backend/Frontend \\
+        \faCog & DevOps \& Administrateurs \\
+        \faChartLine & Chefs de Projet \\
+        \faGraduationCap & Data Scientists \\
+    \end{tabular}
+
+    \vfill
+
+    {\large EMSI Engineering School\par}
+    {\large Version 1.0 -- \today\par}
+\end{titlepage}
+
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Introduction}
+
+\subsection{Vue d'ensemble}
+
+Le système de validation \mantis{} garantit la qualité du code à travers trois niveaux de protection :
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{Hooks Git locaux} -- Validation immédiate avant commit/push
+    \item \textbf{GitHub Actions CI/CD} -- Validation automatique sur le serveur
+    \item \textbf{Scripts de validation} -- Validation manuelle complète
+\end{enumerate}
+
+\begin{successbox}[Objectifs du système]
+\begin{itemize}
+    \item \success{✓} Garantir 100\% des commits avec format standardisé
+    \item \success{✓} Bloquer les fichiers sensibles (credentials, secrets)
+    \item \success{✓} Assurer une couverture de tests ≥ 80\%
+    \item \success{✓} Maintenir un code propre et maintenable
+    \item \success{✓} Traçabilité complète des changements
+\end{itemize}
+\end{successbox}
+
+\subsection{Architecture du système}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=2cm, auto]
+    % Nœuds
+    \node[draw, rectangle, fill=blue!20, minimum width=3cm, minimum height=1cm] (dev) {Développeur};
+    \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below of=dev] (hooks) {Git Hooks};
+    \node[draw, rectangle, fill=orange!20, minimum width=3cm, minimum height=1cm, below of=hooks] (local) {Tests Locaux};
+    \node[draw, rectangle, fill=purple!20, minimum width=3cm, minimum height=1cm, below of=local] (ci) {GitHub Actions};
+    \node[draw, rectangle, fill=red!20, minimum width=3cm, minimum height=1cm, below of=ci] (deploy) {Déploiement};
+
+    % Flèches
+    \draw[->] (dev) -- node[right] {git commit} (hooks);
+    \draw[->] (hooks) -- node[right] {Validation} (local);
+    \draw[->] (local) -- node[right] {git push} (ci);
+    \draw[->] (ci) -- node[right] {Si OK} (deploy);
+
+    % Annotations
+    \node[right of=hooks, node distance=5cm, align=left] {pre-commit\\commit-msg};
+    \node[right of=local, node distance=5cm, align=left] {Maven\\pytest};
+    \node[right of=ci, node distance=5cm, align=left] {Tests\\Security\\Build};
+\end{tikzpicture}
+\caption{Architecture du système de validation}
+\end{figure}
+
+\newpage
+
+\section{Format de Commit Standardisé}
+
+\subsection{Format Conventional Commits}
+
+Tous les commits doivent suivre le format \textbf{Conventional Commits} :
+
+\begin{lstlisting}[style=git]
+<type>(<scope>): <description>
+
+<body optionnel>
+
+<footer optionnel>
+\end{lstlisting}
+
+\subsection{Types valides}
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Type} & \textbf{Description} & \textbf{Exemple} \\
+\hline
+\code{feat} & Nouvelle fonctionnalité & \code{feat(ingestion): ajouter support Modbus TCP} \\
+\hline
+\code{fix} & Correction de bug & \code{fix(rul): corriger prédiction RUL < 24h} \\
+\hline
+\code{docs} & Documentation uniquement & \code{docs(readme): mettre à jour installation} \\
+\hline
+\code{style} & Formatage, pas de code & \code{style(preprocessing): formater selon PEP8} \\
+\hline
+\code{refactor} & Refactoring & \code{refactor(features): optimiser calcul FFT} \\
+\hline
+\code{perf} & Amélioration performance & \code{perf(anomaly): réduire latence de 30\%} \\
+\hline
+\code{test} & Ajout/modification tests & \code{test(rul): ajouter tests LSTM} \\
+\hline
+\code{build} & Système de build & \code{build(docker): optimiser image} \\
+\hline
+\code{ci} & Configuration CI/CD & \code{ci(actions): ajouter cache Maven} \\
+\hline
+\code{chore} & Tâches de maintenance & \code{chore(deps): mettre à jour PyTorch} \\
+\hline
+\end{tabularx}
+\caption{Types de commits valides}
+\end{table}
+
+\subsection{Scopes suggérés}
+
+\begin{itemize}[label=\faCircle]
+    \item \code{ingestion} -- Service d'ingestion IIoT
+    \item \code{preprocessing} -- Service de prétraitement
+    \item \code{features} -- Service d'extraction de features
+    \item \code{anomaly} -- Service de détection d'anomalies
+    \item \code{rul} -- Service de prédiction RUL
+    \item \code{orchestrator} -- Service orchestrateur
+    \item \code{dashboard} -- Dashboard React
+    \item \code{infrastructure} -- Docker, Kubernetes
+    \item \code{database} -- Schémas, migrations
+    \item \code{docs} -- Documentation
+    \item \code{tests} -- Tests
+\end{itemize}
+
+\subsection{Exemples}
+
+\begin{successbox}[Messages VALIDES ✓]
+\begin{lstlisting}[style=git]
+feat(ingestion): ajouter support pour Modbus TCP
+fix(rul): corriger prediction pour RUL < 24h
+docs(readme): mettre a jour les instructions d'installation
+refactor(preprocessing): optimiser le pipeline de nettoyage
+perf(features): reduire temps de calcul FFT de 30%
+test(anomaly): ajouter tests unitaires pour Isolation Forest
+\end{lstlisting}
+\end{successbox}
+
+\begin{errorbox}[Messages INVALIDES ✗]
+\begin{lstlisting}[style=git]
+Added new feature              # Pas de type
+feat: Added feature.           # Point final interdit
+FEAT(ingestion): add support   # Type en majuscule
+feat add support               # Manque les deux-points
+fix                            # Description trop courte
+\end{lstlisting}
+\end{errorbox}
+
+\newpage
+
+\section{Guide par Profil}
+
+\subsection{\faCode{} Développeur Backend (Java/Spring Boot)}
+
+\subsubsection{Installation initiale}
+
+\begin{lstlisting}[style=bash]
+# 1. Cloner le projet
+git clone <repo-url>
+cd MANTIS
+
+# 2. Installer les hooks Git
+./scripts/install-hooks.sh
+
+# 3. Configurer le template de commit
+git config commit.template .gitmessage
+
+# 4. Verifier l'installation
+git config core.hooksPath  # Devrait afficher: .githooks
+\end{lstlisting}
+
+\subsubsection{Workflow quotidien}
+
+\begin{enumerate}
+    \item \textbf{Créer une branche}
+    \begin{lstlisting}[style=bash]
+git checkout -b feature/ma-fonctionnalite
+    \end{lstlisting}
+
+    \item \textbf{Développer} (exemple : service Java)
+    \begin{lstlisting}[style=bash]
+cd services/ingestion-iiot
+# ... modifications du code ...
+    \end{lstlisting}
+
+    \item \textbf{Tester localement}
+    \begin{lstlisting}[style=bash]
+mvn clean test
+mvn jacoco:report  # Verifier la couverture
+    \end{lstlisting}
+
+    \item \textbf{Commit} (le hook pre-commit validera automatiquement)
+    \begin{lstlisting}[style=bash]
+git add .
+git commit
+# Ou directement avec message
+git commit -m "feat(ingestion): ajouter support Modbus TCP"
+    \end{lstlisting}
+
+    \item \textbf{Push} (le hook pre-push executera les tests)
+    \begin{lstlisting}[style=bash]
+git push origin feature/ma-fonctionnalite
+    \end{lstlisting}
+\end{enumerate}
+
+\subsubsection{Ce qui est validé automatiquement}
+
+\begin{infobox}[Validations pour code Java]
+\begin{itemize}
+    \item \faCheckCircle{} Compilation Maven réussie
+    \item \faCheckCircle{} Tests unitaires passés (JUnit 5)
+    \item \faCheckCircle{} Couverture de code ≥ 80\% (JaCoCo)
+    \item \faCheckCircle{} Pas de fichiers sensibles (\code{.env}, credentials)
+    \item \faCheckCircle{} Format de commit valide
+\end{itemize}
+\end{infobox}
+
+\subsubsection{Commandes utiles}
+
+\begin{lstlisting}[style=bash]
+# Compiler uniquement
+mvn clean compile
+
+# Tester un seul test
+mvn test -Dtest=ClassName#methodName
+
+# Rapport de couverture
+mvn jacoco:report
+# Voir: target/site/jacoco/index.html
+
+# Build complet
+mvn clean install
+\end{lstlisting}
+
+\subsubsection{Dépannage}
+
+\begin{warningbox}[Tests Java échouent]
+\begin{lstlisting}[style=bash]
+# Mode debug
+mvn clean test -X
+
+# Skip tests temporairement (deconseille)
+mvn clean install -DskipTests
+
+# Verifier les dependances
+mvn dependency:tree
+\end{lstlisting}
+\end{warningbox}
+
+\newpage
+
+\subsection{\faPython{} Data Scientist / Développeur ML (Python)}
+
+\subsubsection{Installation initiale}
+
+\begin{lstlisting}[style=bash]
+# 1. Cloner et configurer
+git clone <repo-url>
+cd MANTIS
+
+# 2. Installer les hooks
+./scripts/install-hooks.sh
+
+# 3. Creer environnement virtuel
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
+
+# 4. Installer dependances
+pip install -r requirements-dev.txt
+
+# 5. Installer les outils de validation
+pip install flake8 black pytest pytest-cov
+\end{lstlisting}
+
+\subsubsection{Workflow quotidien}
+
+\begin{enumerate}
+    \item \textbf{Créer une branche}
+    \begin{lstlisting}[style=bash]
+git checkout -b feature/nouveau-modele-rul
+    \end{lstlisting}
+
+    \item \textbf{Développer} (exemple : modèle RUL)
+    \begin{lstlisting}[style=bash]
+cd services/rul-prediction
+# ... developper le modele ...
+    \end{lstlisting}
+
+    \item \textbf{Formater le code}
+    \begin{lstlisting}[style=bash]
+black . --line-length=120
+isort . --profile black
+    \end{lstlisting}
+
+    \item \textbf{Vérifier le linting}
+    \begin{lstlisting}[style=bash]
+flake8 . --max-line-length=120
+    \end{lstlisting}
+
+    \item \textbf{Tester}
+    \begin{lstlisting}[style=bash]
+pytest tests/ -v
+pytest tests/ --cov=src --cov-report=html
+# Voir: htmlcov/index.html
+    \end{lstlisting}
+
+    \item \textbf{Commit et push}
+    \begin{lstlisting}[style=bash]
+git add .
+git commit -m "feat(rul): ajouter modele TCN pour prediction"
+git push origin feature/nouveau-modele-rul
+    \end{lstlisting}
+\end{enumerate}
+
+\subsubsection{Ce qui est validé automatiquement}
+
+\begin{infobox}[Validations pour code Python]
+\begin{itemize}
+    \item \faCheckCircle{} Formatage Black (line-length 120)
+    \item \faCheckCircle{} Linting flake8
+    \item \faCheckCircle{} Tests pytest passés
+    \item \faCheckCircle{} Couverture ≥ 80\%
+    \item \faCheckCircle{} Import ordering (isort)
+    \item \faCheckCircle{} Pas de fichiers sensibles
+\end{itemize}
+\end{infobox}
+
+\subsubsection{Bonnes pratiques ML}
+
+\begin{successbox}[Enregistrement des modèles avec MLflow]
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+import mlflow
+import mlflow.pytorch
+
+with mlflow.start_run():
+    # Enregistrer les parametres
+    mlflow.log_params({
+        "model": "lstm",
+        "hidden_size": 50,
+        "num_layers": 2
+    })
+
+    # Entrainer le modele
+    model.fit(X_train, y_train)
+
+    # Enregistrer les metriques
+    mlflow.log_metrics({
+        "rmse": 12.5,
+        "mae": 8.3,
+        "r2": 0.92
+    })
+
+    # Enregistrer le modele
+    mlflow.pytorch.log_model(model, "rul_model")
+\end{lstlisting}
+\end{successbox}
+
+\newpage
+
+\subsection{\faReact{} Développeur Frontend (React/Next.js)}
+
+\subsubsection{Installation initiale}
+
+\begin{lstlisting}[style=bash]
+# 1. Cloner et configurer
+git clone <repo-url>
+cd MANTIS
+
+# 2. Installer les hooks
+./scripts/install-hooks.sh
+
+# 3. Installer dependances frontend
+cd services/dashboard
+npm install
+\end{lstlisting}
+
+\subsubsection{Workflow quotidien}
+
+\begin{enumerate}
+    \item \textbf{Développer le dashboard}
+    \begin{lstlisting}[style=bash]
+cd services/dashboard
+npm run dev  # Demarrer en mode dev
+    \end{lstlisting}
+
+    \item \textbf{Formater le code}
+    \begin{lstlisting}[style=bash]
+npm run format  # Prettier
+npm run lint    # ESLint
+    \end{lstlisting}
+
+    \item \textbf{Tester}
+    \begin{lstlisting}[style=bash]
+npm run test
+npm run test:coverage
+    \end{lstlisting}
+
+    \item \textbf{Build}
+    \begin{lstlisting}[style=bash]
+npm run build
+    \end{lstlisting}
+
+    \item \textbf{Commit}
+    \begin{lstlisting}[style=bash]
+git add .
+git commit -m "feat(dashboard): ajouter graphe temps reel RUL"
+git push
+    \end{lstlisting}
+\end{enumerate}
+
+\subsubsection{Structure des composants}
+
+\begin{lstlisting}[language=JavaScript, basicstyle=\ttfamily\small]
+// services/dashboard/src/components/RULChart.tsx
+import React from 'react';
+import { Line } from 'recharts';
+
+export const RULChart: React.FC<RULChartProps> = ({ data }) => {
+  return (
+    <div className="rul-chart">
+      <Line data={data} ... />
+    </div>
+  );
+};
+\end{lstlisting}
+
+\newpage
+
+\subsection{\faCog{} DevOps / Administrateur Système}
+
+\subsubsection{Installation de l'infrastructure}
+
+\begin{lstlisting}[style=bash]
+# 1. Cloner le projet
+git clone <repo-url>
+cd MANTIS
+
+# 2. Demarrer l'infrastructure
+make docker-up
+# ou
+cd infrastructure/docker
+docker-compose -f docker-compose.infrastructure.yml up -d
+
+# 3. Verifier l'etat
+docker-compose ps
+\end{lstlisting}
+
+\subsubsection{Configuration CI/CD}
+
+Le workflow GitHub Actions est dans \code{.github/workflows/ci.yml}.
+
+\begin{infobox}[Jobs CI/CD automatiques]
+\begin{enumerate}
+    \item \textbf{validate-commit-messages} -- Vérifie les messages de commit
+    \item \textbf{code-quality} -- Scan de qualité du code
+    \item \textbf{test-java-services} -- Tests Java (Maven + JaCoCo)
+    \item \textbf{test-python-services} -- Tests Python (pytest)
+    \item \textbf{integration-tests} -- Tests d'intégration
+    \item \textbf{docker-build} -- Build des images Docker
+    \item \textbf{security-scan} -- Scan Trivy pour vulnérabilités
+    \item \textbf{deployment-ready} -- Vérification finale
+\end{enumerate}
+\end{infobox}
+
+\subsubsection{Monitoring}
+
+\begin{lstlisting}[style=bash]
+# URLs de monitoring
+make monitor
+
+# Sortie:
+#   Grafana:    http://localhost:3001
+#   Prometheus: http://localhost:9090
+#   Jaeger:     http://localhost:16686
+#   Kafka UI:   http://localhost:8080
+#   MLflow:     http://localhost:5000
+\end{lstlisting}
+
+\subsubsection{Gestion des secrets}
+
+\begin{warningbox}[IMPORTANT: Secrets]
+\textbf{JAMAIS} commiter de secrets dans le repository !
+
+Les hooks Git détectent automatiquement :
+\begin{itemize}
+    \item Fichiers \code{.env} (sauf \code{.env.example})
+    \item \code{credentials*.json}
+    \item \code{*.key}, \code{*.pem}
+    \item Patterns : \code{password}, \code{secret}, \code{api\_key}
+\end{itemize}
+
+Pour la production, utiliser :
+\begin{itemize}
+    \item HashiCorp Vault
+    \item Kubernetes Secrets
+    \item Variables d'environnement
+\end{itemize}
+\end{warningbox}
+
+\subsubsection{Backup et restauration}
+
+\begin{lstlisting}[style=bash]
+# Backup
+make backup-db
+
+# Restauration
+docker exec -i mantis-postgres psql -U mantis -d mantis \
+  < backups/postgres_YYYYMMDD_HHMMSS.sql
+\end{lstlisting}
+
+\newpage
+
+\subsection{\faChartLine{} Chef de Projet}
+
+\subsubsection{Vue d'ensemble du système de validation}
+
+Le système garantit la qualité à travers :
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Niveau} & \textbf{Quand} & \textbf{Ce qui est vérifié} \\
+\hline
+Local (Hooks Git) & Avant chaque commit/push & Format commit, tests unitaires, linting \\
+\hline
+CI/CD (GitHub Actions) & À chaque push/PR & Tests complets, sécurité, build Docker \\
+\hline
+Manuel (Scripts) & Sur demande & Structure complète du projet \\
+\hline
+\end{tabularx}
+\caption{Niveaux de validation}
+\end{table}
+
+\subsubsection{Métriques de qualité}
+
+\begin{successbox}[Garanties du système]
+\begin{itemize}
+    \item \success{100\%} des commits suivent le format standardisé
+    \item \success{0} fichiers sensibles dans le repository
+    \item \success{≥80\%} de couverture de code (Java \& Python)
+    \item \success{0} tests échoués avant merge
+    \item \success{0} vulnérabilités critiques (scan Trivy)
+\end{itemize}
+\end{successbox}
+
+\subsubsection{Suivi des Pull Requests}
+
+\begin{enumerate}
+    \item \textbf{Création de la PR} -- Développeur pousse sa branche
+    \item \textbf{CI/CD automatique} -- GitHub Actions s'exécute
+    \item \textbf{Revue de code} -- Au moins 1 approbation requise
+    \item \textbf{Merge} -- Possible uniquement si tous les checks sont verts
+\end{enumerate}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=1.5cm]
+    \node[draw, circle, fill=blue!20] (pr) {PR};
+    \node[draw, circle, fill=orange!20, below of=pr] (ci) {CI/CD};
+    \node[draw, circle, fill=green!20, below left of=ci] (ok) {✓};
+    \node[draw, circle, fill=red!20, below right of=ci] (nok) {✗};
+    \node[draw, rectangle, fill=green!20, below of=ok] (merge) {Merge};
+    \node[draw, rectangle, fill=red!20, below of=nok] (fix) {Fix};
+
+    \draw[->] (pr) -- (ci);
+    \draw[->] (ci) -- node[left] {OK} (ok);
+    \draw[->] (ci) -- node[right] {Échec} (nok);
+    \draw[->] (ok) -- (merge);
+    \draw[->] (nok) -- (fix);
+    \draw[->, dashed] (fix) -- ++(3,0) |- (pr);
+\end{tikzpicture}
+\caption{Workflow de Pull Request}
+\end{figure}
+
+\subsubsection{Rapports disponibles}
+
+\begin{itemize}
+    \item \textbf{Coverage} -- Couverture de code (JaCoCo pour Java, pytest-cov pour Python)
+    \item \textbf{Tests} -- Résultats des tests (Surefire reports)
+    \item \textbf{Security} -- Vulnérabilités détectées (Trivy)
+    \item \textbf{Commits} -- Historique propre avec format standardisé
+\end{itemize}
+
+\newpage
+
+\section{Commandes Essentielles}
+
+\subsection{Makefile - Vue d'ensemble}
+
+\begin{lstlisting}[style=bash]
+# Voir toutes les commandes disponibles
+make help
+
+# === Developpement ===
+make install          # Installer dependances Python
+make start            # Demarrer infrastructure
+make stop             # Arreter services
+make clean            # Nettoyer (cache, containers)
+make dataset          # Telecharger dataset C-MAPSS
+make notebook         # Lancer Jupyter
+
+# === Qualite du code ===
+make test             # Lancer tous les tests
+make lint             # Verifier le code
+make format           # Formater le code
+make validate         # Valider structure projet
+make install-hooks    # Installer Git hooks
+make test-validation  # Demo du systeme
+
+# === Docker ===
+make docker-build     # Construire images
+make docker-up        # Demarrer Docker Compose
+make docker-down      # Arreter Docker Compose
+\end{lstlisting}
+
+\subsection{Scripts de validation}
+
+\begin{lstlisting}[style=bash]
+# Installer les hooks Git
+./scripts/install-hooks.sh
+
+# Valider la structure complete du projet
+./scripts/validate-project.sh
+
+# Demonstration du systeme
+./scripts/test-validation.sh
+
+# Demarrer tous les services
+./scripts/start-services.sh
+
+# Arreter tous les services
+./scripts/stop-services.sh
+
+# Telecharger dataset NASA C-MAPSS
+./scripts/download-cmapss.sh
+\end{lstlisting}
+
+\newpage
+
+\section{Dépannage}
+
+\subsection{Hooks Git ne s'exécutent pas}
+
+\begin{errorbox}[Problème : Hooks ignorés]
+\textbf{Symptôme} : Les commits passent sans validation.
+
+\textbf{Solution} :
+\begin{lstlisting}[style=bash]
+# Verifier la configuration
+git config core.hooksPath
+
+# Si vide ou incorrect, reinstaller
+./scripts/install-hooks.sh
+
+# Verifier les permissions
+chmod +x .githooks/*
+ls -la .githooks/
+\end{lstlisting}
+\end{errorbox}
+
+\subsection{Message de commit rejeté}
+
+\begin{errorbox}[Problème : Format invalide]
+\textbf{Symptôme} : \code{✗ Format invalide}
+
+\textbf{Solution} : Utiliser le template
+\begin{lstlisting}[style=bash]
+# Configurer le template
+git config commit.template .gitmessage
+
+# Commiter sans -m pour ouvrir l'editeur
+git commit
+
+# Ou verifier le format :
+# <type>(<scope>): <description>
+# Exemple valide:
+git commit -m "feat(ingestion): ajouter support Modbus TCP"
+\end{lstlisting}
+\end{errorbox}
+
+\subsection{Tests Java échouent}
+
+\begin{errorbox}[Problème : Tests Maven]
+\textbf{Symptôme} : \code{✗ Tests échoués pour services/ingestion-iiot}
+
+\textbf{Solution} :
+\begin{lstlisting}[style=bash]
+cd services/ingestion-iiot
+
+# Mode debug
+mvn clean test -X
+
+# Verifier une classe specifique
+mvn test -Dtest=ClassName
+
+# Nettoyer et rebuilder
+mvn clean install
+\end{lstlisting}
+\end{errorbox}
+
+\subsection{Tests Python échouent}
+
+\begin{errorbox}[Problème : Tests pytest]
+\textbf{Symptôme} : \code{✗ Tests Python échoués}
+
+\textbf{Solution} :
+\begin{lstlisting}[style=bash]
+# Mode verbose
+pytest -v
+
+# Traceback complet
+pytest --tb=long
+
+# Tester un fichier specifique
+pytest tests/test_specific.py -v
+
+# Verifier la couverture
+pytest --cov=src tests/
+\end{lstlisting}
+\end{errorbox}
+
+\subsection{Fichier sensible détecté}
+
+\begin{errorbox}[Problème : Secret détecté]
+\textbf{Symptôme} : \code{✗ Fichier sensible détecté : .env}
+
+\textbf{Solution} :
+\begin{lstlisting}[style=bash]
+# Retirer le fichier du staging
+git reset HEAD .env
+
+# Ajouter au .gitignore si necessaire
+echo ".env" >> .gitignore
+
+# Utiliser .env.example pour les templates
+cp .env .env.example
+# Puis editer .env.example pour retirer les vraies valeurs
+\end{lstlisting}
+\end{errorbox}
+
+\newpage
+
+\section{FAQ}
+
+\subsection{Questions générales}
+
+\textbf{Q: Puis-je désactiver temporairement les hooks ?}
+
+\textbf{R:} Oui, mais déconseillé :
+\begin{lstlisting}[style=bash]
+git commit --no-verify
+git push --no-verify
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+\textbf{Q: Les hooks ralentissent mes commits, que faire ?}
+
+\textbf{R:} Les hooks exécutent uniquement les tests des services modifiés. Pour un commit WIP rapide sur une branche de dev :
+\begin{lstlisting}[style=bash]
+git commit --no-verify -m "wip: travail en cours"
+# Puis avant le push final, executer les tests
+make test
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+\textbf{Q: Comment tester un hook avant de commiter ?}
+
+\textbf{R:} Exécuter directement :
+\begin{lstlisting}[style=bash]
+.githooks/pre-commit
+.githooks/commit-msg /tmp/test_msg
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+\textbf{Q: Les hooks fonctionnent-ils sur Windows ?}
+
+\textbf{R:} Oui, mais nécessite Git Bash ou WSL2 pour exécuter les scripts bash.
+
+\subsection{Questions techniques}
+
+\textbf{Q: Comment ajouter un nouveau type de commit ?}
+
+\textbf{R:} Modifier le hook \code{.githooks/commit-msg} et mettre à jour la variable \code{VALID\_TYPES}.
+
+\vspace{0.5cm}
+
+\textbf{Q: Puis-je personnaliser les validations pour mon service ?}
+
+\textbf{R:} Oui, modifier \code{.githooks/pre-commit} pour ajouter des validations spécifiques.
+
+\vspace{0.5cm}
+
+\textbf{Q: GitHub Actions échoue mais pas les hooks locaux, pourquoi ?}
+
+\textbf{R:} Vérifier les versions de Java/Python/Maven. GitHub Actions utilise les versions spécifiées dans \code{.github/workflows/ci.yml}.
+
+\newpage
+
+\section{Annexes}
+
+\subsection{Annexe A : Structure des fichiers}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+MANTIS/
+├── .githooks/               # Hooks Git personnalises
+│   ├── pre-commit          # Validation avant commit
+│   ├── commit-msg          # Validation message
+│   ├── pre-push            # Tests avant push
+│   └── README.md           # Documentation hooks
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # Pipeline CI/CD
+├── scripts/
+│   ├── install-hooks.sh    # Installation hooks
+│   ├── validate-project.sh # Validation projet
+│   └── test-validation.sh  # Demo systeme
+├── docs/
+│   └── validation/
+│       └── guide-validation-mantis.tex  # Ce document
+├── .gitmessage             # Template commit
+├── README_VALIDATION.md    # Guide validation
+├── VALIDATION_SETUP_SUMMARY.md
+└── CONTRIBUTING.md         # Guide contribution
+\end{lstlisting}
+
+\subsection{Annexe B : Références}
+
+\begin{itemize}
+    \item \textbf{Conventional Commits} : \url{https://www.conventionalcommits.org/}
+    \item \textbf{Git Hooks} : \url{https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks}
+    \item \textbf{GitHub Actions} : \url{https://docs.github.com/en/actions}
+    \item \textbf{Maven Surefire} : \url{https://maven.apache.org/surefire/}
+    \item \textbf{JaCoCo} : \url{https://www.jacoco.org/}
+    \item \textbf{pytest} : \url{https://docs.pytest.org/}
+\end{itemize}
+
+\subsection{Annexe C : Contacts}
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Email} & O.ouedrhiri@emsi.ma, H.Tabbaa@emsi.ma, lachgar.m@gmail.com \\
+\hline
+\textbf{GitHub} & \url{https://github.com/MANTIS} \\
+\hline
+\textbf{Documentation} & \code{docs/} \\
+\hline
+\textbf{Issues} & GitHub Issues \\
+\hline
+\textbf{Discussions} & GitHub Discussions \\
+\hline
+\end{tabularx}
+\caption{Contacts et ressources}
+\end{table}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+    \draw[blue!50, line width=2pt] (0,0) rectangle (10,2);
+    \node[align=center] at (5,1) {
+        \Large\textbf{Système de Validation MANTIS} \\
+        \large Qualité Garantie à Chaque Push ✓
+    };
+\end{tikzpicture}
+\end{center}
+
+\end{document}
