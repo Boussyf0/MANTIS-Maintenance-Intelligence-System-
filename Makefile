@@ -11,18 +11,26 @@ PIP = pip3
 help:
 	@echo "MANTIS - Commandes disponibles:"
 	@echo ""
+	@echo "=== Développement ==="
 	@echo "  make install          - Installer les dépendances Python"
 	@echo "  make start            - Démarrer l'infrastructure"
 	@echo "  make stop             - Arrêter tous les services"
 	@echo "  make clean            - Nettoyer (containers, volumes, cache)"
+	@echo "  make dataset          - Télécharger le dataset C-MAPSS"
+	@echo "  make notebook         - Lancer Jupyter Notebook"
+	@echo ""
+	@echo "=== Qualité du code ==="
 	@echo "  make test             - Lancer les tests"
 	@echo "  make lint             - Vérifier le code (flake8, pylint)"
 	@echo "  make format           - Formater le code (black, isort)"
+	@echo "  make validate         - Valider la structure du projet"
+	@echo "  make install-hooks    - Installer les Git hooks"
+	@echo "  make test-validation  - Démonstration du système de validation"
+	@echo ""
+	@echo "=== Docker ==="
 	@echo "  make docker-build     - Construire les images Docker"
 	@echo "  make docker-up        - Démarrer avec Docker Compose"
 	@echo "  make docker-down      - Arrêter Docker Compose"
-	@echo "  make dataset          - Télécharger le dataset C-MAPSS"
-	@echo "  make notebook         - Lancer Jupyter Notebook"
 	@echo ""
 
 install:
@@ -176,5 +184,17 @@ monitor:
 	@echo "  Jaeger:     http://localhost:16686"
 	@echo "  Kafka UI:   http://localhost:8080"
 	@echo "  MLflow:     http://localhost:5000"
+
+validate:
+	@echo "Validation de la structure du projet..."
+	./scripts/validate-project.sh
+
+install-hooks:
+	@echo "Installation des Git hooks..."
+	./scripts/install-hooks.sh
+
+test-validation:
+	@echo "Démonstration du système de validation..."
+	./scripts/test-validation.sh
 
 .DEFAULT_GOAL := help

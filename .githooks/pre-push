@@ -1,0 +1,106 @@
+#!/bin/bash
+# Pre-push hook pour MANTIS
+# Vérifie que tous les tests passent avant le push
+
+set -e
+
+# Couleurs
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "\n${BLUE}╔═══════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║   MANTIS Pre-push Hook - Validation  ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════╝${NC}\n"
+
+ERRORS=0
+
+# 1. Vérifier qu'on n'est pas sur la branche main en direct
+echo -e "${YELLOW}[1/5]${NC} Vérification de la branche..."
+CURRENT_BRANCH=$(git branch --show-current)
+
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+    echo -e "${YELLOW}⚠${NC} Vous êtes sur la branche $CURRENT_BRANCH"
+    read -p "Êtes-vous sûr de vouloir pusher directement sur $CURRENT_BRANCH? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${RED}✗${NC} Push annulé"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✓${NC} Branche: $CURRENT_BRANCH"
+fi
+
+# 2. Vérifier qu'il n'y a pas de modifications non commitées
+echo -e "\n${YELLOW}[2/5]${NC} Vérification de l'état du working directory..."
+if ! git diff-index --quiet HEAD --; then
+    echo -e "${RED}✗${NC} Vous avez des modifications non commitées"
+    echo -e "${YELLOW}Faites un commit ou stash avant de pusher${NC}"
+    ERRORS=$((ERRORS + 1))
+else
+    echo -e "${GREEN}✓${NC} Working directory propre"
+fi
+
+# 3. Lancer les tests Java (si des fichiers Java sont modifiés)
+echo -e "\n${YELLOW}[3/5]${NC} Exécution des tests Java..."
+JAVA_SERVICES=$(find services -name "pom.xml" -type f | sed 's|/pom.xml||' || true)
+
+if [ ! -z "$JAVA_SERVICES" ]; then
+    for service in $JAVA_SERVICES; do
+        if [ -f "$service/pom.xml" ]; then
+            echo "  Testing $service..."
+            (cd "$service" && mvn test -q) || {
+                echo -e "${RED}✗${NC} Tests échoués pour $service"
+                ERRORS=$((ERRORS + 1))
+            }
+        fi
+    done
+
+    if [ $ERRORS -eq 0 ]; then
+        echo -e "${GREEN}✓${NC} Tous les tests Java passent"
+    fi
+else
+    echo -e "${YELLOW}⚠${NC} Aucun service Java trouvé"
+fi
+
+# 4. Lancer les tests Python (si des fichiers Python sont modifiés)
+echo -e "\n${YELLOW}[4/5]${NC} Exécution des tests Python..."
+if [ -f "requirements.txt" ] && command -v pytest &> /dev/null; then
+    pytest tests/ --maxfail=3 -q || {
+        echo -e "${RED}✗${NC} Tests Python échoués"
+        ERRORS=$((ERRORS + 1))
+    }
+
+    if [ $ERRORS -eq 0 ]; then
+        echo -e "${GREEN}✓${NC} Tous les tests Python passent"
+    fi
+else
+    echo -e "${YELLOW}⚠${NC} Tests Python non configurés ou pytest non installé"
+fi
+
+# 5. Vérifier la connexion avec le remote
+echo -e "\n${YELLOW}[5/5]${NC} Vérification de la connexion au repository distant..."
+git ls-remote --exit-code --quiet origin > /dev/null 2>&1 || {
+    echo -e "${RED}✗${NC} Impossible de contacter le repository distant"
+    ERRORS=$((ERRORS + 1))
+}
+
+if [ $ERRORS -eq 0 ]; then
+    echo -e "${GREEN}✓${NC} Connexion OK"
+fi
+
+# Résumé
+echo -e "\n${BLUE}═══════════════════════════════════════${NC}"
+if [ $ERRORS -eq 0 ]; then
+    echo -e "${GREEN}✓ Toutes les vérifications sont passées!${NC}"
+    echo -e "${GREEN}✓ Push autorisé vers $CURRENT_BRANCH${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════${NC}\n"
+    exit 0
+else
+    echo -e "${RED}✗ $ERRORS erreur(s) détectée(s)${NC}"
+    echo -e "${RED}✗ Push annulé${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════${NC}\n"
+    exit 1
+fi

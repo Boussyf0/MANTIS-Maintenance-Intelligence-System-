@@ -49,11 +49,17 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements-dev.txt
 
-# 4. Installer pre-commit hooks
-pre-commit install
+# 4. Installer les Git hooks MANTIS
+./scripts/install-hooks.sh
 
-# 5. Lancer l'infrastructure pour tests
+# 5. Configurer le template de commit message
+git config commit.template .gitmessage
+
+# 6. Lancer l'infrastructure pour tests
 make start
+
+# 7. Valider la configuration du projet
+./scripts/validate-project.sh
 ```
 
 #### Conventions de code
@@ -131,6 +137,69 @@ def test_lstm_forward_pass():
     assert not torch.isnan(output).any()
 ```
 
+#### Système de validation automatique
+
+MANTIS utilise un système complet de validation pour garantir la qualité du code :
+
+**Git Hooks** :
+- `pre-commit` : Valide le code avant chaque commit
+  - Détecte les fichiers sensibles (secrets, credentials)
+  - Compile et teste les services Java modifiés
+  - Vérifie le formatage Python (flake8, black)
+  - Détecte les conflits de merge non résolus
+
+- `commit-msg` : Vérifie le format du message de commit
+  - Format Conventional Commits obligatoire
+  - Longueur du titre : 10-72 caractères
+  - Description en minuscule, sans point final
+  - Ligne vide entre titre et corps
+
+- `pre-push` : Exécute tous les tests avant le push
+  - Tests unitaires Java (Maven)
+  - Tests Python (pytest)
+  - Vérifie l'état du working directory
+  - Demande confirmation pour push sur main/master
+
+**Format de commit obligatoire** :
+```
+<type>(<scope>): <description>
+
+<body optionnel>
+
+<footer optionnel>
+```
+
+**Types valides** :
+- `feat` : Nouvelle fonctionnalité
+- `fix` : Correction de bug
+- `docs` : Documentation uniquement
+- `style` : Formatage (pas de changement de code)
+- `refactor` : Refactoring
+- `perf` : Amélioration de performance
+- `test` : Ajout/modification de tests
+- `build` : Changements du build ou dépendances
+- `ci` : Changements CI/CD
+- `chore` : Autres changements
+
+**Scopes suggérés** :
+`ingestion`, `preprocessing`, `features`, `anomaly`, `rul`, `orchestrator`, `dashboard`, `infrastructure`, `database`, `docs`, `tests`
+
+**Exemples valides** :
+```bash
+feat(ingestion): ajouter support pour Modbus TCP
+fix(rul): corriger prédiction pour RUL < 24h
+docs(readme): mettre à jour les instructions d'installation
+refactor(preprocessing): optimiser le pipeline de nettoyage
+perf(features): réduire temps de calcul FFT de 30%
+test(anomaly): ajouter tests unitaires pour Isolation Forest
+```
+
+**Désactiver temporairement les hooks** (déconseillé) :
+```bash
+git commit --no-verify
+git push --no-verify
+```
+
 #### Workflow Git
 
 1. **Créer une branche** depuis `main`:
@@ -142,19 +211,13 @@ def test_lstm_forward_pass():
 
 2. **Commits atomiques** avec messages clairs :
    ```bash
-   git commit -m "feat(rul-prediction): ajoute modèle TCN"
-   git commit -m "fix(ingestion): corrige reconnexion MQTT"
-   git commit -m "docs(readme): met à jour installation"
+   # Le hook commit-msg validera automatiquement le format
+   git commit
+   # Ou directement (le format sera vérifié)
+   git commit -m "feat(rul-prediction): ajouter modèle TCN"
    ```
 
-   Préfixes conventionnels :
-   - `feat`: Nouvelle fonctionnalité
-   - `fix`: Correction de bug
-   - `docs`: Documentation
-   - `style`: Formatage, pas de changement de code
-   - `refactor`: Refactoring
-   - `test`: Ajout/modification de tests
-   - `chore`: Tâches de maintenance
+   Le template `.gitmessage` s'affichera automatiquement avec des exemples.
 
 3. **Push et Pull Request** :
    ```bash
@@ -177,16 +240,34 @@ def test_lstm_forward_pass():
 
 #### Checklist avant de soumettre une PR
 
-- [ ] Le code suit les conventions de style
-- [ ] Tous les tests passent (`make test`)
-- [ ] Le linter ne rapporte aucune erreur (`make lint`)
-- [ ] Le code est formaté (`make format`)
+Les hooks Git vérifient automatiquement plusieurs points, mais assurez-vous de :
+
+- [ ] Le code suit les conventions de style ✅ (vérifié par pre-commit)
+- [ ] Tous les tests passent (`make test`) ✅ (vérifié par pre-push)
+- [ ] Le linter ne rapporte aucune erreur (`make lint`) ✅ (vérifié par pre-commit)
+- [ ] Le code est formaté (`make format`) ✅ (vérifié par pre-commit)
+- [ ] Le format de commit est valide ✅ (vérifié par commit-msg)
+- [ ] Pas de fichiers sensibles ✅ (vérifié par pre-commit)
+- [ ] Pas de conflits de merge ✅ (vérifié par pre-commit)
 - [ ] La documentation est à jour
 - [ ] Les nouvelles fonctionnalités ont des tests
 - [ ] La couverture de tests est >= 80%
-- [ ] Les changements sont documentés dans le CHANGELOG
-- [ ] Pas de secrets/credentials dans le code
+- [ ] Les changements sont documentés dans le CHANGELOG (si applicable)
 - [ ] Docker build réussit (`make docker-build`)
+- [ ] Validation complète du projet (`./scripts/validate-project.sh`)
+
+**GitHub Actions CI/CD** :
+
+Chaque push/PR déclenche automatiquement :
+- ✅ Validation des messages de commit
+- ✅ Vérification de la qualité du code
+- ✅ Compilation et tests Java (Maven + JaCoCo coverage)
+- ✅ Tests Python (pytest + coverage)
+- ✅ Scan de sécurité (Trivy)
+- ✅ Build Docker
+- ✅ Tests d'intégration (avec Testcontainers)
+
+Tous les checks doivent être au vert (✅) avant le merge.
 
 ## Structure du projet
 

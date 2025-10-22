@@ -1,0 +1,53 @@
+# <type>(<scope>): <description>
+#
+# <body>
+#
+# <footer>
+
+# ══════════════════════════════════════════════════════════════════════
+# MANTIS - Template de Message de Commit
+# ══════════════════════════════════════════════════════════════════════
+#
+# Format: <type>(<scope>): <description>
+#
+# Types valides:
+#   feat     : Nouvelle fonctionnalité
+#   fix      : Correction de bug
+#   docs     : Documentation uniquement
+#   style    : Formatage, point-virgules manquants, etc. (pas de changement de code)
+#   refactor : Refactoring de code (ni feature ni fix)
+#   perf     : Amélioration de performance
+#   test     : Ajout ou modification de tests
+#   build    : Changements du système de build ou dépendances externes
+#   ci       : Changements des fichiers de CI/CD
+#   chore    : Autres changements qui ne modifient pas src ou test
+#
+# Scopes possibles:
+#   ingestion       : Service d'ingestion IIoT
+#   preprocessing   : Service de prétraitement
+#   features        : Service d'extraction de features
+#   anomaly         : Service de détection d'anomalies
+#   rul             : Service de prédiction RUL
+#   orchestrator    : Service orchestrateur de maintenance
+#   dashboard       : Dashboard React
+#   infrastructure  : Docker, Kubernetes, Terraform
+#   database        : Schémas, migrations
+#   docs            : Documentation
+#   tests           : Tests
+#
+# Règles:
+#   - Titre : 10-72 caractères
+#   - Description en minuscule, sans point final
+#   - Ligne vide entre titre et corps
+#   - Corps optionnel : expliquer POURQUOI, pas COMMENT
+#   - Footer optionnel : références (Closes #123, Fixes #456)
+#
+# Exemples:
+#   feat(ingestion): ajouter support pour Modbus TCP
+#   fix(rul): corriger prédiction pour RUL < 24h
+#   docs(readme): mettre à jour les instructions d'installation
+#   refactor(preprocessing): optimiser le pipeline de nettoyage
+#   perf(features): réduire temps de calcul FFT de 30%
+#   test(anomaly): ajouter tests unitaires pour Isolation Forest
+#
+# ══════════════════════════════════════════════════════════════════════
