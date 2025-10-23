@@ -211,8 +211,8 @@ if [ "$ENV" = "development" ]; then
     echo -e ""
     echo -e "  3. Accéder aux interfaces:"
     echo -e "     - Grafana: ${BLUE}http://localhost:3001${NC} (admin/admin)"
-    echo -e "     - MLflow: ${BLUE}http://localhost:5000${NC}"
-    echo -e "     - Kafka UI: ${BLUE}http://localhost:8080${NC}"
+    echo -e "     - MLflow: ${BLUE}http://localhost:5002${NC}"
+    echo -e "     - Kafka UI: ${BLUE}http://localhost:8082${NC}"
     echo -e ""
 elif [ "$ENV" = "staging" ]; then
     echo -e "  1. Vérifier les mots de passe dans .env"

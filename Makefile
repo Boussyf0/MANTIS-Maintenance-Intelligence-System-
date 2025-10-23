@@ -180,10 +180,10 @@ restore-db:
 monitor:
 	@echo "URLs de monitoring:"
 	@echo "  Grafana:    http://localhost:3001"
-	@echo "  Prometheus: http://localhost:9090"
+	@echo "  Prometheus: http://localhost:9091"
 	@echo "  Jaeger:     http://localhost:16686"
-	@echo "  Kafka UI:   http://localhost:8080"
-	@echo "  MLflow:     http://localhost:5000"
+	@echo "  Kafka UI:   http://localhost:8082"
+	@echo "  MLflow:     http://localhost:5002"
 
 validate:
 	@echo "Validation de la structure du projet..."
