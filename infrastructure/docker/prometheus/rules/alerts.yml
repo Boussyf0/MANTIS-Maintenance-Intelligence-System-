@@ -1,0 +1,181 @@
+# MANTIS Prometheus Alert Rules
+# Define when to trigger alerts
+
+groups:
+  - name: mantis_infrastructure_alerts
+    rules:
+      # Service Down
+      - alert: ServiceDown
+        expr: up{job=~"ingestion-iiot|preprocessing|feature-extraction|anomaly-detection|rul-prediction"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on instance {{ $labels.instance }} has been down for more than 2 minutes."
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: mantis:container:cpu_usage:rate5m > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage on {{ $labels.container_label_com_docker_compose_service }}"
+          description: "Container {{ $labels.container_label_com_docker_compose_service }} is using {{ $value | humanizePercentage }} CPU for more than 5 minutes."
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: mantis:container:memory_usage:bytes / container_spec_memory_limit_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage on {{ $labels.container_label_com_docker_compose_service }}"
+          description: "Container {{ $labels.container_label_com_docker_compose_service }} is using {{ $value | humanizePercentage }} of its memory limit."
+
+      # PostgreSQL Connection Pool Exhaustion
+      - alert: PostgreSQLConnectionPoolHigh
+        expr: mantis:postgres:connection_pool_usage:ratio > 0.80
+        for: 3m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL connection pool usage is high"
+          description: "PostgreSQL is using {{ $value | humanizePercentage }} of available connections."
+
+      # Redis Memory High
+      - alert: RedisMemoryHigh
+        expr: mantis:redis:memory_usage:ratio > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis is using {{ $value | humanizePercentage }} of allocated memory."
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Disk space is running low"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on root filesystem."
+
+  - name: mantis_application_alerts
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total[5m])) by (job)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has an error rate of {{ $value | humanizePercentage }} (threshold: 5%)."
+
+      # Slow Response Time
+      - alert: SlowResponseTime
+        expr: mantis:processing:latency:p95 > 5
+        for: 10m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "Slow response time detected"
+          description: "P95 processing latency is {{ $value }}s (threshold: 5s)."
+
+      # Kafka Consumer Lag
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_lag > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: messaging
+        annotations:
+          summary: "Kafka consumer lag is high"
+          description: "Consumer group {{ $labels.group }} has a lag of {{ $value }} messages on topic {{ $labels.topic }}."
+
+      # Data Ingestion Stopped
+      - alert: DataIngestionStopped
+        expr: rate(sensor_data_ingested_total[5m]) == 0
+        for: 10m
+        labels:
+          severity: critical
+          component: ingestion
+        annotations:
+          summary: "Data ingestion has stopped"
+          description: "No sensor data has been ingested in the last 10 minutes."
+
+  - name: mantis_ml_alerts
+    rules:
+      # ML Model Inference Slow
+      - alert: MLInferenceSlow
+        expr: mantis:ml:inference_latency:p99 > 1.0
+        for: 10m
+        labels:
+          severity: warning
+          component: ml
+        annotations:
+          summary: "ML model inference is slow"
+          description: "P99 inference latency is {{ $value }}s (threshold: 1s)."
+
+      # High Anomaly Rate
+      - alert: HighAnomalyRate
+        expr: mantis:ml:anomalies_detected:rate1h > 100
+        for: 30m
+        labels:
+          severity: info
+          component: ml
+        annotations:
+          summary: "Unusually high anomaly detection rate"
+          description: "Detecting {{ $value }} anomalies per hour. This might indicate a sensor issue or actual equipment problems."
+
+      # Model Performance Degradation
+      - alert: ModelPerformanceDegraded
+        expr: mantis:ml:rul_mae:avg5m > 50
+        for: 30m
+        labels:
+          severity: warning
+          component: ml
+        annotations:
+          summary: "RUL prediction model performance has degraded"
+          description: "Mean Absolute Error is {{ $value }} (threshold: 50). Model may need retraining."
+
+  - name: mantis_business_alerts
+    rules:
+      # Critical Asset Offline
+      - alert: CriticalAssetOffline
+        expr: asset_status{criticality="critical", status!="operational"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          component: business
+        annotations:
+          summary: "Critical asset {{ $labels.asset_code }} is offline"
+          description: "Asset {{ $labels.asset_code }} ({{ $labels.asset_name }}) has been non-operational for 5 minutes."
+
+      # Pending Maintenance Overdue
+      - alert: MaintenanceOverdue
+        expr: work_order_overdue{priority=~"high|critical"} > 0
+        for: 1h
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "High-priority maintenance is overdue"
+          description: "{{ $value }} high-priority work orders are past their scheduled date."

@@ -1,0 +1,100 @@
+{
+  "service_strategies": [
+    {
+      "service": "ingestion-iiot",
+      "type": "probabilistic",
+      "param": 0.5,
+      "operation_strategies": [
+        {
+          "operation": "/api/v1/ingest",
+          "type": "probabilistic",
+          "param": 0.2
+        },
+        {
+          "operation": "/health",
+          "type": "probabilistic",
+          "param": 0.01
+        }
+      ]
+    },
+    {
+      "service": "preprocessing",
+      "type": "probabilistic",
+      "param": 0.3,
+      "operation_strategies": [
+        {
+          "operation": "/health",
+          "type": "probabilistic",
+          "param": 0.01
+        }
+      ]
+    },
+    {
+      "service": "feature-extraction",
+      "type": "probabilistic",
+      "param": 0.3,
+      "operation_strategies": [
+        {
+          "operation": "/health",
+          "type": "probabilistic",
+          "param": 0.01
+        }
+      ]
+    },
+    {
+      "service": "anomaly-detection",
+      "type": "probabilistic",
+      "param": 1.0,
+      "operation_strategies": [
+        {
+          "operation": "/predict",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "operation": "/health",
+          "type": "probabilistic",
+          "param": 0.01
+        }
+      ]
+    },
+    {
+      "service": "rul-prediction",
+      "type": "probabilistic",
+      "param": 1.0,
+      "operation_strategies": [
+        {
+          "operation": "/predict",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "operation": "/health",
+          "type": "probabilistic",
+          "param": 0.01
+        }
+      ]
+    },
+    {
+      "service": "maintenance-orchestrator",
+      "type": "probabilistic",
+      "param": 0.8,
+      "operation_strategies": [
+        {
+          "operation": "/api/v1/work-orders",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "operation": "/health",
+          "type": "probabilistic",
+          "param": 0.01
+        }
+      ]
+    }
+  ],
+  "default_strategy": {
+    "type": "probabilistic",
+    "param": 0.1
+  }
+}
