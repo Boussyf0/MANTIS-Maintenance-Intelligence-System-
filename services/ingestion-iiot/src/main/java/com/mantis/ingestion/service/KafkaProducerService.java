@@ -138,8 +138,8 @@ public class KafkaProducerService {
         return ProducerStats.builder()
                 .messagesProduced((long) messagesProducedCounter.count())
                 .messagesFailed((long) messagesFailedCounter.count())
-                .averageSendLatencyMs(sendLatencyTimer.mean())
-                .maxSendLatencyMs(sendLatencyTimer.max())
+                .averageSendLatencyMs(sendLatencyTimer.mean(java.util.concurrent.TimeUnit.MILLISECONDS))
+                .maxSendLatencyMs(sendLatencyTimer.max(java.util.concurrent.TimeUnit.MILLISECONDS))
                 .build();
     }
 

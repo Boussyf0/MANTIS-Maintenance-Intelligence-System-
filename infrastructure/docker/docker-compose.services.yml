@@ -1,0 +1,208 @@
+version: '3.8'
+
+# Docker Compose file for MANTIS microservices
+# This file defines all application services that depend on the infrastructure
+# defined in docker-compose.infrastructure.yml
+
+networks:
+  mantis-network:
+    external: true
+
+services:
+  # ================================================================
+  # SERVICE 1: Ingestion IIoT Service
+  # ================================================================
+  ingestion-iiot:
+    build:
+      context: ../../services/ingestion-iiot
+      dockerfile: Dockerfile
+    image: mantis/ingestion-iiot:1.0.0
+    container_name: mantis-ingestion-iiot
+    hostname: ingestion-iiot
+    restart: unless-stopped
+
+    ports:
+      - "8001:8001"
+
+    environment:
+      # Server
+      SERVER_PORT: 8001
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+
+      # Kafka
+      KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+
+      # PostgreSQL
+      POSTGRES_HOST: mantis-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mantis
+      POSTGRES_USER: ${POSTGRES_USER:-mantis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mantis_password}
+
+      # OPC UA
+      OPCUA_ENABLED: ${OPCUA_ENABLED:-false}
+      OPCUA_ENDPOINT: ${OPCUA_ENDPOINT:-opc.tcp://opcua-server:4840}
+      OPCUA_SUBSCRIPTION_INTERVAL_MS: ${OPCUA_SUBSCRIPTION_INTERVAL_MS:-100}
+
+      # MQTT
+      MQTT_ENABLED: ${MQTT_ENABLED:-false}
+      MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://mqtt-broker:1883}
+      MQTT_CLIENT_ID: mantis-ingestion-${RANDOM_ID:-001}
+      MQTT_TOPIC_PREFIX: ${MQTT_TOPIC_PREFIX:-factory/sensors/#}
+      MQTT_QOS: ${MQTT_QOS:-1}
+
+      # Modbus
+      MODBUS_ENABLED: ${MODBUS_ENABLED:-false}
+      MODBUS_HOST: ${MODBUS_HOST:-modbus-server}
+      MODBUS_PORT: ${MODBUS_PORT:-502}
+      MODBUS_POLL_INTERVAL_MS: ${MODBUS_POLL_INTERVAL_MS:-1000}
+
+      # Edge Buffer
+      EDGE_BUFFER_ENABLED: ${EDGE_BUFFER_ENABLED:-true}
+      EDGE_BUFFER_MAX_SIZE: ${EDGE_BUFFER_MAX_SIZE:-100000}
+      EDGE_BUFFER_FLUSH_INTERVAL_MS: ${EDGE_BUFFER_FLUSH_INTERVAL_MS:-60000}
+
+      # JVM
+      JAVA_OPTS: >-
+        -Xmx512m -Xms256m
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=200
+        -Duser.timezone=UTC
+
+    volumes:
+      - ingestion-logs:/app/logs
+      - ingestion-buffer:/tmp/mantis-buffer
+
+    networks:
+      - mantis-network
+
+    depends_on:
+      - kafka
+      - postgres
+
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 60s
+      retries: 3
+
+    labels:
+      - "mantis.service=ingestion-iiot"
+      - "mantis.version=1.0.0"
+      - "mantis.description=IIoT data ingestion service"
+
+  # ================================================================
+  # SERVICE 2: Preprocessing Service (To be implemented)
+  # ================================================================
+  # preprocessing:
+  #   build:
+  #     context: ../../services/preprocessing
+  #     dockerfile: Dockerfile
+  #   image: mantis/preprocessing:1.0.0
+  #   container_name: mantis-preprocessing
+  #   ports:
+  #     - "8002:8002"
+  #   networks:
+  #     - mantis-network
+
+  # ================================================================
+  # SERVICE 3: Feature Extraction Service (To be implemented)
+  # ================================================================
+  # feature-extraction:
+  #   build:
+  #     context: ../../services/feature-extraction
+  #     dockerfile: Dockerfile
+  #   image: mantis/feature-extraction:1.0.0
+  #   container_name: mantis-feature-extraction
+  #   ports:
+  #     - "8003:8003"
+  #   networks:
+  #     - mantis-network
+
+  # ================================================================
+  # SERVICE 4: Anomaly Detection Service (To be implemented)
+  # ================================================================
+  # anomaly-detection:
+  #   build:
+  #     context: ../../services/anomaly-detection
+  #     dockerfile: Dockerfile
+  #   image: mantis/anomaly-detection:1.0.0
+  #   container_name: mantis-anomaly-detection
+  #   ports:
+  #     - "8004:8004"
+  #   networks:
+  #     - mantis-network
+
+  # ================================================================
+  # SERVICE 5: RUL Prediction Service (To be implemented)
+  # ================================================================
+  # rul-prediction:
+  #   build:
+  #     context: ../../services/rul-prediction
+  #     dockerfile: Dockerfile
+  #   image: mantis/rul-prediction:1.0.0
+  #   container_name: mantis-rul-prediction
+  #   ports:
+  #     - "8005:8005"
+  #   networks:
+  #     - mantis-network
+
+  # ================================================================
+  # SERVICE 6: Maintenance Orchestrator (To be implemented)
+  # ================================================================
+  # maintenance-orchestrator:
+  #   build:
+  #     context: ../../services/maintenance-orchestrator
+  #     dockerfile: Dockerfile
+  #   image: mantis/maintenance-orchestrator:1.0.0
+  #   container_name: mantis-maintenance-orchestrator
+  #   ports:
+  #     - "8006:8006"
+  #   networks:
+  #     - mantis-network
+
+  # ================================================================
+  # SERVICE 7: Dashboard (To be implemented)
+  # ================================================================
+  # dashboard:
+  #   build:
+  #     context: ../../services/dashboard
+  #     dockerfile: Dockerfile
+  #   image: mantis/dashboard:1.0.0
+  #   container_name: mantis-dashboard
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - mantis-network
+
+  # ================================================================
+  # External Services (for reference - defined in infrastructure.yml)
+  # ================================================================
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: mantis-kafka
+    external_links:
+      - mantis-kafka
+    networks:
+      - mantis-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: mantis-postgres
+    external_links:
+      - mantis-postgres
+    networks:
+      - mantis-network
+
+# ================================================================
+# Volumes
+# ================================================================
+volumes:
+  ingestion-logs:
+    driver: local
+    name: mantis_ingestion_logs
+
+  ingestion-buffer:
+    driver: local
+    name: mantis_ingestion_buffer

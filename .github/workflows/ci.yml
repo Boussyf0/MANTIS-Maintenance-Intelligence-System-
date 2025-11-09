@@ -236,10 +236,30 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=mantis-pr_mantis-project
+            -Dsonar.organization=mantis-pr
+            -Dsonar.projectName=Mantis-project
+            -Dsonar.projectVersion=1.0
+            -Dsonar.sources=.
+            -Dsonar.sourceEncoding=UTF-8
+
   deployment-ready:
     name: Deployment Ready Check
     runs-on: ubuntu-latest
-    needs: [code-quality, test-java-services, integration-tests, docker-build, security-scan]
+    needs: [code-quality, test-java-services, integration-tests, docker-build, security-scan, sonarqube]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4

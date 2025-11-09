@@ -1,0 +1,116 @@
+spring:
+  application:
+    name: mantis-ingestion-iiot-test
+
+  # Kafka Test Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+    topics:
+      sensor-raw: sensor.raw.test
+      sensor-preprocessed: sensor.preprocessed.test
+
+  # In-memory H2 Database for tests
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  # Jackson
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+# Server Configuration
+server:
+  port: 0  # Random port for tests
+
+# Management & Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
+# Logging
+logging:
+  level:
+    root: WARN
+    com.mantis.ingestion: DEBUG
+
+# Test Configuration
+mantis:
+  ingestion:
+    opcua:
+      enabled: false
+      endpoint: opc.tcp://localhost:4840
+      subscription-interval-ms: 100
+      request-timeout-ms: 1000
+      session-timeout-ms: 10000
+      max-reconnect-attempts: 1
+      reconnect-delay-ms: 100
+
+    mqtt:
+      enabled: false
+      broker-url: tcp://localhost:1883
+      client-id: test-client
+      topic-prefix: test/sensors/#
+      qos: 1
+      clean-session: true
+      connection-timeout: 5
+      keep-alive-interval: 10
+      max-reconnect-attempts: 1
+      reconnect-delay-ms: 100
+
+    modbus:
+      enabled: false
+      host: localhost
+      port: 502
+      poll-interval-ms: 1000
+      unit-id: 1
+      timeout-ms: 1000
+      max-reconnect-attempts: 1
+
+    edge-buffer:
+      enabled: true
+      max-size: 100
+      flush-interval-ms: 10000
+      persistence-enabled: false
+
+# Resilience4j Test Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      kafka:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5s
+      opcua:
+        sliding-window-size: 3
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 5s
+
+  retry:
+    instances:
+      kafka:
+        max-attempts: 2
+        wait-duration: 100ms
+      opcua:
+        max-attempts: 2
+        wait-duration: 100ms

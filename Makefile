@@ -3,7 +3,7 @@
 .PHONY: help install start stop clean test lint format docker-build docker-up docker-down
 
 # Variables
-DOCKER_COMPOSE_INFRA = infrastructure/docker/docker-compose.infrastructure.yml
+DOCKER_COMPOSE_INFRA = docker-compose.infrastructure.yml
 DOCKER_COMPOSE_SERVICES = infrastructure/docker/docker-compose.services.yml
 PYTHON = python3
 PIP = pip3

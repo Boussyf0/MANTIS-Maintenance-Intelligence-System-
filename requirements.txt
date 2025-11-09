@@ -11,13 +11,13 @@ scipy==1.11.1
 
 # Time series
 tsfresh==0.20.1
-tsflex==0.3.3
+tsflex
 PyWavelets==1.4.1
 
 # Machine Learning
 scikit-learn==1.3.0
 xgboost==1.7.6
-lightgbm==4.0.0
+
 
 # Deep Learning
 torch==2.0.1
@@ -29,7 +29,7 @@ pyod==1.1.0
 
 # MLOps
 mlflow==2.5.0
-feast==0.32.0
+feast
 
 # Time series databases
 influxdb-client==1.36.1
@@ -57,21 +57,21 @@ requests==2.31.0
 aiohttp==3.8.5
 loguru==0.7.0
 tenacity==8.2.2
-click==8.6
+click==8.3.0
 orjson==3.9.2
 
 # Optimization
 ortools==9.6.2534
 
 # Data validation
-great-expectations==0.17.10
+great-expectations==0.18.0
 
 # Object storage
 minio==7.1.15
 boto3==1.28.17
 
 # Feature store
-feast[redis]==0.32.0
+feast[redis]
 
 # SHAP for explainability
 shap==0.42.1

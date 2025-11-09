@@ -150,3 +150,4 @@ backups/
 # Maven
 .mvn/wrapper/maven-wrapper.jar
 .flattened-pom.xml
+.scannerwork/

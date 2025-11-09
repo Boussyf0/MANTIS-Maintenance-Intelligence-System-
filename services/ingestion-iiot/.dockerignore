@@ -1,0 +1,52 @@
+# Maven
+target/
+!target/*.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.project
+.classpath
+.settings/
+*.swp
+*.bak
+*.tmp
+*.orig
+*~.nib
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test
+*.test
+coverage/
+
+# Misc
+README.md
+LICENSE
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose*.yml
