@@ -1,6 +1,5 @@
 package com.mantis.ingestion.connector;
 
-import com.digitalpetri.modbus.codec.Modbus;
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
 import com.digitalpetri.modbus.master.ModbusTcpMasterConfig;
 import com.digitalpetri.modbus.requests.ReadHoldingRegistersRequest;
@@ -125,13 +124,13 @@ public class ModbusConnector {
      * Configure un registre Modbus à interroger.
      *
      * @param registerType Type de registre (holding ou input)
-     * @param address Adresse du registre
-     * @param assetId ID de l'asset
-     * @param sensorId ID du capteur
-     * @param sensorCode Code du capteur
-     * @param sensorType Type de capteur
-     * @param unit Unité de mesure
-     * @param scaleFactor Facteur d'échelle (ex: 0.1 pour convertir 255 en 25.5)
+     * @param address      Adresse du registre
+     * @param assetId      ID de l'asset
+     * @param sensorId     ID du capteur
+     * @param sensorCode   Code du capteur
+     * @param sensorType   Type de capteur
+     * @param unit         Unité de mesure
+     * @param scaleFactor  Facteur d'échelle (ex: 0.1 pour convertir 255 en 25.5)
      */
     public void configureRegister(
             RegisterType registerType,
@@ -141,12 +140,10 @@ public class ModbusConnector {
             String sensorCode,
             String sensorType,
             String unit,
-            double scaleFactor
-    ) {
+            double scaleFactor) {
         RegisterConfig config = new RegisterConfig(
                 registerType, address, assetId, sensorId,
-                sensorCode, sensorType, unit, scaleFactor
-        );
+                sensorCode, sensorType, unit, scaleFactor);
 
         registerConfigs.add(config);
 
@@ -214,8 +211,7 @@ public class ModbusConnector {
                                     "modbusRegisterType", config.registerType.name(),
                                     "modbusAddress", config.address,
                                     "rawValue", rawValue,
-                                    "scaleFactor", config.scaleFactor
-                            ))
+                                    "scaleFactor", config.scaleFactor))
                             .build();
 
                     kafkaProducerService.sendSensorData(sensorData);
@@ -242,8 +238,7 @@ public class ModbusConnector {
     public CompletableFuture<ReadHoldingRegistersResponse> readHoldingRegisters(int address, int quantity) {
         if (!connected.get()) {
             return CompletableFuture.failedFuture(
-                    new IllegalStateException("Modbus master not connected")
-            );
+                    new IllegalStateException("Modbus master not connected"));
         }
 
         ReadHoldingRegistersRequest request = new ReadHoldingRegistersRequest(address, quantity);
@@ -257,8 +252,7 @@ public class ModbusConnector {
     public CompletableFuture<ReadInputRegistersResponse> readInputRegisters(int address, int quantity) {
         if (!connected.get()) {
             return CompletableFuture.failedFuture(
-                    new IllegalStateException("Modbus master not connected")
-            );
+                    new IllegalStateException("Modbus master not connected"));
         }
 
         ReadInputRegistersRequest request = new ReadInputRegistersRequest(address, quantity);
@@ -324,8 +318,8 @@ public class ModbusConnector {
      * Types de registres Modbus.
      */
     public enum RegisterType {
-        HOLDING,  // Read/Write registers (function code 3)
-        INPUT     // Read-only registers (function code 4)
+        HOLDING, // Read/Write registers (function code 3)
+        INPUT // Read-only registers (function code 4)
     }
 
     /**
@@ -344,8 +338,7 @@ public class ModbusConnector {
         RegisterConfig(
                 RegisterType registerType, int address, UUID assetId,
                 UUID sensorId, String sensorCode, String sensorType,
-                String unit, double scaleFactor
-        ) {
+                String unit, double scaleFactor) {
             this.registerType = registerType;
             this.address = address;
             this.assetId = assetId;

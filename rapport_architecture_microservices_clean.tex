@@ -1,0 +1,1943 @@
+\documentclass[12pt,a4paper]{report}
+
+%=============================================================================
+% PACKAGES ESSENTIELS
+%=============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+% Graphiques et couleurs
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds, shadows, decorations.pathreplacing}
+
+% Tableaux
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{colortbl}
+
+% Code
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Liens et références
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{url}
+
+% Autres
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+%=============================================================================
+% DÉFINITION DES COULEURS
+%=============================================================================
+\definecolor{mantisblue}{RGB}{25,118,210}
+\definecolor{mantisgreen}{RGB}{67,160,71}
+\definecolor{mantisorange}{RGB}{251,140,0}
+\definecolor{mantisred}{RGB}{229,57,53}
+\definecolor{mantisgray}{RGB}{97,97,97}
+\definecolor{mantislight}{RGB}{248,249,250}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+%=============================================================================
+% CONFIGURATION HYPERREF
+%=============================================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=mantisblue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    citecolor=mantisgreen,
+    pdftitle={MANTIS - Architecture Microservices},
+    pdfauthor={EMSI - Projet IIR5},
+    pdfsubject={Architecture Microservices et Stack Technologique}
+}
+
+%=============================================================================
+% STYLE DES LISTINGS
+%=============================================================================
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{mantisblue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{mantisgray!30}
+}
+
+\lstset{style=mystyle}
+
+%=============================================================================
+% COMMANDES PERSONNALISÉES
+%=============================================================================
+\newcommand{\mantis}{\textsc{Mantis}}
+\newcommand{\rul}{\textsc{rul}}
+\newcommand{\iiot}{\textsc{IIoT}}
+\newcommand{\opcua}{\textsc{OPC UA}}
+\newcommand{\mqtt}{\textsc{MQTT}}
+
+%=============================================================================
+% DÉBUT DU DOCUMENT
+%=============================================================================
+
+\begin{document}
+
+%=============================================================================
+% PAGE DE GARDE
+%=============================================================================
+
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+        \fill[mantisblue] (current page.north west) rectangle ([yshift=-4cm]current page.north east);
+        \fill[mantisblue!70] ([yshift=-4cm]current page.north east) -- ++(0,-2) -- ++(-6,2) -- cycle;
+        \fill[mantisblue!50] ([yshift=-6cm]current page.north east) -- ++(0,-1.5) -- ++(-4,1.5) -- cycle;
+        \fill[mantisgray!20] (current page.south west) rectangle ([yshift=3cm]current page.south east);
+    \end{tikzpicture}
+    
+    \begin{center}
+        \vspace*{1.5cm}
+        
+        {\color{white}\Huge\bfseries MANTIS}
+        
+        \vspace{0.3cm}
+        {\color{white}\Large Maintenance Prédictive Temps-Réel}
+        
+        \vspace{0.1cm}
+        {\color{white}\large pour Usines Intelligentes}
+        
+        \vspace{2.5cm}
+        
+        \begin{tikzpicture}
+            \draw[mantisblue, line width=2pt] (0,0) circle (1.5cm);
+            \node at (0,0) {\Huge\color{mantisblue}\textbf{IIR5}};
+        \end{tikzpicture}
+        
+        \vspace{0.5cm}
+        {\Large\bfseries RAPPORT TECHNIQUE}
+        
+        \vspace{0.3cm}
+        {\LARGE\bfseries Architecture Microservices}
+        
+        \vspace{0.2cm}
+        {\LARGE\bfseries et Stack Technologique}
+        
+        \vfill
+        
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            {\large\bfseries Encadré par :}\\[0.3cm]
+            Pr. Oumayma OUEDRHIRI\\
+            Pr. Hiba TABBAA\\
+            Pr. Mohamed LACHGAR
+        \end{minipage}
+        
+        \vspace{2cm}
+        
+        {\large\bfseries École Marocaine des Sciences de l'Ingénieur (EMSI)}\\[0.3cm]
+        {\large Année Académique 2024-2025}\\[0.2cm]
+        {\large Décembre 2024}
+        
+    \end{center}
+\end{titlepage}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+
+
+%=============================================================================
+% CHAPITRE 1 : INTRODUCTION
+%=============================================================================
+
+\chapter{Introduction}
+
+\section{Contexte du Projet}
+
+Le projet \mantis{} (MAiNtenance prédictive Temps-réel pour usines Intelligentes) s'inscrit dans le cadre de l'Industrie 4.0, où la transformation numérique des systèmes de production nécessite des architectures logicielles modernes, scalables et résilientes.
+
+\subsection{Problématique}
+
+Les approches traditionnelles de développement logiciel (architecture monolithique) présentent des limitations majeures dans le contexte industriel moderne :
+
+\begin{itemize}
+    \item \textbf{Scalabilité limitée} : Impossible de scaler indépendamment les composants selon la charge
+    \item \textbf{Couplage fort} : Une modification dans un module impacte l'ensemble du système
+    \item \textbf{Déploiement risqué} : Tout déploiement nécessite l'arrêt complet du système
+    \item \textbf{Technologies figées} : Impossibilité d'utiliser différentes technologies selon les besoins
+    \item \textbf{Résilience faible} : Un bug dans un module peut crasher toute l'application
+\end{itemize}
+
+\subsection{Solution : Architecture Microservices}
+
+L'architecture microservices permet de décomposer une application monolithique en un ensemble de services indépendants, chacun responsable d'une fonctionnalité métier spécifique.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+    % Monolithe
+    \node[draw, rectangle, fill=mantisred!20, minimum width=4cm, minimum height=6cm] at (0,0) {};
+    \node at (0,2.5) {\textbf{Architecture Monolithique}};
+    \node[draw, rectangle, fill=white, minimum width=3.5cm, minimum height=0.8cm] at (0,1.5) {UI Layer};
+    \node[draw, rectangle, fill=white, minimum width=3.5cm, minimum height=0.8cm] at (0,0.5) {Business Logic};
+    \node[draw, rectangle, fill=white, minimum width=3.5cm, minimum height=0.8cm] at (0,-0.5) {Data Access};
+    \node[draw, rectangle, fill=white, minimum width=3.5cm, minimum height=0.8cm] at (0,-1.5) {Database};
+    \node[draw, rectangle, fill=mantisred!50, minimum width=3.5cm, minimum height=0.5cm] at (0,-2.5) {Single Deployment};
+    
+    % Flèche
+    \draw[->, ultra thick, mantisblue] (3,0) -- (5,0) node[midway, above] {\Large\textbf{VS}};
+    
+    % Microservices
+    \node at (11,2.5) {\textbf{Architecture Microservices}};
+    
+    \node[draw, rectangle, fill=mantisblue!20, minimum width=2cm, minimum height=1.5cm] at (8,1) {Service 1};
+    \node[draw, rectangle, fill=mantisgreen!20, minimum width=2cm, minimum height=1.5cm] at (11,1) {Service 2};
+    \node[draw, rectangle, fill=mantisorange!20, minimum width=2cm, minimum height=1.5cm] at (14,1) {Service 3};
+    
+    \node[draw, rectangle, fill=mantisblue!20, minimum width=2cm, minimum height=1.5cm] at (8,-1) {Service 4};
+    \node[draw, rectangle, fill=mantisgreen!20, minimum width=2cm, minimum height=1.5cm] at (11,-1) {Service 5};
+    \node[draw, rectangle, fill=mantisorange!20, minimum width=2cm, minimum height=1.5cm] at (14,-1) {Service 6};
+    
+    % API Gateway
+    \node[draw, rectangle, fill=mantisred!30, minimum width=8cm, minimum height=0.8cm] at (11,3) {API Gateway};
+    
+    % Event Bus
+    \node[draw, rectangle, fill=mantisgray!30, minimum width=8cm, minimum height=0.8cm] at (11,-2.5) {Event Bus (Kafka)};
+    
+\end{tikzpicture}
+\caption{Comparaison Architecture Monolithique vs Microservices}
+\label{fig:monolith-vs-microservices}
+\end{figure}
+
+\section{Objectifs de ce Rapport}
+
+Ce rapport technique vise à :
+
+\begin{enumerate}
+    \item \textbf{Présenter l'architecture microservices} de la plateforme \mantis{}
+    \item \textbf{Justifier les choix technologiques} pour chaque composant
+    \item \textbf{Détailler les 7 microservices} et leurs interactions
+    \item \textbf{Expliquer les patterns architecturaux} employés
+    \item \textbf{Documenter l'infrastructure} (Kafka, bases de données, DevOps)
+\end{enumerate}
+
+\section{Structure du Rapport}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|p{7cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Chapitre} & \textbf{Titre} & \textbf{Contenu} \\
+\hline
+1 & Introduction & Contexte, objectifs, structure \\
+\hline
+2 & Architecture Globale & Vue d'ensemble, diagrammes, patterns \\
+\hline
+3 & Microservices & Détail des 7 services \\
+\hline
+4 & Stack Technologique & Technologies et justifications \\
+\hline
+5 & Infrastructure & Kafka, bases de données, DevOps \\
+\hline
+6 & Communication & APIs, événements, protocoles \\
+\hline
+7 & Observabilité & Monitoring, logging, tracing \\
+\hline
+8 & Conclusion & Synthèse et perspectives \\
+\hline
+\end{tabular}
+\caption{Structure du rapport}
+\label{tab:structure-rapport}
+\end{table}
+
+
+%=============================================================================
+% CHAPITRE 2 : ARCHITECTURE GLOBALE
+%=============================================================================
+
+\chapter{Architecture Globale}
+
+\section{Vue d'Ensemble}
+
+La plateforme \mantis{} repose sur une architecture microservices événementielle (Event-Driven Architecture) composée de 7 services indépendants communiquant via Apache Kafka.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    scale=0.6, 
+    every node/.style={transform shape},
+    % Styles
+    layer/.style={draw=mantisgray!50, dashed, rounded corners, fill=mantislight, inner sep=10pt},
+    service/.style={draw=mantisblue, fill=white, rounded corners, minimum width=2.5cm, minimum height=1.2cm, align=center, font=\small\bfseries, drop shadow},
+    db/.style={draw=mantisgray, fill=white, cylinder, shape border rotate=90, aspect=0.25, minimum width=1.8cm, minimum height=1.2cm, align=center, font=\scriptsize, drop shadow},
+    kafka/.style={draw=mantisred, fill=mantisred!10, rectangle, rounded corners, minimum width=12cm, minimum height=1.5cm, align=center, font=\bfseries\large, drop shadow},
+    external/.style={draw=mantisgray, fill=mantisgray!10, rectangle, rounded corners, minimum width=2.5cm, minimum height=1.2cm, align=center, font=\small},
+    arrow/.style={->, >=latex, thick, color=mantisgray},
+    dataflow/.style={->, >=latex, very thick, color=mantisblue},
+    eventflow/.style={<->, >=latex, very thick, color=mantisred}
+]
+
+    % --- LAYERS ---
+    
+    % Layer 1: Edge / External
+    \node[layer, minimum width=18cm, minimum height=3cm, label={[anchor=north west]north west:\textbf{Couche Edge \& Clients}}] (edge_layer) at (0, 10) {};
+    
+    % Layer 2: Microservices
+    \node[layer, minimum width=18cm, minimum height=5cm, label={[anchor=north west]north west:\textbf{Couche Microservices}}] (service_layer) at (0, 5) {};
+    
+    % Layer 3: Data & Infrastructure
+    \node[layer, minimum width=18cm, minimum height=4cm, label={[anchor=north west]north west:\textbf{Couche Données \& Infrastructure}}] (data_layer) at (0, -1) {};
+
+    % --- COMPONENTS ---
+
+    % Edge Layer Components
+    \node[external, fill=mantisblue!20] (sensors) at (-6, 10) {Capteurs IIoT\\(OPC UA/MQTT)};
+    \node[external, fill=mantisblue!20] (users) at (0, 10) {Utilisateurs\\(Web/Mobile)};
+    \node[external, fill=mantisblue!20] (ext_systems) at (6, 10) {Systèmes Externes\\(CMMS/ERP)};
+
+    % Gateway
+    \node[service, fill=mantisgreen!20, minimum width=4cm] (gateway) at (0, 8) {API Gateway\\(Auth, Rate Limit)};
+
+    % Microservices
+    \node[service] (ingestion) at (-6, 6) {1. Ingestion\\Service};
+    \node[service] (preprocessing) at (-2, 6) {2. Preprocessing\\Service};
+    \node[service] (training) at (2, 6) {3. Training\\Service};
+    \node[service] (anomaly) at (6, 6) {4. Anomaly\\Detection};
+    
+    \node[service] (prediction) at (-2, 3.5) {5. RUL\\Prediction};
+    \node[service] (notification) at (2, 3.5) {6. Notification\\Service};
+    \node[service] (orchestrator) at (6, 3.5) {7. Orchestrator\\Service};
+
+    % Kafka Bus
+    \node[kafka] (kafka) at (0, 1) {Apache Kafka Event Bus\\ \small{Topics: raw, preprocessed, predictions, anomalies, alerts}};
+
+    % Data Layer Components
+    \node[db] (timescale) at (-5, -2) {TimescaleDB\\(Time Series)};
+    \node[db] (postgres) at (-1, -2) {PostgreSQL\\(Metadata)};
+    \node[db] (redis) at (3, -2) {Redis\\(Cache/Feast)};
+    \node[db] (minio) at (7, -2) {MinIO\\(Models/Artifacts)};
+    
+    % MLOps & Monitoring
+    \node[service, fill=mantisgray!20] (mlflow) at (7, -0.5) {MLflow\\Registry};
+    \node[service, fill=mantisgray!20] (monitoring) at (-7, -0.5) {Monitoring\\(Prometheus)};
+
+    % --- CONNECTIONS ---
+
+    % External -> Gateway/Ingestion
+    \draw[dataflow] (sensors) -- (ingestion) node[midway, left, font=\tiny] {Stream};
+    \draw[dataflow] (users) -- (gateway);
+    \draw[dataflow] (ext_systems) <-> (gateway);
+
+    % Gateway -> Services
+    \draw[arrow] (gateway) -- (orchestrator);
+    \draw[arrow] (gateway) -- (notification);
+    \draw[arrow] (gateway) -- (prediction);
+
+    % Services <-> Kafka
+    \draw[eventflow] (ingestion) -- (kafka.north -| ingestion);
+    \draw[eventflow] (preprocessing) -- (kafka.north -| preprocessing);
+    \draw[eventflow] (training) -- (kafka.north -| training);
+    \draw[eventflow] (anomaly) -- (kafka.north -| anomaly);
+    \draw[eventflow] (prediction) -- (kafka.north -| prediction);
+    \draw[eventflow] (notification) -- (kafka.north -| notification);
+    \draw[eventflow] (orchestrator) -- (kafka.north -| orchestrator);
+
+    % Services <-> Databases
+    \draw[arrow] (ingestion) to[bend right=45] (timescale);
+    \draw[arrow] (preprocessing) to[bend left=20] (redis);
+    \draw[arrow] (orchestrator) to[bend left=10] (postgres);
+    \draw[arrow] (training) to[bend left=45] (minio);
+    \draw[arrow] (training) -- (mlflow);
+    \draw[arrow] (prediction) -- (mlflow);
+
+    % Monitoring
+    \draw[dashed, mantisgray] (monitoring) -- (kafka);
+
+\end{tikzpicture}
+\caption{Architecture Microservices MANTIS (Vue Détaillée)}
+\label{fig:architecture-globale}
+\end{figure}
+
+\section{Principes Architecturaux}
+
+\subsection{Principe 1 : Single Responsibility}
+
+Chaque microservice a une \textbf{responsabilité unique et bien définie} :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Service} & \textbf{Responsabilité Unique} \\
+\hline
+Ingestion & Collecte des données IIoT via protocoles industriels \\
+\hline
+Preprocessing & Nettoyage et transformation des données brutes \\
+\hline
+Training & Entraînement et versioning des modèles ML \\
+\hline
+Prediction & Inférence des modèles pour prédiction RUL \\
+\hline
+Anomaly Detection & Détection temps réel des comportements anormaux \\
+\hline
+Notification & Envoi d'alertes multi-canaux \\
+\hline
+Orchestrator & Application des règles métier et planning \\
+\hline
+\end{tabular}
+\caption{Responsabilité unique de chaque microservice}
+\label{tab:single-responsibility}
+\end{table}
+
+\subsection{Principe 2 : Loose Coupling}
+
+Les services sont \textbf{faiblement couplés} grâce à :
+
+\begin{itemize}
+    \item \textbf{Communication asynchrone} via Kafka (pas d'appels directs)
+    \item \textbf{Contrats d'interface} clairs (schémas JSON, Avro)
+    \item \textbf{Database per Service} : chaque service gère sa propre base
+    \item \textbf{Indépendance technologique} : Java, Python, React selon les besoins
+\end{itemize}
+
+\subsection{Principe 3 : High Cohesion}
+
+Les fonctionnalités liées sont \textbf{regroupées dans le même service} :
+
+\begin{itemize}
+    \item Preprocessing : nettoyage + normalisation + windowing + features
+    \item Training : entraînement + validation + versioning + registry
+    \item Prediction : chargement modèle + inférence + logging
+\end{itemize}
+
+\subsection{Principe 4 : Autonomous Deployment}
+
+Chaque service peut être \textbf{déployé indépendamment} :
+
+\begin{itemize}
+    \item Conteneurisation Docker (1 service = 1 conteneur)
+    \item Versioning sémantique (v1.2.3)
+    \item CI/CD pipeline par service
+    \item Rolling updates sans downtime
+\end{itemize}
+
+\section{Patterns Architecturaux}
+
+\subsection{Pattern 1 : Event-Driven Architecture}
+
+\textbf{Définition} : Les services communiquent via des événements asynchrones publiés sur Kafka.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={transform shape},
+    box/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center}]
+    
+    \node[box, fill=mantisgreen!30] (prod) at (0,2) {\textbf{Producer}\\Service A};
+    \node[box, fill=mantisred!30, minimum width=4cm] (kafka) at (5,2) {\textbf{Kafka Topic}\\event-stream};
+    \node[box, fill=mantisblue!30] (cons1) at (10,3) {\textbf{Consumer 1}\\Service B};
+    \node[box, fill=mantisblue!30] (cons2) at (10,1) {\textbf{Consumer 2}\\Service C};
+    
+    \draw[thick, ->] (prod) -- (kafka) node[midway, above] {Publish};
+    \draw[thick, ->] (kafka) -- (cons1) node[midway, above] {Subscribe};
+    \draw[thick, ->] (kafka) -- (cons2) node[midway, below] {Subscribe};
+    
+    \node[below=0.3cm of prod, text width=2.5cm, align=center, font=\tiny] {Publie événement\\sans connaître\\les consommateurs};
+    
+    \node[below=0.3cm of kafka, text width=4cm, align=center, font=\tiny] {Stockage durable\\Rétention 7 jours\\Rejouable};
+    
+\end{tikzpicture}
+\caption{Pattern Event-Driven Architecture}
+\label{fig:pattern-eda}
+\end{figure}
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Découplage temporel : producer/consumer n'ont pas besoin d'être actifs simultanément
+    \item Découplage spatial : pas de connaissance mutuelle
+    \item Scalabilité : ajout de consumers sans impact sur producers
+    \item Résilience : rejouabilité des événements en cas de panne
+\end{itemize}
+
+\subsection{Pattern 2 : Database per Service}
+
+\textbf{Définition} : Chaque service possède sa propre base de données, non accessible directement par les autres.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape},
+    service/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center},
+    db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum width=1.8cm, minimum height=0.8cm, align=center}]
+    
+    \node[service, fill=mantisgreen!30] (s1) at (0,0) {Service 1};
+    \node[db, fill=mantisblue!20, below=0.5cm of s1] (db1) {DB 1};
+    \draw[thick, <->] (s1) -- (db1);
+    
+    \node[service, fill=mantisorange!30] (s2) at (4,0) {Service 2};
+    \node[db, fill=mantisblue!20, below=0.5cm of s2] (db2) {DB 2};
+    \draw[thick, <->] (s2) -- (db2);
+    
+    \node[service, fill=mantisred!30] (s3) at (8,0) {Service 3};
+    \node[db, fill=mantisblue!20, below=0.5cm of s3] (db3) {DB 3};
+    \draw[thick, <->] (s3) -- (db3);
+    
+    \draw[thick, <->, dashed, red] (db1) -- (db2) node[midway, below, font=\tiny, text=red] {Accès interdit};
+    \draw[thick, <->, dashed, red] (db2) -- (db3) node[midway, below, font=\tiny, text=red] {Accès interdit};
+    
+\end{tikzpicture}
+\caption{Pattern Database per Service}
+\label{fig:pattern-db-per-service}
+\end{figure}
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Indépendance technologique (PostgreSQL, MongoDB, Redis selon besoin)
+    \item Scalabilité indépendante
+    \item Évolution du schéma sans impact sur autres services
+\end{itemize}
+
+\textbf{Inconvénient} : Pas de transactions ACID distribuées $\rightarrow$ Solution : Saga Pattern
+
+\subsection{Pattern 3 : API Gateway}
+
+\textbf{Définition} : Point d'entrée unique pour tous les clients externes.
+
+\textbf{Responsabilités} :
+\begin{itemize}
+    \item \textbf{Routage} : Redirection vers le bon microservice
+    \item \textbf{Authentification} : Validation JWT tokens
+    \item \textbf{Rate Limiting} : Protection contre abus
+    \item \textbf{Agrégation} : Combiner réponses de plusieurs services
+    \item \textbf{Transformation} : Adapter format réponses pour clients
+\end{itemize}
+
+\subsection{Pattern 4 : Circuit Breaker}
+
+\textbf{Définition} : Protection contre les défaillances en cascade.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
+    % États
+    \node[draw, circle, fill=mantisgreen!30, minimum size=2cm] (closed) at (0,0) {\textbf{CLOSED}\\Normal};
+    \node[draw, circle, fill=mantisred!30, minimum size=2cm] (open) at (6,0) {\textbf{OPEN}\\Bloqué};
+    \node[draw, circle, fill=mantisorange!30, minimum size=2cm] (half) at (3,-3) {\textbf{HALF-OPEN}\\Test};
+    
+    % Transitions
+    \draw[thick, ->] (closed) to[bend left=20] node[above, font=\tiny] {Trop d'erreurs} (open);
+    \draw[thick, ->] (open) to[bend left=20] node[right, font=\tiny] {Timeout} (half);
+    \draw[thick, ->] (half) to[bend left=20] node[left, font=\tiny] {Échec} (open);
+    \draw[thick, ->] (half) to[bend right=20] node[below, font=\tiny] {Succès} (closed);
+    
+\end{tikzpicture}
+\caption{Pattern Circuit Breaker - Machine à états}
+\label{fig:pattern-circuit-breaker}
+\end{figure}
+
+\section{Flux de Données End-to-End}
+
+\subsection{Flux Nominal}
+
+\begin{enumerate}
+    \item \textbf{Ingestion} : Capteur → Ingestion Service via MQTT
+    \item \textbf{Publication Kafka} : Topic \texttt{raw-sensor-data}
+    \item \textbf{Prétraitement} : Preprocessing Service consomme, nettoie, normalise
+    \item \textbf{Publication Kafka} : Topic \texttt{preprocessed-data}
+    \item \textbf{Prédiction} : Prediction Service inférence LSTM
+    \item \textbf{Publication Kafka} : Topic \texttt{predictions}
+    \item \textbf{Détection} : Anomaly Service analyse
+    \item \textbf{Publication Kafka} : Topic \texttt{anomalies} (si détection)
+    \item \textbf{Notification} : Notification Service envoie alerte WebSocket
+    \item \textbf{Stockage} : TimescaleDB pour historique
+\end{enumerate}
+
+\textbf{Latence end-to-end cible} : < 500 ms
+
+\subsection{Diagramme de Séquence}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.7, every node/.style={transform shape}]
+    % Acteurs
+    \node (sensor) at (0,0) {\textbf{Capteur}};
+    \node (ing) at (2.5,0) {\textbf{Ingestion}};
+    \node (kafka) at (5,0) {\textbf{Kafka}};
+    \node (prep) at (7.5,0) {\textbf{Preproc}};
+    \node (pred) at (10,0) {\textbf{Predict}};
+    \node (anom) at (12.5,0) {\textbf{Anomaly}};
+    \node (notif) at (15,0) {\textbf{Notif}};
+    
+    % Lifelines
+    \draw[dashed] (sensor) -- (0,-10);
+    \draw[dashed] (ing) -- (2.5,-10);
+    \draw[dashed] (kafka) -- (5,-10);
+    \draw[dashed] (prep) -- (7.5,-10);
+    \draw[dashed] (pred) -- (10,-10);
+    \draw[dashed] (anom) -- (12.5,-10);
+    \draw[dashed] (notif) -- (15,-10);
+    
+    % Messages
+    \draw[->, thick] (0,-1) -- (2.5,-1) node[midway, above, font=\tiny] {MQTT};
+    \draw[->, thick] (2.5,-2) -- (5,-2) node[midway, above, font=\tiny] {publish};
+    \draw[->, thick] (5,-3) -- (7.5,-3) node[midway, above, font=\tiny] {consume};
+    \draw[->, thick] (7.5,-4) -- (5,-4) node[midway, below, font=\tiny] {publish};
+    \draw[->, thick] (5,-5) -- (10,-5) node[midway, above, font=\tiny] {consume};
+    \draw[->, thick] (10,-6) -- (5,-6) node[midway, below, font=\tiny] {publish};
+    \draw[->, thick] (5,-7) -- (12.5,-7) node[midway, above, font=\tiny] {consume};
+    \draw[->, thick] (12.5,-8) -- (5,-8) node[midway, below, font=\tiny] {publish};
+    \draw[->, thick] (5,-9) -- (15,-9) node[midway, above, font=\tiny] {consume};
+    
+    \node[right=0.1cm of notif, below=9cm, font=\tiny, text=mantisblue] {Alerte!};
+    
+\end{tikzpicture}
+\caption{Diagramme de séquence - Flux nominal}
+\label{fig:sequence-nominal}
+\end{figure}
+
+
+%=============================================================================
+% CHAPITRE 3 : LES 7 MICROSERVICES
+%=============================================================================
+
+\chapter{Les 7 Microservices de MANTIS}
+
+\section{Vue d'Ensemble}
+
+La plateforme MANTIS est composée de 7 microservices, chacun ayant une responsabilité spécifique dans la chaîne de traitement.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|l|l|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{ID} & \textbf{Service} & \textbf{Technologie} & \textbf{Port} \\
+\hline
+1 & Ingestion IIoT & Java / Spring Boot & 8001 \\
+\hline
+2 & Preprocessing & Python / Kafka Streams & 8002 \\
+\hline
+3 & Training & Python / PyTorch & 8003 \\
+\hline
+4 & Anomaly Detection & Python / PyOD & 8004 \\
+\hline
+5 & RUL Prediction & Python / PyTorch & 8005 \\
+\hline
+6 & Notification & Python / FastAPI & 8006 \\
+\hline
+7 & Orchestrator & Java / Drools & 8007 \\
+\hline
+\end{tabular}
+\caption{Les 7 microservices de MANTIS}
+\label{tab:7-microservices}
+\end{table}
+
+\section{1. Service d'Ingestion IIoT}
+
+\subsection{Responsabilité}
+
+Collecte des données provenant des équipements industriels via protocoles \iiot{} (\opcua{}, \mqtt{}, Modbus, REST).
+
+\subsection{Architecture Interne}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape},
+    box/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center}]
+    
+    % Connecteurs
+    \node[box, fill=mantisblue!20] (opcua) at (0,4) {Connecteur\\OPC UA};
+    \node[box, fill=mantisblue!20] (mqtt) at (0,2) {Connecteur\\MQTT};
+    \node[box, fill=mantisblue!20] (modbus) at (0,0) {Connecteur\\Modbus};
+    
+    % Core
+    \node[box, fill=mantisorange!30, minimum width=2.5cm, minimum height=5cm] (core) at (4,2) {\\\\Ingestion\\Core\\\\Validation\\Normalisation};
+    
+    % Buffer
+    \node[box, fill=mantisgreen!20] (buffer) at (8,2) {Edge\\Buffer\\(Resilience)};
+    
+    % Kafka
+    \node[box, fill=mantisred!30] (kafka) at (12,2) {Kafka\\Producer};
+    
+    % Arrows
+    \draw[thick, ->] (opcua) -- (core);
+    \draw[thick, ->] (mqtt) -- (core);
+    \draw[thick, ->] (modbus) -- (core);
+    \draw[thick, ->] (core) -- (buffer);
+    \draw[thick, ->] (buffer) -- (kafka);
+    
+\end{tikzpicture}
+\caption{Architecture Service d'Ingestion IIoT}
+\label{fig:ingestion-architecture}
+\end{figure}
+
+\subsection{Technologies et Justifications}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Composant} & \textbf{Technologie} & \textbf{Justification} \\
+\hline
+Framework & Spring Boot 3.2 & Robustesse, écosystème mature, performance \\
+\hline
+OPC UA & Eclipse Milo & Bibliothèque Java standard pour OPC UA \\
+\hline
+MQTT & Eclipse Paho & Client MQTT léger et fiable \\
+\hline
+Modbus & Modbus4j & Support Modbus TCP/RTU \\
+\hline
+Kafka Client & Spring Kafka & Intégration native avec Spring \\
+\hline
+Monitoring & Micrometer & Métriques Prometheus \\
+\hline
+\end{tabular}
+\caption{Stack technologique - Ingestion Service}
+\label{tab:ingestion-stack}
+\end{table}
+
+\subsection{APIs Exposées}
+
+\begin{lstlisting}[language=bash, caption=API REST - Ingestion Service, label=lst:ingestion-api]
+# Ingestion manuelle via REST
+POST /api/v1/ingest
+Content-Type: application/json
+{
+  "equipment_id": "PUMP_001",
+  "sensor_id": "TEMP_01",
+  "value": 75.5,
+  "unit": "°C",
+  "timestamp": "2024-12-07T00:00:00Z"
+}
+
+# Configuration des connecteurs
+GET  /api/v1/connectors
+POST /api/v1/connectors/{type}/start
+POST /api/v1/connectors/{type}/stop
+
+# Health check
+GET  /actuator/health
+\end{lstlisting}
+
+\subsection{Configuration Exemple}
+
+\begin{lstlisting}[language=yaml, caption=Configuration Ingestion Service, label=lst:ingestion-config]
+ingestion:
+  opcua:
+    enabled: true
+    endpoint: "opc.tcp://192.168.1.100:4840"
+    namespace: 2
+    sampling_interval: 1000  # ms
+    nodes:
+      - ns=2;s=PUMP_001.Temperature
+      - ns=2;s=PUMP_001.Pressure
+      
+  mqtt:
+    enabled: true
+    broker: "tcp://192.168.1.200:1883"
+    topics:
+      - "factory/line1/+/sensors"
+      - "factory/line2/+/sensors"
+    qos: 1
+    
+  kafka:
+    bootstrap-servers: kafka:9092
+    topic: raw-sensor-data
+    compression: lz4
+\end{lstlisting}
+
+\section{2. Service de Prétraitement}
+
+\subsection{Responsabilité}
+
+Nettoyage, normalisation, feature engineering et windowing des données brutes.
+
+\subsection{Pipeline de Prétraitement}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.7, every node/.style={transform shape},
+    step/.style={draw, rectangle, rounded corners, minimum width=3cm, minimum height=1cm, align=center}]
+    
+    \node[step, fill=mantisblue!20] (input) at (0,0) {Données\\Brutes};
+    \node[step, fill=mantisorange!20] (clean) at (0,-2) {Nettoyage\\Missing, Outliers};
+    \node[step, fill=mantisgreen!20] (norm) at (0,-4) {Normalisation\\MinMax, Z-score};
+    \node[step, fill=mantisblue!20] (feat) at (0,-6) {Features\\MA, STD, FFT};
+    \node[step, fill=mantisorange!20] (window) at (0,-8) {Windowing\\Séquences 50};
+    \node[step, fill=mantisred!30] (output) at (0,-10) {Données\\Preprocessed};
+    
+    \draw[thick, ->] (input) -- (clean);
+    \draw[thick, ->] (clean) -- (norm);
+    \draw[thick, ->] (norm) -- (feat);
+    \draw[thick, ->] (feat) -- (window);
+    \draw[thick, ->] (window) -- (output);
+    
+    % Annotations
+    \node[right=0.5cm of clean, text width=4cm, font=\tiny] {Forward-fill, Interpolation, Détection Z-score/IQR};
+    \node[right=0.5cm of norm, text width=4cm, font=\tiny] {MinMax: [0,1], Z-score: $\mu=0, \sigma=1$};
+    \node[right=0.5cm of feat, text width=4cm, font=\tiny] {Moving Average, Rolling STD, Spectres FFT};
+    \node[right=0.5cm of window, text width=4cm, font=\tiny] {Séquences de 50 timesteps, Overlap 50\%};
+    
+\end{tikzpicture}
+\caption{Pipeline de Prétraitement}
+\label{fig:preprocessing-pipeline}
+\end{figure}
+
+\subsection{Technologies}
+
+\begin{itemize}
+    \item \textbf{Pandas} : Manipulation de séries temporelles
+    \item \textbf{NumPy} : Calculs numériques vectorisés
+    \item \textbf{Scikit-learn} : Normalisation, détection outliers
+    \item \textbf{SciPy} : Traitement du signal (filtres, FFT)
+    \item \textbf{tsfresh} : Feature extraction automatisée
+\end{itemize}
+
+\section{3. Service de Training}
+
+\subsection{Responsabilité}
+
+Entraînement, validation et versioning des modèles de Machine Learning.
+
+\subsection{Pipeline MLOps}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.7, every node/.style={transform shape},
+    box/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center}]
+    
+    \node[box, fill=mantisblue!20] (data) at (0,0) {C-MAPSS\\Dataset\\(DVC)};
+    \node[box, fill=mantisorange!20] (split) at (3,0) {Train/Val\\Split\\70/30};
+    \node[box, fill=mantisgreen!20] (train) at (6,0) {Entraînement\\LSTM};
+    \node[box, fill=mantisred!20] (eval) at (9,0) {Évaluation\\RMSE, MAE};
+    \node[box, fill=mantisblue!20] (mlflow) at (12,0) {MLflow\\Registry};
+    
+    \draw[thick, ->] (data) -- (split);
+    \draw[thick, ->] (split) -- (train);
+    \draw[thick, ->] (train) -- (eval);
+    \draw[thick, ->] (eval) -- (mlflow);
+    
+    \node[box, fill=mantisgray!20, below=1.5cm of train] (hpo) {Hyperparameter\\Optimization\\(Optuna)};
+    \draw[thick, <->, dashed] (train) -- (hpo);
+    
+\end{tikzpicture}
+\caption{Pipeline Training et MLOps}
+\label{fig:training-pipeline}
+\end{figure}
+
+\subsection{Modèle LSTM}
+
+\begin{lstlisting}[language=Python, caption=Architecture LSTM pour RUL, label=lst:lstm-model]
+import torch
+import torch.nn as nn
+
+class RULPredictor(nn.Module):
+    def __init__(self, input_size=21, hidden_size=128, 
+                 num_layers=2, dropout=0.2):
+        super().__init__()
+        
+        # LSTM layers
+        self.lstm = nn.LSTM(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0
+        )
+        
+        # Fully connected layers
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_size, 64),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(64, 1)
+        )
+    
+    def forward(self, x):
+        # x: (batch, seq_len, input_size)
+        lstm_out, _ = self.lstm(x)
+        # Take last hidden state
+        last_hidden = lstm_out[:, -1, :]
+        # Predict RUL
+        return self.fc(last_hidden).squeeze(-1)
+\end{lstlisting}
+
+\subsection{MLflow Integration}
+
+\begin{lstlisting}[language=Python, caption=Tracking MLflow, label=lst:mlflow-tracking]
+import mlflow
+import mlflow.pytorch
+
+# Démarrer une expérimentation
+with mlflow.start_run(run_name="lstm_rul_v1"):
+    # Log hyperparamètres
+    mlflow.log_params({
+        "hidden_size": 128,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "learning_rate": 0.001,
+        "batch_size": 64
+    })
+    
+    # Entraînement
+    model = train_model(train_loader, val_loader)
+    
+    # Log métriques
+    mlflow.log_metrics({
+        "train_rmse": train_rmse,
+        "val_rmse": val_rmse,
+        "test_rmse": test_rmse,
+        "test_mae": test_mae
+    })
+    
+    # Log modèle
+    mlflow.pytorch.log_model(model, "model")
+    
+    # Enregistrer dans Registry
+    mlflow.register_model(
+        f"runs:/{mlflow.active_run().info.run_id}/model",
+        "RUL_Predictor"
+    )
+\end{lstlisting}
+
+
+\section{4. Service de Détection d'Anomalies}
+
+\subsection{Responsabilité}
+
+Détection temps réel des comportements anormaux via algorithmes ML.
+
+\subsection{Approches Hybrides}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|l|p{5cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Méthode} & \textbf{Type} & \textbf{Description} \\
+\hline
+Seuils Statiques & Rule-Based & Température > 400°C, Vibration > 5g \\
+\hline
+Seuils Dynamiques & Statistical & $x > \mu + 3\sigma$ \\
+\hline
+Isolation Forest & ML Unsupervised & Isolation d'outliers multivariés \\
+\hline
+Autoencoder & Deep Learning & Erreur de reconstruction élevée \\
+\hline
+One-Class SVM & ML Supervised & Frontière de normalité \\
+\hline
+\end{tabular}
+\caption{Méthodes de détection d'anomalies}
+\label{tab:anomaly-methods}
+\end{table}
+
+\subsection{Algorithme de Scoring}
+
+\begin{algorithm}[H]
+\caption{Scoring d'Anomalies}
+\label{alg:anomaly-scoring}
+\begin{algorithmic}[1]
+\State \textbf{Input:} $features$ : vecteur de features
+\State \textbf{Output:} $anomaly\_score \in [0, 100]$
+
+\State $score_{if} \gets$ IsolationForest.score($features$)
+\State $score_{ae} \gets$ Autoencoder.reconstruction\_error($features$)
+\State $score_{rule} \gets$ RuleEngine.evaluate($features$)
+
+\State $score_{combined} \gets 0.4 \times score_{if} + 0.4 \times score_{ae} + 0.2 \times score_{rule}$
+
+\State $threshold \gets$ get\_threshold(equipment\_criticality)
+
+\If{$score_{combined} > threshold$}
+    \State $severity \gets \min(100, \frac{score_{combined} - threshold}{threshold} \times 100)$
+    \State \textbf{return} $severity$
+\Else
+    \State \textbf{return} $0$ \Comment{Pas d'anomalie}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Technologies}
+
+\begin{itemize}
+    \item \textbf{PyOD} : Python Outlier Detection (40+ algorithmes)
+    \item \textbf{Scikit-learn} : Isolation Forest, One-Class SVM
+    \item \textbf{PyTorch} : Autoencoders
+    \item \textbf{FastAPI} : APIs REST
+\end{itemize}
+
+\section{5. Service de Prédiction RUL}
+
+\subsection{Responsabilité}
+
+Inférence des modèles LSTM pour prédire le RUL (Remaining Useful Life).
+
+\subsection{Architecture API}
+
+\begin{lstlisting}[language=Python, caption=API Prediction Service, label=lst:prediction-api]
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import torch
+import mlflow.pytorch
+
+app = FastAPI(title="RUL Prediction Service")
+
+# Modèle chargé au démarrage
+model = None
+
+@app.on_event("startup")
+async def load_model():
+    global model
+    # Charger depuis MLflow Registry
+    model_uri = "models:/RUL_Predictor/Production"
+    model = mlflow.pytorch.load_model(model_uri)
+    model.eval()
+
+class PredictionRequest(BaseModel):
+    equipment_id: str
+    sequence: list[list[float]]  # shape: (seq_len, n_features)
+
+class PredictionResponse(BaseModel):
+    equipment_id: str
+    rul: float
+    confidence_interval: tuple[float, float]
+    model_version: str
+
+@app.post("/predict", response_model=PredictionResponse)
+async def predict(request: PredictionRequest):
+    # Validation
+    if len(request.sequence) != 50:
+        raise HTTPException(400, "Sequence length must be 50")
+    
+    # Conversion en tensor
+    X = torch.tensor([request.sequence], dtype=torch.float32)
+    
+    # Inférence
+    with torch.no_grad():
+        rul_pred = model(X).item()
+    
+    # Intervalle de confiance (Monte Carlo Dropout)
+    predictions = []
+    model.train()  # Enable dropout
+    for _ in range(100):
+        with torch.no_grad():
+            predictions.append(model(X).item())
+    model.eval()
+    
+    ci_low = np.percentile(predictions, 5)
+    ci_high = np.percentile(predictions, 95)
+    
+    return PredictionResponse(
+        equipment_id=request.equipment_id,
+        rul=max(0, rul_pred),
+        confidence_interval=(ci_low, ci_high),
+        model_version="v1.2.0"
+    )
+\end{lstlisting}
+
+\subsection{Optimisation de la Latence}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Optimisation} & \textbf{Latence (ms)} & \textbf{Gain} \\
+\hline
+PyTorch natif & 120 & Baseline \\
+\hline
+Batch inference (n=10) & 45 & 62\% \\
+\hline
+ONNX Runtime & 35 & 71\% \\
+\hline
+Quantization INT8 & 22 & 82\% \\
+\hline
+GPU (CUDA) & 8 & 93\% \\
+\hline
+\end{tabular}
+\caption{Optimisations de latence - Prediction Service}
+\label{tab:latency-optimization}
+\end{table}
+
+\section{6. Service de Notification}
+
+\subsection{Responsabilité}
+
+Envoi d'alertes multi-canaux (WebSocket, Email, SMS, Kafka).
+
+\subsection{Architecture Multi-Canaux}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape},
+    box/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center}]
+    
+    \node[box, fill=mantisred!30] (notif) at (0,0) {Notification\\Service};
+    
+    \node[box, fill=mantisblue!20] (ws) at (4,2) {WebSocket\\Clients Web};
+    \node[box, fill=mantisgreen!20] (email) at (4,0) {Email\\SMTP};
+    \node[box, fill=mantisorange!20] (kafka) at (4,-2) {Kafka Topic\\notifications};
+    
+    \draw[thick, ->] (notif) -- (ws) node[midway, above, font=\tiny] {Push};
+    \draw[thick, ->] (notif) -- (email) node[midway, above, font=\tiny] {SMTP};
+    \draw[thick, ->] (notif) -- (kafka) node[midway, below, font=\tiny] {Publish};
+    
+\end{tikzpicture}
+\caption{Architecture Multi-Canaux - Notification Service}
+\label{fig:notification-channels}
+\end{figure}
+
+\subsection{Règles de Déclenchement}
+
+\begin{lstlisting}[language=Python, caption=Règles de notification, label=lst:notification-rules]
+class NotificationRules:
+    @staticmethod
+    def should_notify(event: Event) -> bool:
+        """Détermine si une notification doit être envoyée"""
+        
+        # Règle 1: RUL critique
+        if event.type == "rul_prediction":
+            if event.rul < 50:  # < 50 cycles
+                return True
+        
+        # Règle 2: Anomalie sévère
+        if event.type == "anomaly":
+            if event.severity >= 70:  # Sévérité > 70/100
+                return True
+        
+        # Règle 3: Performance dégradée
+        if event.type == "model_performance":
+            if event.rmse > event.baseline_rmse * 1.1:
+                return True
+        
+        return False
+    
+    @staticmethod
+    def get_notification_level(event: Event) -> str:
+        """Détermine le niveau de notification"""
+        if event.type == "rul_prediction" and event.rul < 20:
+            return "CRITICAL"
+        elif event.severity >= 80:
+            return "CRITICAL"
+        elif event.severity >= 50:
+            return "WARNING"
+        else:
+            return "INFO"
+\end{lstlisting}
+
+\section{7. Service Orchestrateur}
+
+\subsection{Responsabilité}
+
+Application des règles métier et optimisation du planning de maintenance.
+
+\subsection{Architecture}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape},
+    box/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center}]
+    
+    \node[box, fill=mantisorange!30] (orchestrator) at (0,0) {Orchestrateur\\Core};
+    
+    \node[box, fill=mantisblue!20] (rules) at (-3,2) {Règles Métier\\Drools};
+    \node[box, fill=mantisgreen!20] (optim) at (0,2) {Optimiseur\\OR-Tools};
+    \node[box, fill=mantisred!20] (cmms) at (3,2) {Intégration\\CMMS};
+    
+    \node[box, fill=mantisgray!20] (kafka) at (0,-2) {Kafka\\Consumer};
+    
+    \draw[thick, <->] (orchestrator) -- (rules);
+    \draw[thick, <->] (orchestrator) -- (optim);
+    \draw[thick, <->] (orchestrator) -- (cmms);
+    \draw[thick, ->] (kafka) -- (orchestrator);
+    
+\end{tikzpicture}
+\caption{Architecture Orchestrateur}
+\label{fig:orchestrator-architecture}
+\end{figure}
+
+\subsection{Exemple de Règle Drools}
+
+\begin{lstlisting}[caption=Règle Drools - Maintenance Critique, label=lst:drools-rule]
+package com.mantis.rules;
+
+import com.mantis.model.Equipment;
+import com.mantis.model.RULPrediction;
+import com.mantis.model.MaintenanceAction;
+
+rule "RUL Critique - Intervention Urgente"
+    when
+        $equipment: Equipment()
+        $rul: RULPrediction(
+            equipmentId == $equipment.id,
+            rul < 50  // < 50 cycles
+        )
+    then
+        MaintenanceAction action = new MaintenanceAction();
+        action.setEquipmentId($equipment.getId());
+        action.setPriority(Priority.CRITICAL);
+        action.setType(ActionType.PREVENTIVE);
+        action.setDeadline(now().plusDays(2));
+        action.setDescription("RUL critique: " + $rul.getRul() + " cycles");
+        
+        insert(action);
+        System.out.println("Action de maintenance créée: " + action);
+end
+
+rule "Pièces de Rechange Insuffisantes"
+    when
+        $action: MaintenanceAction(priority == Priority.CRITICAL)
+        $part: SparePart(
+            requiredForEquipment($action.equipmentId),
+            stock == 0
+        )
+    then
+        PurchaseOrder order = new PurchaseOrder();
+        order.setPartId($part.getId());
+        order.setPriority(Priority.URGENT);
+        order.setQuantity($part.getMinStock());
+        
+        insert(order);
+        System.out.println("Commande urgente créée: " + order);
+end
+\end{lstlisting}
+
+\subsection{Optimisation du Planning}
+
+\begin{lstlisting}[language=Python, caption=Optimisation Planning avec OR-Tools, label=lst:ortools-planning]
+from ortools.sat.python import cp_model
+
+def optimize_maintenance_schedule(actions, resources, time_windows):
+    """Optimise le planning de maintenance"""
+    
+    model = cp_model.CpModel()
+    
+    # Variables
+    start_vars = {}
+    for action in actions:
+        start_vars[action.id] = model.NewIntVar(
+            0, time_windows[action.id].end, 
+            f'start_{action.id}'
+        )
+    
+    # Contraintes
+    # 1. Respect des fenêtres temporelles
+    for action in actions:
+        model.Add(start_vars[action.id] >= time_windows[action.id].start)
+        model.Add(start_vars[action.id] <= time_windows[action.id].end)
+    
+    # 2. Ressources limitées (techniciens)
+    for t in range(max_time):
+        model.Add(
+            sum(action.requires_resources for action in actions 
+                if start_vars[action.id] == t) 
+            <= resources.available_technicians
+        )
+    
+    # Objectif: Minimiser downtime total
+    total_downtime = sum(action.duration for action in actions)
+    model.Minimize(total_downtime)
+    
+    # Résolution
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    
+    if status == cp_model.OPTIMAL:
+        schedule = {
+            action.id: solver.Value(start_vars[action.id])
+            for action in actions
+        }
+        return schedule
+    else:
+        return None
+\end{lstlisting}
+
+
+%=============================================================================
+% CHAPITRE 4 : STACK TECHNOLOGIQUE
+%=============================================================================
+
+\chapter{Stack Technologique}
+
+\section{Vue d'Ensemble}
+
+La plateforme MANTIS utilise une stack technologique polyglotte, combinant Java, Python et React selon les besoins de chaque microservice.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.6, every node/.style={transform shape}]
+    % Layers
+    \draw[thick, fill=mantisblue!10] (0,0) rectangle (14,2);
+    \node at (7,1) {\textbf{Frontend: React + Next.js + TailwindCSS}};
+    
+    \draw[thick, fill=mantisgreen!10] (0,2.5) rectangle (14,4.5);
+    \node at (7,3.5) {\textbf{Backend: Java (Spring Boot) + Python (FastAPI)}};
+    
+    \draw[thick, fill=mantisorange!10] (0,5) rectangle (14,7);
+    \node at (7,6) {\textbf{Event Bus: Apache Kafka + Zookeeper}};
+    
+    \draw[thick, fill=mantisred!10] (0,7.5) rectangle (14,9.5);
+    \node at (7,8.5) {\textbf{Data: TimescaleDB + PostgreSQL + Redis + MinIO}};
+    
+    \draw[thick, fill=mantisgray!10] (0,10) rectangle (14,12);
+    \node at (7,11) {\textbf{Infrastructure: Docker + Kubernetes + Prometheus + Grafana}};
+    
+\end{tikzpicture}
+\caption{Stack Technologique - Vue en Couches}
+\label{fig:tech-stack-layers}
+\end{figure}
+
+\section{Justification des Choix Technologiques}
+
+\subsection{Pourquoi Java/Spring Boot ?}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{Justification} \\
+\hline
+\textbf{Performance} & Throughput élevé (50K+ req/s), latence faible (p99 < 10ms) \\
+\hline
+\textbf{Écosystème} & Spring Cloud, Spring Security, Spring Kafka matures \\
+\hline
+\textbf{Thread Safety} & Gestion native de la concurrence (threads, locks) \\
+\hline
+\textbf{Production-Ready} & Standards entreprise, support communautaire actif \\
+\hline
+\textbf{OPC UA} & Bibliothèques Java robustes (Eclipse Milo) \\
+\hline
+\end{tabular}
+\caption{Justifications - Java/Spring Boot}
+\label{tab:java-justification}
+\end{table}
+
+\textbf{Services en Java} : Ingestion IIoT, Orchestrateur
+
+\subsection{Pourquoi Python ?}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{Justification} \\
+\hline
+\textbf{Data Science} & NumPy, Pandas, SciPy : écosystème inégalé \\
+\hline
+\textbf{Machine Learning} & PyTorch, TensorFlow, scikit-learn, PyOD \\
+\hline
+\textbf{Productivité} & Développement rapide, syntaxe expressive \\
+\hline
+\textbf{MLOps} & MLflow, Feast, DVC natifs en Python \\
+\hline
+\textbf{Communauté} & Recherche académique, State-of-the-art models \\
+\hline
+\end{tabular}
+\caption{Justifications - Python}
+\label{tab:python-justification}
+\end{table}
+
+\textbf{Services en Python} : Preprocessing, Training, Prediction, Anomaly Detection, Notification
+
+\subsection{Pourquoi Apache Kafka ?}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{Justification} \\
+\hline
+\textbf{Throughput} & Millions de messages par seconde \\
+\hline
+\textbf{Persistance} & Stockage durable sur disque (retention configurable) \\
+\hline
+\textbf{Scalabilité} & Partitioning, réplication, horizontal scaling \\
+\hline
+\textbf{Rejouabilité} & Consumer offset management, replay possible \\
+\hline
+\textbf{Écosystème} & Kafka Streams, Connect, Schema Registry \\
+\hline
+\end{tabular}
+\caption{Justifications - Apache Kafka}
+\label{tab:kafka-justification}
+\end{table}
+
+\textbf{Alternatives considérées} :
+\begin{itemize}
+    \item RabbitMQ : Bon mais throughput 10x inférieur à Kafka
+    \item Redis Pub/Sub : Pas de persistance, perte de messages si consumer offline
+    \item AWS Kinesis : Vendor lock-in, coût élevé
+\end{itemize}
+
+\subsection{Pourquoi TimescaleDB ?}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{Justification} \\
+\hline
+\textbf{Optimisations TS} & Hypertables, compression, continuous aggregates \\
+\hline
+\textbf{SQL Standard} & Compatibilité PostgreSQL, JOINs, transactions \\
+\hline
+\textbf{Rétention} & Policies automatiques, compression multi-niveaux \\
+\hline
+\textbf{Performance} & 10-100x plus rapide que PostgreSQL sur queries TS \\
+\hline
+\textbf{Open-Source} & Apache License 2.0 \\
+\hline
+\end{tabular}
+\caption{Justifications - TimescaleDB}
+\label{tab:timescaledb-justification}
+\end{table}
+
+\textbf{Alternatives} :
+\begin{itemize}
+    \item InfluxDB : Bon mais langage propriétaire (InfluxQL/Flux)
+    \item Prometheus : Optimisé pour métriques courtes (15j), pas long-term
+    \item Cassandra : Complexité opérationnelle élevée
+\end{itemize}
+
+\section{Comparaison des Technologies}
+
+\subsection{Langages Backend}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{Java/Spring} & \textbf{Python/FastAPI} & \textbf{Node.js} \\
+\hline
+Throughput (req/s) & 50 000 & 15 000 & 30 000 \\
+\hline
+Latence p99 (ms) & 10 & 30 & 20 \\
+\hline
+Mémoire (MB) & 200 & 50 & 80 \\
+\hline
+Temps démarrage (s) & 3 & 0.5 & 1 \\
+\hline
+Écosystème ML & ⭐⭐ & ⭐⭐⭐⭐⭐ & ⭐⭐ \\
+\hline
+Production-Ready & ⭐⭐⭐⭐⭐ & ⭐⭐⭐⭐ & ⭐⭐⭐ \\
+\hline
+\end{tabular}
+\caption{Comparaison Langages Backend}
+\label{tab:backend-comparison}
+\end{table}
+
+\subsection{Bases de Données Time-Series}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{TimescaleDB} & \textbf{InfluxDB} & \textbf{Prometheus} \\
+\hline
+Langage requêtes & SQL (PostgreSQL) & InfluxQL/Flux & PromQL \\
+\hline
+Compression & Auto (90\%) & Auto (80\%) & Limitée \\
+\hline
+Rétention & Illimitée & Configurable & 15 jours \\
+\hline
+JOINs & Oui (SQL) & Non & Non \\
+\hline
+Transactions & ACID & Limitées & Non \\
+\hline
+License & Apache 2.0 & MIT & Apache 2.0 \\
+\hline
+\end{tabular}
+\caption{Comparaison Bases Time-Series}
+\label{tab:tsdb-comparison}
+\end{table}
+
+\section{Matrice de Décision}
+
+\begin{table}[H]
+\centering
+\tiny
+\begin{tabular}{|l|l|l|p{5cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Composant} & \textbf{Choix} & \textbf{Alternative} & \textbf{Raison du Choix} \\
+\hline
+Backend IIoT & Spring Boot & Node.js & Performance, OPC UA libs \\
+\hline
+Backend ML & Python/FastAPI & Go & Écosystème ML, PyTorch \\
+\hline
+Event Bus & Kafka & RabbitMQ & Throughput, persistance \\
+\hline
+Time-Series DB & TimescaleDB & InfluxDB & SQL standard, flexibilité \\
+\hline
+Feature Store & Feast & Tecton & Open-source, communauté \\
+\hline
+Model Registry & MLflow & W\&B & Open-source, auto-hébergé \\
+\hline
+Container & Docker & Podman & Standard industrie \\
+\hline
+Orchestration & Kubernetes & Docker Swarm & Écosystème, scalabilité \\
+\hline
+Monitoring & Prometheus & Datadog & Open-source, CNCF \\
+\hline
+Visualization & Grafana & Kibana & Flexibilité, dashboards \\
+\hline
+Tracing & Jaeger & Zipkin & OpenTelemetry, CNCF \\
+\hline
+\end{tabular}
+\caption{Matrice de Décision Technologique}
+\label{tab:decision-matrix}
+\end{table}
+
+
+%=============================================================================
+% CHAPITRE 5 : INFRASTRUCTURE ET DEVOPS
+%=============================================================================
+
+\chapter{Infrastructure et DevOps}
+
+\section{Infrastructure Kafka}
+
+\subsection{Topics Kafka}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|l|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Topic} & \textbf{Usage} & \textbf{Partitions} & \textbf{Retention} \\
+\hline
+raw-sensor-data & Données brutes capteurs & 6 & 3 jours \\
+\hline
+preprocessed-data & Données nettoyées & 6 & 7 jours \\
+\hline
+predictions & Prédictions RUL & 3 & 30 jours \\
+\hline
+anomalies & Anomalies détectées & 3 & 30 jours \\
+\hline
+notifications & Alertes à envoyer & 3 & 7 jours \\
+\hline
+\end{tabular}
+\caption{Topics Kafka de MANTIS}
+\label{tab:kafka-topics-infra}
+\end{table}
+
+\subsection{Configuration Kafka}
+
+\begin{lstlisting}[language=yaml, caption=Configuration Kafka Production]
+# Cluster Kafka
+brokers: 3
+replication_factor: 2
+min_insync_replicas: 2
+
+# Performance
+compression_type: lz4
+batch_size: 16384
+linger_ms: 10
+
+# Garanties
+acks: all
+enable_idempotence: true
+max_in_flight_requests_per_connection: 5
+
+# Consumers
+auto_offset_reset: earliest
+enable_auto_commit: false
+isolation_level: read_committed
+\end{lstlisting}
+
+\section{Conteneurisation Docker}
+
+\subsection{Dockerfile Multi-Stage}
+
+\begin{lstlisting}[language=Docker, caption=Dockerfile Prediction Service]
+# Stage 1: Build
+FROM python:3.11-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.11-slim
+WORKDIR /app
+
+# Copy dependencies from builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy application
+COPY . .
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Run
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+\end{lstlisting}
+
+\subsection{Docker Compose}
+
+\begin{lstlisting}[language=yaml, caption=docker-compose.yml Infrastructure]
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    ports: ["9092:9092"]
+    depends_on: [zookeeper]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    ports: ["5432:5432"]
+    environment:
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mantis_ts
+    volumes:
+      - timescale-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    command: redis-server --maxmemory 2gb --maxmemory-policy allkeys-lru
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.8.0
+    ports: ["5000:5000"]
+    command: mlflow server --backend-store-uri postgresql://...
+
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    ports: ["9090:9090"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    ports: ["3001:3000"]
+    depends_on: [prometheus]
+
+volumes:
+  timescale-data:
+  kafka-data:
+\end{lstlisting}
+
+\section{Orchestration Kubernetes}
+
+\subsection{Deployment Example}
+
+\begin{lstlisting}[language=yaml, caption=Kubernetes Deployment - Prediction Service]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prediction-service
+  namespace: mantis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: prediction-service
+  template:
+    metadata:
+      labels:
+        app: prediction-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: prediction
+        image: mantis/prediction-service:v1.0.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: kafka.mantis.svc.cluster.local:9092
+        - name: MLFLOW_TRACKING_URI
+          value: http://mlflow.mantis.svc.cluster.local:5000
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prediction-service
+  namespace: mantis
+spec:
+  selector:
+    app: prediction-service
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: prediction-service-hpa
+  namespace: mantis
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prediction-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+\end{lstlisting}
+
+\section{CI/CD Pipeline}
+
+\subsection{GitHub Actions Workflow}
+
+\begin{lstlisting}[language=yaml, caption=.github/workflows/ci-cd.yml]
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      
+      - name: Lint
+        run: |
+          flake8 . --max-line-length=100
+          black --check .
+      
+      - name: Test
+        run: pytest --cov=. --cov-report=xml
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build Docker image
+        run: docker build -t mantis/prediction-service:${{ github.sha }} .
+      
+      - name: Push to registry
+        run: docker push mantis/prediction-service:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/prediction-service \
+            prediction=mantis/prediction-service:${{ github.sha }} \
+            -n mantis
+\end{lstlisting}
+
+%=============================================================================
+% CHAPITRE 6 : COMMUNICATION ET PROTOCOLS
+%=============================================================================
+
+\chapter{Communication et Protocoles}
+
+\section{APIs REST}
+
+\subsection{Spécification OpenAPI}
+
+\begin{lstlisting}[language=yaml, caption=OpenAPI Spec - Prediction Service]
+openapi: 3.0.0
+info:
+  title: RUL Prediction Service
+  version: 1.0.0
+  description: API for RUL prediction using LSTM models
+
+paths:
+  /predict:
+    post:
+      summary: Predict RUL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                equipment_id:
+                  type: string
+                sequence:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: number
+      responses:
+        '200':
+          description: Prediction successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rul:
+                    type: number
+                  confidence_interval:
+                    type: array
+                    items:
+                      type: number
+\end{lstlisting}
+
+\section{Protocoles IIoT}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|l|l|p{4cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Protocole} & \textbf{Port} & \textbf{Transport} & \textbf{Use Case} \\
+\hline
+OPC UA & 4840 & TCP & SCADA, PLCs, automates \\
+\hline
+MQTT & 1883 & TCP & Capteurs IoT, edge devices \\
+\hline
+Modbus TCP & 502 & TCP & Équipements legacy \\
+\hline
+REST API & 8001 & HTTP/HTTPS & Intégrations modernes \\
+\hline
+\end{tabular}
+\caption{Protocoles IIoT Supportés}
+\label{tab:iiot-protocols-infra}
+\end{table}
+
+\section{Sécurité}
+
+\subsection{Authentification JWT}
+
+\begin{lstlisting}[language=Python, caption=Authentification JWT - API Gateway]
+from fastapi import Security, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(401, "Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(401, "Invalid token")
+
+@app.get("/protected")
+async def protected_route(user: dict = Depends(verify_token)):
+    return {"message": f"Hello {user['username']}"}
+\end{document}

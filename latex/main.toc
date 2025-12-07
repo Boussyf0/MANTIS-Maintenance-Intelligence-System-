@@ -1,0 +1,272 @@
+\babel@toc {french}{}\relax 
+\contentsline {chapter}{Remerciements}{1}{chapter*.1}%
+\contentsline {chapter}{Résumé}{2}{chapter*.2}%
+\contentsline {paragraph}{Contexte.}{2}{chapter*.2}%
+\contentsline {paragraph}{Problématique.}{2}{chapter*.2}%
+\contentsline {paragraph}{Objectif.}{2}{chapter*.2}%
+\contentsline {paragraph}{Architecture.}{2}{chapter*.2}%
+\contentsline {paragraph}{Technologies.}{2}{Item.7}%
+\contentsline {paragraph}{Dataset.}{2}{Item.7}%
+\contentsline {paragraph}{Résultats.}{3}{Item.7}%
+\contentsline {paragraph}{Impact.}{3}{Item.7}%
+\contentsline {paragraph}{Mots-clés.}{3}{Item.7}%
+\contentsline {chapter}{Abstract}{4}{chapter*.3}%
+\contentsline {paragraph}{Context.}{4}{chapter*.3}%
+\contentsline {paragraph}{Problem.}{4}{chapter*.3}%
+\contentsline {paragraph}{Objective.}{4}{chapter*.3}%
+\contentsline {paragraph}{Architecture.}{4}{chapter*.3}%
+\contentsline {paragraph}{Technologies.}{4}{Item.14}%
+\contentsline {paragraph}{Dataset.}{4}{Item.14}%
+\contentsline {paragraph}{Results.}{5}{Item.14}%
+\contentsline {paragraph}{Impact.}{5}{Item.14}%
+\contentsline {paragraph}{Keywords.}{5}{Item.14}%
+\contentsline {chapter}{Liste des Abréviations}{6}{chapter*.4}%
+\contentsline {chapter}{\numberline {1}Introduction Générale}{11}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Présentation du Projet}{11}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Vision du Projet}{11}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Positionnement du Projet}{11}{subsection.1.1.2}%
+\contentsline {section}{\numberline {1.2}Contexte Académique}{12}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Cadre de Formation}{12}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Encadrement}{12}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}Choix du Projet}{12}{subsection.1.2.3}%
+\contentsline {section}{\numberline {1.3}Motivation et Enjeux}{13}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Enjeux Économiques}{13}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Enjeux Technologiques}{13}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Enjeux Académiques et Pédagogiques}{13}{subsection.1.3.3}%
+\contentsline {section}{\numberline {1.4}Portée du Projet}{14}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Périmètre Fonctionnel}{14}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Périmètre Technique}{14}{subsection.1.4.2}%
+\contentsline {section}{\numberline {1.5}Méthodologie de Développement}{15}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}Approche Agile}{15}{subsection.1.5.1}%
+\contentsline {subsection}{\numberline {1.5.2}Workflow Git}{15}{subsection.1.5.2}%
+\contentsline {subsection}{\numberline {1.5.3}Gestion de la Qualité}{15}{subsection.1.5.3}%
+\contentsline {section}{\numberline {1.6}Structure du Rapport}{15}{section.1.6}%
+\contentsline {chapter}{\numberline {2}Contexte et Problématique}{17}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{17}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Contexte Industriel : L'Industrie 4.0}{17}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Définition et Évolution}{17}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Impact sur les Systèmes de Production}{18}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Enjeux Économiques}{18}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Problématique de la Maintenance Industrielle}{18}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Approches Traditionnelles de Maintenance}{18}{subsection.2.3.1}%
+\contentsline {subsubsection}{Maintenance Corrective (Run-to-Failure)}{19}{subsection.2.3.1}%
+\contentsline {subsubsection}{Maintenance Préventive Systématique}{19}{subsection.2.3.1}%
+\contentsline {subsubsection}{Maintenance Conditionnelle}{19}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Limites des Approches Traditionnelles}{20}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Émergence de la Maintenance Prédictive}{20}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}Défis Techniques et Scientifiques}{21}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Hétérogénéité des Sources de Données IIoT}{21}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Volume et Vélocité des Données}{21}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Complexité des Modèles de Machine Learning}{21}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Qualité et Fiabilité des Données}{22}{subsection.2.4.4}%
+\contentsline {subsection}{\numberline {2.4.5}Déploiement et MLOps}{22}{subsection.2.4.5}%
+\contentsline {section}{\numberline {2.5}Problématique du Projet MANTIS}{22}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Sous-Problématique 1 : Architecture Distribuée}{22}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Sous-Problématique 2 : Ingestion de Données IIoT}{23}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Sous-Problématique 3 : Pipeline de Prétraitement}{23}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Sous-Problématique 4 : Modélisation et Prédiction}{23}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}Sous-Problématique 5 : MLOps et Déploiement}{23}{subsection.2.5.5}%
+\contentsline {subsection}{\numberline {2.5.6}Sous-Problématique 6 : Observabilité et Monitoring}{23}{subsection.2.5.6}%
+\contentsline {section}{\numberline {2.6}Questions de Recherche}{24}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Périmètre et Hypothèses du Projet}{24}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}Périmètre}{24}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}Hypothèses}{25}{subsection.2.7.2}%
+\contentsline {section}{\numberline {2.8}Conclusion}{25}{section.2.8}%
+\contentsline {chapter}{\numberline {3}Objectifs du Projet}{26}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introduction}{26}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Objectif Global}{26}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Objectifs Fonctionnels}{26}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}OF1 : Ingestion Multi-Protocole de Données IIoT}{26}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}OF2 : Prétraitement et Nettoyage des Données}{27}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}OF3 : Prédiction de la Durée de Vie Résiduelle (RUL)}{27}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}OF4 : Détection d'Anomalies Temps Réel}{28}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}OF5 : Notifications et Alertes Temps Réel}{28}{subsection.3.3.5}%
+\contentsline {subsection}{\numberline {3.3.6}OF6 : Gestion du Cycle de Vie des Modèles (MLOps)}{28}{subsection.3.3.6}%
+\contentsline {section}{\numberline {3.4}Objectifs Techniques}{29}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}OT1 : Architecture Microservices Modulaire}{29}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}OT2 : Event-Driven Architecture avec Apache Kafka}{29}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}OT3 : Bases de Données Time-Series et Relationnelles}{30}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}OT4 : Infrastructure DevOps et CI/CD}{30}{subsection.3.4.4}%
+\contentsline {subsection}{\numberline {3.4.5}OT5 : Observabilité Complète (Monitoring, Logging, Tracing)}{31}{subsection.3.4.5}%
+\contentsline {section}{\numberline {3.5}Objectifs Non-Fonctionnels}{31}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}ONF1 : Performance et Scalabilité}{31}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}ONF2 : Disponibilité et Résilience}{32}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}ONF3 : Sécurité}{32}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}ONF4 : Maintenabilité et Qualité du Code}{32}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}ONF5 : Reproductibilité et Versioning}{33}{subsection.3.5.5}%
+\contentsline {section}{\numberline {3.6}Synthèse des Objectifs et KPIs}{33}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Priorisation des Objectifs}{33}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Must Have (Critique)}{34}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}Should Have (Important)}{34}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}Could Have (Souhaitable)}{34}{subsection.3.7.3}%
+\contentsline {subsection}{\numberline {3.7.4}Won't Have (Hors scope v1.0)}{34}{subsection.3.7.4}%
+\contentsline {section}{\numberline {3.8}Conclusion}{34}{section.3.8}%
+\contentsline {chapter}{\numberline {4}État de l'Art}{35}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introduction}{35}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Maintenance Prédictive et Prédiction de RUL}{35}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Définitions et Taxonomie}{35}{subsection.4.2.1}%
+\contentsline {subsubsection}{Approches Basées sur des Modèles Physiques}{35}{subsection.4.2.1}%
+\contentsline {subsubsection}{Approches Data-Driven (Machine Learning)}{36}{subsection.4.2.1}%
+\contentsline {subsubsection}{Approches Hybrides}{36}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}État de l'Art Académique}{36}{subsection.4.2.2}%
+\contentsline {subsubsection}{Travaux Fondateurs}{36}{subsection.4.2.2}%
+\contentsline {subsubsection}{Travaux Récents (2020-2024)}{37}{Item.124}%
+\contentsline {subsection}{\numberline {4.2.3}Benchmarks sur NASA C-MAPSS}{37}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Deep Learning pour Séries Temporelles}{38}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Réseaux de Neurones Récurrents (RNN)}{38}{subsection.4.3.1}%
+\contentsline {subsubsection}{Architecture de Base}{38}{subsection.4.3.1}%
+\contentsline {subsubsection}{Long Short-Term Memory (LSTM)}{38}{equation.4.2}%
+\contentsline {subsubsection}{Gated Recurrent Unit (GRU)}{39}{equation.4.8}%
+\contentsline {subsection}{\numberline {4.3.2}Transformers pour Séries Temporelles}{39}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Comparaison LSTM vs. GRU vs. Transformer}{40}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Architectures Microservices et Event-Driven}{40}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Principes des Microservices}{40}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Event-Driven Architecture (EDA)}{41}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Protocoles et Standards IIoT}{41}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}OPC UA (Open Platform Communications Unified Architecture)}{41}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}MQTT (Message Queuing Telemetry Transport)}{42}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Modbus}{42}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Comparaison OPC UA vs. MQTT vs. Modbus}{42}{subsection.4.5.4}%
+\contentsline {section}{\numberline {4.6}MLOps : DevOps pour Machine Learning}{42}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Principes MLOps}{42}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Composants Clés}{43}{subsection.4.6.2}%
+\contentsline {subsubsection}{MLflow}{43}{subsection.4.6.2}%
+\contentsline {subsubsection}{Feast (Feature Store)}{43}{subsection.4.6.2}%
+\contentsline {subsubsection}{DVC (Data Version Control)}{43}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Pipeline MLOps Complet}{43}{subsection.4.6.3}%
+\contentsline {section}{\numberline {4.7}Synthèse et Positionnement de MANTIS}{43}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Choix Technologiques de MANTIS}{43}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Positionnement par Rapport à l'État de l'Art}{44}{subsection.4.7.2}%
+\contentsline {section}{\numberline {4.8}Conclusion}{44}{section.4.8}%
+\contentsline {chapter}{\numberline {5}Analyse et Conception}{45}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Introduction}{45}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Processus Métiers (BPMN)}{45}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Description Détaillée}{46}{subsection.5.2.1}%
+\contentsline {section}{\numberline {5.3}Analyse Fonctionnelle}{46}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Diagramme de Cas d'Utilisation}{46}{subsection.5.3.1}%
+\contentsline {section}{\numberline {5.4}Conception Détaillée des Microservices}{47}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Service Ingestion}{47}{subsection.5.4.1}%
+\contentsline {subsubsection}{Cas d'Utilisation}{47}{subsection.5.4.1}%
+\contentsline {subsubsection}{Diagramme de Classes}{47}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Service Prediction}{47}{subsection.5.4.2}%
+\contentsline {subsubsection}{Cas d'Utilisation}{47}{subsection.5.4.2}%
+\contentsline {subsubsection}{Diagramme de Classes}{47}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Vue Dynamique (Diagrammes de Séquence)}{48}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Séquence d'Ingestion OPC UA}{48}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Séquence de Prédiction RUL}{50}{subsection.5.5.2}%
+\contentsline {section}{\numberline {5.6}Architecture Globale du Système}{51}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Vue d'Ensemble}{51}{subsection.5.6.1}%
+\contentsline {section}{\numberline {5.7}Modèles de Données}{51}{section.5.7}%
+\contentsline {subsection}{\numberline {5.7.1}Schéma de Base de Données TimescaleDB}{51}{subsection.5.7.1}%
+\contentsline {section}{\numberline {5.8}Maquettes UI/UX}{52}{section.5.8}%
+\contentsline {subsection}{\numberline {5.8.1}Dashboard Principal}{52}{subsection.5.8.1}%
+\contentsline {subsection}{\numberline {5.8.2}Vue Détail Machine}{53}{subsection.5.8.2}%
+\contentsline {section}{\numberline {5.9}Justifications des Choix de Conception}{53}{section.5.9}%
+\contentsline {subsection}{\numberline {5.9.1}Architecture Événementielle}{53}{subsection.5.9.1}%
+\contentsline {subsection}{\numberline {5.9.2}Microservices vs Monolithe}{54}{subsection.5.9.2}%
+\contentsline {section}{\numberline {5.10}Conclusion}{54}{section.5.10}%
+\contentsline {chapter}{\numberline {6}Architecture Technique}{55}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Introduction}{55}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Vue d'Ensemble du Système}{55}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Architecture Globale}{55}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Flux de Données Principal}{56}{subsection.6.2.2}%
+\contentsline {section}{\numberline {6.3}Détail des Microservices}{56}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Ingestion Service}{56}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Preprocessing Service}{56}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Prediction Service}{57}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Anomaly Detection Service}{57}{subsection.6.3.4}%
+\contentsline {subsection}{\numberline {6.3.5}Notification Service}{57}{subsection.6.3.5}%
+\contentsline {subsection}{\numberline {6.3.6}Training Service}{57}{subsection.6.3.6}%
+\contentsline {subsection}{\numberline {6.3.7}API Gateway}{59}{subsection.6.3.7}%
+\contentsline {section}{\numberline {6.4}Apache Kafka : Bus d'Événements}{59}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Topics Kafka}{59}{subsection.6.4.1}%
+\contentsline {section}{\numberline {6.5}Bases de Données}{59}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}TimescaleDB}{59}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}PostgreSQL}{59}{subsection.6.5.2}%
+\contentsline {section}{\numberline {6.6}Infrastructure DevOps}{59}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Containerisation (Docker)}{59}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Orchestration (Kubernetes)}{60}{subsection.6.6.2}%
+\contentsline {section}{\numberline {6.7}Observabilité}{60}{section.6.7}%
+\contentsline {subsection}{\numberline {6.7.1}Architecture Monitoring}{60}{subsection.6.7.1}%
+\contentsline {section}{\numberline {6.8}Décisions Architecturales Clés}{60}{section.6.8}%
+\contentsline {subsection}{\numberline {6.8.1}ADR-001 : Choix de l'Architecture Microservices Événementielle}{60}{subsection.6.8.1}%
+\contentsline {subsection}{\numberline {6.8.2}ADR-002 : Choix de Kafka comme Event Bus}{60}{subsection.6.8.2}%
+\contentsline {subsection}{\numberline {6.8.3}ADR-003 : Choix de LSTM pour RUL Prediction}{61}{subsection.6.8.3}%
+\contentsline {subsection}{\numberline {6.8.4}ADR-004 : Choix de TimescaleDB pour Séries Temporelles}{61}{subsection.6.8.4}%
+\contentsline {section}{\numberline {6.9}Patterns Architecturaux Implémentés}{61}{section.6.9}%
+\contentsline {subsection}{\numberline {6.9.1}Pattern Event Sourcing}{61}{subsection.6.9.1}%
+\contentsline {subsection}{\numberline {6.9.2}Pattern CQRS (Command Query Responsibility Segregation)}{61}{subsection.6.9.2}%
+\contentsline {subsection}{\numberline {6.9.3}Pattern Circuit Breaker}{62}{subsection.6.9.3}%
+\contentsline {section}{\numberline {6.10}Stratégies de Scalabilité}{62}{section.6.10}%
+\contentsline {subsection}{\numberline {6.10.1}Scalabilité Horizontale}{62}{subsection.6.10.1}%
+\contentsline {subsection}{\numberline {6.10.2}Partitionnement Kafka}{62}{subsection.6.10.2}%
+\contentsline {section}{\numberline {6.11}Sécurité}{63}{section.6.11}%
+\contentsline {subsection}{\numberline {6.11.1}Authentification et Autorisation}{63}{subsection.6.11.1}%
+\contentsline {subsection}{\numberline {6.11.2}Rôles et Permissions}{63}{subsection.6.11.2}%
+\contentsline {section}{\numberline {6.12}Performance et Optimisations}{63}{section.6.12}%
+\contentsline {subsection}{\numberline {6.12.1}Objectifs de Performance}{63}{subsection.6.12.1}%
+\contentsline {subsection}{\numberline {6.12.2}Optimisations Implémentées}{63}{subsection.6.12.2}%
+\contentsline {section}{\numberline {6.13}Plan de Reprise d'Activité (DRP)}{64}{section.6.13}%
+\contentsline {subsection}{\numberline {6.13.1}Stratégies de Backup}{64}{subsection.6.13.1}%
+\contentsline {section}{\numberline {6.14}Diagrammes de Séquence Détaillés}{65}{section.6.14}%
+\contentsline {subsection}{\numberline {6.14.1}Flux Complet de Traitement}{65}{subsection.6.14.1}%
+\contentsline {subsection}{\numberline {6.14.2}Processus d'Entraînement et Déploiement ML}{66}{subsection.6.14.2}%
+\contentsline {section}{\numberline {6.15}Conclusion}{66}{section.6.15}%
+\contentsline {chapter}{\numberline {7}Implémentation}{68}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Introduction}{68}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Structure du Projet}{68}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Service d'Ingestion IIoT}{68}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Modèle de Données (Pydantic)}{68}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Connecteur OPC UA (Asyncio)}{69}{subsection.7.3.2}%
+\contentsline {section}{\numberline {7.4}Service de Prédiction RUL}{69}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Modèle LSTM (PyTorch)}{69}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}API d'Inférence (FastAPI)}{70}{subsection.7.4.2}%
+\contentsline {section}{\numberline {7.5}Dashboard React}{70}{section.7.5}%
+\contentsline {subsection}{\numberline {7.5.1}Composant Graphique RUL}{70}{subsection.7.5.1}%
+\contentsline {section}{\numberline {7.6}Service de Détection d'Anomalies}{70}{section.7.6}%
+\contentsline {subsection}{\numberline {7.6.1}Implémentation Isolation Forest}{70}{subsection.7.6.1}%
+\contentsline {subsection}{\numberline {7.6.2}Autoencoder pour Détection d'Anomalies}{71}{subsection.7.6.2}%
+\contentsline {section}{\numberline {7.7}Infrastructure Docker}{72}{section.7.7}%
+\contentsline {subsection}{\numberline {7.7.1}Dockerfile Microservice Python}{72}{subsection.7.7.1}%
+\contentsline {subsection}{\numberline {7.7.2}Docker Compose Infrastructure}{72}{subsection.7.7.2}%
+\contentsline {section}{\numberline {7.8}Configuration Kubernetes}{74}{section.7.8}%
+\contentsline {subsection}{\numberline {7.8.1}Deployment Prediction Service}{74}{subsection.7.8.1}%
+\contentsline {section}{\numberline {7.9}API REST Complète}{75}{section.7.9}%
+\contentsline {subsection}{\numberline {7.9.1}Endpoints Dashboard API}{75}{subsection.7.9.1}%
+\contentsline {section}{\numberline {7.10}Conclusion}{76}{section.7.10}%
+\contentsline {chapter}{\numberline {8}Tests et Validation}{77}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Stratégie de Tests}{77}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Tests Unitaires Python}{77}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Tests Unitaires Java}{77}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Couverture de Code}{78}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Tests d'Intégration}{78}{section.8.5}%
+\contentsline {subsection}{\numberline {8.5.1}Test End-to-End du Pipeline}{78}{subsection.8.5.1}%
+\contentsline {subsection}{\numberline {8.5.2}Tests de Charge}{79}{subsection.8.5.2}%
+\contentsline {section}{\numberline {8.6}Validation des Modèles ML}{79}{section.8.6}%
+\contentsline {subsection}{\numberline {8.6.1}Métriques de Performance du Modèle LSTM}{79}{subsection.8.6.1}%
+\contentsline {subsection}{\numberline {8.6.2}Matrice de Confusion - Détection d'Anomalies}{80}{subsection.8.6.2}%
+\contentsline {section}{\numberline {8.7}Tests de Sécurité}{80}{section.8.7}%
+\contentsline {subsection}{\numberline {8.7.1}Scan de Vulnérabilités}{80}{subsection.8.7.1}%
+\contentsline {subsection}{\numberline {8.7.2}Tests de Pénétration API}{80}{subsection.8.7.2}%
+\contentsline {section}{\numberline {8.8}CI/CD et Automatisation}{80}{section.8.8}%
+\contentsline {subsection}{\numberline {8.8.1}Pipeline GitHub Actions}{80}{subsection.8.8.1}%
+\contentsline {section}{\numberline {8.9}Validation Utilisateur}{81}{section.8.9}%
+\contentsline {subsection}{\numberline {8.9.1}Tests d'Acceptation}{81}{subsection.8.9.1}%
+\contentsline {section}{\numberline {8.10}Conclusion}{81}{section.8.10}%
+\contentsline {chapter}{\numberline {9}Conclusion et Perspectives}{83}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Synthèse}{83}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Perspectives}{83}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Contributions du Projet}{83}{section.9.3}%
+\contentsline {subsection}{\numberline {9.3.1}Contributions Techniques}{83}{subsection.9.3.1}%
+\contentsline {subsection}{\numberline {9.3.2}Contributions Académiques}{84}{subsection.9.3.2}%
+\contentsline {section}{\numberline {9.4}Compétences Développées}{84}{section.9.4}%
+\contentsline {section}{\numberline {9.5}Difficultés Rencontrées et Solutions}{85}{section.9.5}%
+\contentsline {subsection}{\numberline {9.5.1}Difficultés Techniques}{85}{subsection.9.5.1}%
+\contentsline {subsection}{\numberline {9.5.2}Difficultés Organisationnelles}{85}{subsection.9.5.2}%
+\contentsline {section}{\numberline {9.6}Impact et Bénéfices}{85}{section.9.6}%
+\contentsline {subsection}{\numberline {9.6.1}Impact Économique Potentiel}{85}{subsection.9.6.1}%
+\contentsline {subsection}{\numberline {9.6.2}Impact Environnemental}{85}{subsection.9.6.2}%
+\contentsline {section}{\numberline {9.7}Leçons Apprises}{86}{section.9.7}%
+\contentsline {section}{\numberline {9.8}Impact}{86}{section.9.8}%
+\contentsline {chapter}{Bibliographie}{87}{chapter*.61}%
+\contentsline {chapter}{\numberline {A}Docker Compose}{92}{appendix.A}%

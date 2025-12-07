@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -50,8 +49,7 @@ class KafkaProducerServiceTest {
                 kafkaTemplate,
                 testTopic,
                 edgeBufferService,
-                meterRegistry
-        );
+                meterRegistry);
     }
 
     @Test
@@ -198,14 +196,11 @@ class KafkaProducerServiceTest {
 
     private SendResult<String, SensorData> createMockSendResult() {
         ProducerRecord<String, SensorData> producerRecord = new ProducerRecord<>(
-                testTopic, 0, "test-key", TestDataFactory.createValidSensorData()
-        );
+                testTopic, 0, "test-key", TestDataFactory.createValidSensorData());
 
         RecordMetadata metadata = new RecordMetadata(
                 new TopicPartition(testTopic, 0),
-                0L, 0, 0L, System.currentTimeMillis(), 0, 0
-        );
-
+                0L, 0, 0L, 0, 0);
         return new SendResult<>(producerRecord, metadata);
     }
 }

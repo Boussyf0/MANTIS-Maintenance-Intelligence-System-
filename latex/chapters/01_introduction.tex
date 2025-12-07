@@ -1,0 +1,359 @@
+%=============================================================================
+% CHAPITRE 1 : INTRODUCTION GÉNÉRALE
+%=============================================================================
+\chapter{Introduction Générale}
+
+\section{Présentation du Projet}
+
+\mantis{} (MAiNtenance prédictive Temps-réel pour usines Intelligentes) est une plateforme modulaire et intelligente destinée à révolutionner la maintenance industrielle dans le contexte de l'Industrie 4.0. Ce projet s'inscrit dans le cadre académique de la formation IIR5 à l'École Marocaine des Sciences de l'Ingénieur (EMSI), sous la supervision de trois professeurs experts dans les domaines du Big Data, de l'Intelligence Artificielle et du DevOps.
+
+Le projet \mantis{} vise à transformer les approches traditionnelles de maintenance (corrective et préventive) en une approche prédictive basée sur l'analyse de données en temps réel provenant de capteurs industriels. Cette transformation permet de réduire significativement les coûts d'arrêt de production, d'optimiser la durée de vie des équipements et d'améliorer la sécurité opérationnelle.
+
+\subsection{Vision du Projet}
+
+La vision de \mantis{} est de créer une plateforme qui :
+
+\begin{itemize}
+    \item \textbf{Anticipe} les défaillances avant qu'elles ne se produisent
+    \item \textbf{Optimise} la planification des interventions de maintenance
+    \item \textbf{Réduit} les coûts et les temps d'arrêt non planifiés
+    \item \textbf{Améliore} la sécurité opérationnelle et la durée de vie des actifs
+    \item \textbf{Facilite} la transition vers l'Industrie 4.0
+\end{itemize}
+
+\subsection{Positionnement du Projet}
+
+\mantis{} se positionne à l'intersection de plusieurs domaines technologiques majeurs :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    domain/.style={ellipse, draw, minimum width=3cm, minimum height=2cm, align=center, font=\small}
+]
+    \node[domain, fill=mantisblue!20] (iot) at (0,2) {\textbf{IoT/IIoT}\\Capteurs\\Protocoles};
+    \node[domain, fill=mantisgreen!20] (ml) at (3,0) {\textbf{ML/AI}\\LSTM\\Prédiction};
+    \node[domain, fill=mantisorange!20] (big) at (-3,0) {\textbf{Big Data}\\Kafka\\Streaming};
+    \node[domain, fill=mantisred!20] (devops) at (0,-2) {\textbf{DevOps}\\Docker\\CI/CD};
+    
+    \node[draw, circle, fill=mantisblue, text=white, font=\Large\bfseries] at (0,0) {MANTIS};
+\end{tikzpicture}
+\caption{Positionnement technologique de \mantis{}}
+\label{fig:positioning}
+\end{figure}
+
+\section{Contexte Académique}
+
+\subsection{Cadre de Formation}
+
+Ce projet fait partie du programme IIR5 (Ingénierie Informatique et Réseaux 5e année) de l'EMSI et correspond au \textbf{Projet 11 : Maintenance prédictive temps-réel pour usines intelligentes} parmi les 12 propositions présentées dans le document \textit{Projet\_IIR5.pdf}.
+
+\subsection{Encadrement}
+
+Le projet bénéficie de l'encadrement de trois professeurs complémentaires :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Encadrant} & \textbf{Expertise} & \textbf{Contribution au projet} \\
+\hline
+Pr. O. OUEDRHIRI & Big Data, Architecture & Architecture microservices, Kafka, scalabilité \\
+\hline
+Pr. H. TABBAA & IA, Machine Learning & Modèles RUL, détection anomalies, Deep Learning \\
+\hline
+Pr. M. LACHGAR & DevOps, MLOps & CI/CD, Docker, monitoring, bonnes pratiques \\
+\hline
+\end{tabular}
+\caption{Équipe d'encadrement du projet}
+\label{tab:encadrement}
+\end{table}
+
+\subsection{Choix du Projet}
+
+Le choix de ce projet s'est imposé naturellement en raison de :
+
+\begin{enumerate}
+    \item \textbf{Pertinence industrielle} : Besoin réel et critique dans l'industrie moderne
+    \item \textbf{Richesse technique} : Combine IoT, Big Data, IA et DevOps
+    \item \textbf{Applicabilité locale} : Aligné avec l'industrie marocaine (automotive, aéronautique)
+    \item \textbf{Données disponibles} : Dataset NASA C-MAPSS reconnu académiquement
+    \item \textbf{Impact mesurable} : ROI démontrable et bénéfices quantifiables
+\end{enumerate}
+
+\section{Motivation et Enjeux}
+
+\subsection{Enjeux Économiques}
+
+Les arrêts non planifiés représentent un coût économique majeur pour l'industrie :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|r|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Indicateur} & \textbf{Valeur} \\
+\hline
+Coût global annuel mondial & 50 milliards USD \\
+\hline
+Coût médian par heure d'arrêt & 125 000 USD \\
+\hline
+Entreprises ayant subi $\geq$ 1 arrêt imprévu (3 ans) & 82\% \\
+\hline
+Part de la maintenance dans le budget opérationnel & 15-40\% \\
+\hline
+\end{tabular}
+\caption{Impact économique des arrêts non planifiés}
+\label{tab:economic-impact}
+\end{table}
+
+\textbf{Bénéfices attendus de la maintenance prédictive} :
+
+\begin{itemize}
+    \item Réduction de 25-30\% des coûts de maintenance
+    \item Diminution de 70-75\% des arrêts non planifiés
+    \item Augmentation de 20-40\% de la durée de vie des équipements
+    \item Amélioration de 10-20\% de la disponibilité (OEE)
+    \item ROI positif en 12-18 mois
+\end{itemize}
+
+\subsection{Enjeux Technologiques}
+
+L'Industrie 4.0 génère des volumes massifs de données sous-exploitées :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm,
+    box/.style={rectangle, draw, rounded corners, minimum width=3cm, minimum height=1cm, align=center, font=\footnotesize}
+]
+    \node[box, fill=mantisred!20] (problem) {\textbf{Problème}\\Données silotées\\Non exploitées};
+    \node[box, fill=mantisorange!20, right=of problem] (chall1) {\textbf{Défis}\\Hétérogénéité\\Volume};
+    \node[box, fill=mantisgreen!20, right=of chall1] (sol) {\textbf{Solution}\\MANTIS\\Intégration};
+    \node[box, fill=mantisblue!20, right=of sol] (benefit) {\textbf{Bénéfice}\\Insights\\Prédiction};
+    
+    \draw[-{Stealth}, thick] (problem) -- (chall1);
+    \draw[-{Stealth}, thick] (chall1) -- (sol);
+    \draw[-{Stealth}, thick] (sol) -- (benefit);
+\end{tikzpicture}
+\caption{De la donnée silotée à la valeur actionnable}
+\label{fig:data-to-value}
+\end{figure}
+
+\textbf{Défis techniques identifiés} :
+
+\begin{enumerate}
+    \item \textbf{Hétérogénéité} : Multiples protocoles (\opcua{}, \mqtt{}, Modbus), formats et fréquences
+    \item \textbf{Volume} : Plusieurs To/jour dans une usine moyenne
+    \item \textbf{Vélocité} : Latence <5 secondes requise pour les alertes critiques
+    \item \textbf{Variabilité} : Conditions opératoires changeantes
+    \item \textbf{Véracité} : Bruit, valeurs aberrantes, dérives de capteurs
+\end{enumerate}
+
+\subsection{Enjeux Académiques et Pédagogiques}
+
+Ce projet constitue une opportunité pédagogique exceptionnelle :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Domaine} & \textbf{Compétences développées} \\
+\hline
+Architecture & Conception microservices, event-driven, résilience, scalabilité \\
+\hline
+Big Data & Kafka, TimescaleDB, streaming en temps réel, traitement distribué \\
+\hline
+IA/ML & LSTM, détection anomalies, transfer learning, MLOps \\
+\hline
+DevOps & Docker, CI/CD, monitoring, observabilité, infrastructure as code \\
+\hline
+IIoT & Protocoles industriels, edge computing, intégration OT/IT \\
+\hline
+Gestion & Agile, Trello, documentation, communication, travail d'équipe \\
+\hline
+\end{tabular}
+\caption{Compétences développées dans le cadre du projet}
+\label{tab:skills}
+\end{table}
+
+\section{Portée du Projet}
+
+\subsection{Périmètre Fonctionnel}
+
+Le projet \mantis{} couvre l'ensemble de la chaîne de valeur de la maintenance prédictive :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm,
+    step/.style={rectangle, draw, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center, font=\scriptsize},
+    arrow/.style={-{Stealth[scale=0.8]}, thick}
+]
+    \node[step, fill=mantisblue!20] (acq) {\textbf{1. Acquisition}\\Capteurs\\Protocoles};
+    \node[step, fill=mantisorange!20, below=of acq] (prep) {\textbf{2. Prétraitement}\\Nettoyage\\Normalisation};
+    \node[step, fill=mantisgreen!20, below=of prep] (feat) {\textbf{3. Features}\\Extraction\\Sélection};
+    \node[step, fill=mantisblue!20, below=of feat] (anom) {\textbf{4. Anomalies}\\Détection\\Scoring};
+    \node[step, fill=mantisorange!20, below=of anom] (pred) {\textbf{5. Prédiction}\\RUL\\Incertitude};
+    \node[step, fill=mantisgreen!20, below=of pred] (orch) {\textbf{6. Orchestration}\\Règles\\Planning};
+    \node[step, fill=mantisblue!20, below=of orch] (viz) {\textbf{7. Visualisation}\\Dashboard\\Alertes};
+    
+    \draw[arrow] (acq) -- (prep);
+    \draw[arrow] (prep) -- (feat);
+    \draw[arrow] (feat) -- (anom);
+    \draw[arrow] (anom) -- (pred);
+    \draw[arrow] (pred) -- (orch);
+    \draw[arrow] (orch) -- (viz);
+\end{tikzpicture}
+\caption{Chaîne de valeur complète de \mantis{}}
+\label{fig:value-chain}
+\end{figure}
+
+\subsection{Périmètre Technique}
+
+\textbf{Inclus dans le projet} :
+
+\begin{itemize}
+    \item Architecture microservices complète (7 services)
+    \item Infrastructure de données (Kafka, PostgreSQL, TimescaleDB, InfluxDB, MinIO, Redis)
+    \item Pipeline MLOps (MLflow, Feast, DVC)
+    \item Stack de monitoring (Prometheus, Grafana, Jaeger)
+    \item Dataset de référence (NASA C-MAPSS)
+    \item Documentation exhaustive et reproductible
+    \item Tests automatisés (unitaires, intégration, end-to-end)
+    \item CI/CD complet avec GitHub Actions
+\end{itemize}
+
+\textbf{Exclus du projet} :
+
+\begin{itemize}
+    \item Déploiement en environnement de production réel
+    \item Intégration avec un SCADA propriétaire spécifique
+    \item Certifications industrielles (ISO, IEC, ATEX)
+    \item Gestion complète du cycle de vie des actifs (EAM complet)
+    \item Intégration ERP/SAP complète
+    \item Application mobile native
+\end{itemize}
+
+\section{Méthodologie de Développement}
+
+\subsection{Approche Agile}
+
+Le projet adopte une approche \textbf{Agile Scrum} avec les éléments suivants :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Sprints & Durée de 2 semaines, avec objectifs SMART \\
+\hline
+Trello & Board avec colonnes : Stories, À faire, En cours, Terminé, Testé, Validé \\
+\hline
+Daily Stand-ups & Points quotidiens de 15 minutes (async sur Discord) \\
+\hline
+Sprint Reviews & Revues bihebdomadaires avec les professeurs \\
+\hline
+Retrospectives & Amélioration continue du processus \\
+\hline
+Definition of Done & Code + Tests + Documentation + Review + Déploiement \\
+\hline
+\end{tabular}
+\caption{Pratiques Agile du projet}
+\label{tab:agile-practices}
+\end{table}
+
+\subsection{Workflow Git}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    branch/.style={rectangle, draw, rounded corners, minimum width=2cm, minimum height=0.8cm, align=center, font=\scriptsize},
+    arrow/.style={-{Stealth[scale=0.7]}, thick}
+]
+    \node[branch, fill=mantisblue!20] (main) {main};
+    \node[branch, fill=mantisgreen!20, below left=of main] (dev) {develop};
+    \node[branch, fill=mantisorange!20, below=of dev] (feature) {feature/xxx};
+    \node[branch, fill=mantisred!20, below right=of main] (hotfix) {hotfix/xxx};
+    
+    \draw[arrow] (feature) -- (dev);
+    \draw[arrow] (dev) -- (main);
+    \draw[arrow] (hotfix) -- (main);
+    
+    \node[right=0.3cm of main, font=\tiny] {Production};
+    \node[right=0.3cm of dev, font=\tiny] {Intégration};
+    \node[right=0.3cm of feature, font=\tiny] {Développement};
+    \node[right=0.3cm of hotfix, font=\tiny] {Urgences};
+\end{tikzpicture}
+\caption{Git branching strategy}
+\label{fig:git-workflow}
+\end{figure}
+
+\subsection{Gestion de la Qualité}
+
+La qualité est assurée à trois niveaux :
+
+\begin{enumerate}
+    \item \textbf{Local (Pre-commit hooks)} : Linting, formatage, détection de secrets
+    \item \textbf{CI/CD (GitHub Actions)} : Tests automatisés, couverture $\geq$ 80\%, scans de sécurité
+    \item \textbf{Review (Pull Requests)} : Code review obligatoire, validation architecte
+\end{enumerate}
+
+\section{Structure du Rapport}
+
+Ce rapport est organisé en 18 chapitres pour couvrir exhaustivement tous les aspects du projet :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|l|p{7cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Ch.} & \textbf{Titre} & \textbf{Contenu} \\
+\hline
+1 & Introduction & Contexte, motivation, portée, méthodologie \\
+\hline
+2 & Contexte et Problématique & Industrie 4.0, limites actuelles, défis \\
+\hline
+3 & Objectifs & Objectifs techniques, fonctionnels, critères de succès \\
+\hline
+4 & État de l'Art & Maintenance prédictive, ML, architectures, protocoles \\
+\hline
+5 & Architecture & Vue d'ensemble, patterns, décisions architecturales \\
+\hline
+6 & Microservices & Détail des 7 services, APIs, communication \\
+\hline
+7 & Technologies & Stack technique, justifications, comparaisons \\
+\hline
+8 & Infrastructure & Docker, Kubernetes, DevOps, déploiement \\
+\hline
+9 & Données & C-MAPSS, prétraitement, qualité, pipeline \\
+\hline
+10 & MLOps et IA & Modèles ML/DL, MLflow, Feast, entraînement \\
+\hline
+11 & Monitoring & Observabilité, métriques, logs, tracing \\
+\hline
+12 & Qualité et Tests & Stratégie de tests, couverture, sécurité \\
+\hline
+13 & Avancement & État actuel, livrables, démos \\
+\hline
+14 & Difficultés & Challenges rencontrés, solutions apportées \\
+\hline
+15 & Perspectives & Évolutions futures, roadmap, recherche \\
+\hline
+16 & Conclusion & Synthèse, contributions, leçons apprises \\
+\hline
+17 & Bibliographie & Références académiques et techniques \\
+\hline
+18 & Annexes & Code, diagrammes, configurations \\
+\hline
+\end{tabular}
+\caption{Structure du rapport}
+\label{tab:rapport-structure}
+\end{table}
+
+Chaque chapitre est conçu pour être autonome tout en s'inscrivant dans une progression logique permettant de comprendre l'ensemble du projet, depuis sa conception jusqu'à son implémentation et son évaluation.

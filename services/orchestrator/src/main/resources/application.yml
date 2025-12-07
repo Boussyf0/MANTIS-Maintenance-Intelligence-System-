@@ -1,0 +1,22 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: orchestrator-service
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    consumer:
+      group-id: ${CONSUMER_GROUP:orchestrator-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+app:
+  topic:
+    anomaly-events: ${ANOMALY_TOPIC:anomaly-events}
+    rul-predictions: ${RUL_TOPIC:rul-predictions}
+    alerts: ${ALERTS_TOPIC:alerts}

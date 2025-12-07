@@ -68,6 +68,11 @@ local.properties
 .ipynb_checkpoints
 *.ipynb_checkpoints
 
+# Pytest
+.pytest_cache/
+.pytest/
+pytest_cache/
+
 # Data
 data/raw/NASA_CMAPSS/
 data/raw/*.zip

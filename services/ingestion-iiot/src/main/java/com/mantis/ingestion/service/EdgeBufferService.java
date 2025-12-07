@@ -2,7 +2,7 @@ package com.mantis.ingestion.service;
 
 import com.mantis.ingestion.model.SensorData;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Gauge;
+
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +41,6 @@ public class EdgeBufferService {
 
     private final Counter bufferAddedCounter;
     private final Counter bufferDroppedCounter;
-    private final Gauge bufferSizeGauge;
 
     public EdgeBufferService(MeterRegistry meterRegistry) {
         this.buffer = new LinkedBlockingQueue<>();
@@ -55,9 +54,6 @@ public class EdgeBufferService {
                 .description("Total items dropped (buffer full)")
                 .register(meterRegistry);
 
-        this.bufferSizeGauge = Gauge.builder("mantis.edge.buffer.size", buffer, BlockingQueue::size)
-                .description("Current edge buffer size")
-                .register(meterRegistry);
     }
 
     @PostConstruct

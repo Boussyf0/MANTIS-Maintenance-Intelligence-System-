@@ -1,0 +1,328 @@
+%=============================================================================
+% CHAPITRE 5 : ANALYSE ET CONCEPTION
+%=============================================================================
+\chapter{Analyse et Conception}
+
+\section{Introduction}
+
+Ce chapitre détaille l'analyse des processus métiers et la conception technique de la plateforme MANTIS. Nous présentons d'abord le flux de travail global modélisé en BPMN, puis la conception détaillée des microservices clés à travers des diagrammes de classes et de cas d'utilisation, et enfin les maquettes UI/UX de l'interface utilisateur.
+
+\section{Processus Métiers (BPMN)}
+
+Le diagramme suivant illustre le flux de bout en bout, de la collecte des données capteurs jusqu'à l'intervention de maintenance.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/bpmn_process.png}
+\caption{Processus de Maintenance Prédictive (BPMN)}
+\label{fig:bpmn_process}
+\end{figure}
+
+\subsection{Description Détaillée}
+\begin{enumerate}
+    \item \textbf{Acquisition} : Les capteurs sur les machines industrielles transmettent les données de télémétrie (vibrations, température, pression) en temps réel.
+    \item \textbf{Traitement} : La plateforme ingère ces données, les nettoie et calcule des indicateurs de santé (Health Indicators).
+    \item \textbf{Analyse} : Les modèles d'IA analysent les flux pour détecter des anomalies ou prédire une défaillance future (RUL).
+    \item \textbf{Alerte} : En cas de risque avéré, une notification est envoyée au tableau de bord de l'opérateur.
+    \item \textbf{Décision} : L'opérateur valide l'alerte et planifie une intervention technique si nécessaire.
+\end{enumerate}
+
+\section{Analyse Fonctionnelle}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+Le diagramme ci-dessous présente les principaux acteurs et leurs interactions avec le système MANTIS.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/use_case_diagram.png}
+\caption{Diagramme de Cas d'Utilisation Global}
+\label{fig:use_cases}
+\end{figure}
+
+\section{Conception Détaillée des Microservices}
+
+\subsection{Service Ingestion}
+
+\subsubsection{Cas d'Utilisation}
+\begin{itemize}
+    \item \textbf{Acteur} : Automate Industriel, Système Externe.
+    \item \textbf{Scénario} : Connexion à la source, lecture des registres, conversion JSON, envoi au bus.
+\end{itemize}
+
+\subsubsection{Diagramme de Classes}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/class_diagram_ingestion.png}
+\caption{Diagramme de Classes - Service d'Ingestion}
+\end{figure}
+
+\subsection{Service Prediction}
+
+\subsubsection{Cas d'Utilisation}
+\begin{itemize}
+    \item \textbf{Acteur} : Système (Event), Data Scientist.
+    \item \textbf{Scénario} : Réception fenêtre de données, chargement modèle, inférence, sauvegarde résultat.
+\end{itemize}
+
+\subsubsection{Diagramme de Classes}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/class_diagram_prediction.png}
+\caption{Diagramme de Classes - Service de Prédiction}
+\end{figure}
+
+\section{Vue Dynamique (Diagrammes de Séquence)}
+
+\subsection{Séquence d'Ingestion OPC UA}
+Ce diagramme détaille les interactions lors de la collecte de données via le protocole OPC UA.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/sequence_ingestion.png}
+\caption{Diagramme de Séquence - Ingestion OPC UA}
+\end{figure}
+
+\subsection{Séquence de Prédiction RUL}
+Ce diagramme illustre le flux complet d'une prédiction, de la réception des données prétraitées à la sauvegarde du résultat.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/sequence_rul.png}
+\caption{Diagramme de Séquence - Prédiction RUL End-to-End}
+\end{figure}
+
+\section{Architecture Globale du Système}
+
+\subsection{Vue d'Ensemble}
+
+L'architecture complète de \mantis{} intègre tous les composants de l'écosystème de maintenance prédictive.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{diagrams/MANTIS_Architecture_Complete.png}
+\caption{Architecture Complète de la Plateforme MANTIS}
+\label{fig:mantis_architecture_complete}
+\end{figure}
+
+L'architecture se décompose en plusieurs couches :
+
+\begin{enumerate}
+    \item \textbf{Couche Acquisition} : Collecte des données via protocoles industriels
+    \item \textbf{Couche Ingestion} : Normalisation et publication sur Kafka
+    \item \textbf{Couche Traitement} : Pipeline de prétraitement et feature engineering
+    \item \textbf{Couche Intelligence} : Modèles ML/DL pour détection et prédiction
+    \item \textbf{Couche Orchestration} : Règles métier et planification
+    \item \textbf{Couche Présentation} : Dashboards et APIs REST
+    \item \textbf{Couche Infrastructure} : Bases de données, monitoring, logging
+\end{enumerate}
+
+\section{Modèles de Données}
+
+\subsection{Schéma de Base de Données TimescaleDB}
+
+\begin{lstlisting}[language=SQL, basicstyle=\tiny\ttfamily, frame=single, caption=Schéma des hypertables TimescaleDB]
+-- Table des données capteurs (hypertable)
+CREATE TABLE sensor_data (
+    time TIMESTAMPTZ NOT NULL,
+    equipment_id VARCHAR(50) NOT NULL,
+    sensor_id VARCHAR(50) NOT NULL,
+    value DOUBLE PRECISION,
+    unit VARCHAR(20),
+    quality_flag INTEGER,
+    PRIMARY KEY (time, equipment_id, sensor_id)
+);
+
+SELECT create_hypertable('sensor_data', 'time');
+
+-- Table des prédictions RUL (hypertable)
+CREATE TABLE rul_predictions (
+    time TIMESTAMPTZ NOT NULL,
+    equipment_id VARCHAR(50) NOT NULL,
+    rul_cycles INTEGER,
+    confidence DOUBLE PRECISION,
+    model_version VARCHAR(20),
+    PRIMARY KEY (time, equipment_id)
+);
+
+SELECT create_hypertable('rul_predictions', 'time');
+
+-- Table des anomalies détectées
+CREATE TABLE anomalies (
+    time TIMESTAMPTZ NOT NULL,
+    equipment_id VARCHAR(50) NOT NULL,
+    anomaly_score DOUBLE PRECISION,
+    anomaly_type VARCHAR(50),
+    severity VARCHAR(20),
+    metadata JSONB,
+    PRIMARY KEY (time, equipment_id)
+);
+
+SELECT create_hypertable('anomalies', 'time');
+
+-- Continuous Aggregate pour métriques horaires
+CREATE MATERIALIZED VIEW sensor_data_hourly
+WITH (timescaledb.continuous) AS
+SELECT time_bucket('1 hour', time) AS bucket,
+       equipment_id,
+       sensor_id,
+       avg(value) as avg_value,
+       stddev(value) as stddev_value,
+       min(value) as min_value,
+       max(value) as max_value
+FROM sensor_data
+GROUP BY bucket, equipment_id, sensor_id;
+\end{lstlisting}
+
+\section{Maquettes UI/UX}
+
+\subsection{Dashboard Principal}
+
+Le tableau de bord principal offre une vue synthétique en temps réel de l'état de santé du parc machine.
+
+\textbf{Fonctionnalités principales} :
+\begin{itemize}
+    \item \textbf{Vue d'ensemble} : Nombre total d'équipements, taux de santé globale, alertes actives
+    \item \textbf{Cartes d'état} : Statut de chaque équipement (Normal, Attention, Critique)
+    \item \textbf{Graphiques temps réel} : Évolution des Health Indicators et RUL
+    \item \textbf{Liste des alertes} : Priorisées par criticité et temps restant
+    \item \textbf{Recommandations} : Actions de maintenance suggérées
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.5]
+    \draw[fill=white] (0,0) rectangle (16,10);
+    \draw[fill=mantisblue] (0,9) rectangle (16,10);
+    \node[white] at (2,9.5) {\textbf{MANTIS Dashboard - Vue d'Ensemble}};
+
+    % Sidebar
+    \draw[fill=gray!10] (0,0) rectangle (3,9);
+    \node[rotate=90] at (1.5,4.5) {Navigation};
+
+    % KPI Cards
+    \draw[fill=green!20] (4,7) rectangle (7,8.5);
+    \node[align=center] at (5.5,7.75) {\small\textbf{Santé Globale}\\\Large 98\%};
+
+    \draw[fill=red!20] (8,7) rectangle (11,8.5);
+    \node[align=center] at (9.5,7.75) {\small\textbf{Alertes Actives}\\\Large 2};
+
+    \draw[fill=blue!20] (12,7) rectangle (15,8.5);
+    \node[align=center] at (13.5,7.75) {\small\textbf{Équipements}\\\Large 45};
+
+    % Main Graph Area
+    \draw[draw=gray, thick] (4,3) rectangle (15,6.5);
+    \node[align=center] at (9.5,4.75) {\small[Graphique d'Évolution RUL]\\\small Temps Réel - 24h};
+
+    % Alerts List
+    \draw[draw=gray, thick] (4,0.5) rectangle (15,2.5);
+    \node[align=center] at (9.5,1.5) {\small[Liste des Alertes]\\\scriptsize Machine A: RUL=15 cycles (Critique)};
+\end{tikzpicture}
+\caption{Maquette Dashboard Principal - Vue Synthétique}
+\label{fig:dashboard_main}
+\end{figure}
+
+\subsection{Vue Détail Machine}
+
+La vue détaillée d'un équipement fournit toutes les informations nécessaires pour le diagnostic approfondi.
+
+\textbf{Informations affichées} :
+\begin{itemize}
+    \item \textbf{Identification} : ID, nom, localisation, type d'équipement
+    \item \textbf{État actuel} : RUL prédite, health score, niveau de criticité
+    \item \textbf{Capteurs en temps réel} : Gauges pour température, vibration, pression, etc.
+    \item \textbf{Historique} : Graphiques d'évolution sur 7/30/90 jours
+    \item \textbf{Anomalies} : Liste des anomalies détectées avec scores
+    \item \textbf{Maintenance} : Historique des interventions, prochaine maintenance recommandée
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.5]
+    \draw[fill=white] (0,0) rectangle (16,10);
+    \draw[fill=mantisblue] (0,9) rectangle (16,10);
+    \node[white] at (3,9.5) {\textbf{Détail Équipement - Machine \#EQ-001}};
+
+    % Info Card
+    \draw[fill=gray!5] (4,7.5) rectangle (15,8.5);
+    \node[align=left, font=\scriptsize] at (4.5,8) {Type: Turbine | Localisation: Ligne A | Status: Attention};
+
+    % Sensor Gauges
+    \draw (5.5,5.5) circle (1); \node at (5.5,5.5) {\tiny Temp};
+    \node[below, font=\tiny] at (5.5,4.3) {82°C};
+
+    \draw (9,5.5) circle (1); \node at (9,5.5) {\tiny Vib};
+    \node[below, font=\tiny] at (9,4.3) {4.2 mm/s};
+
+    \draw (12.5,5.5) circle (1); \node at (12.5,5.5) {\tiny Press};
+    \node[below, font=\tiny] at (12.5,4.3) {2.5 bar};
+
+    % RUL Prediction Box
+    \draw[fill=orange!20, thick] (4,2) rectangle (15,3.5);
+    \node[align=center, font=\small] at (9.5,2.75) {\textbf{RUL Estimée : 145 cycles (≈ 12 jours)}\\\scriptsize Confiance: 87\% | Dernière mise à jour: 14:23};
+
+    % Anomalies Section
+    \draw[draw=gray] (4,0.5) rectangle (15,1.7);
+    \node[align=left, font=\scriptsize] at (4.5,1.1) {Anomalies: Vibration anormale détectée (Score: 0.78)};
+\end{tikzpicture}
+\caption{Maquette Vue Détail - Équipement Spécifique}
+\label{fig:dashboard_detail}
+\end{figure}
+
+\section{Justifications des Choix de Conception}
+
+\subsection{Architecture Événementielle}
+
+Le choix d'une architecture événementielle (Event-Driven) avec Kafka présente plusieurs avantages critiques :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Avantage} & \textbf{Justification} \\
+\hline
+\textbf{Découplage} & Les producteurs et consommateurs n'ont pas besoin de se connaître mutuellement \\
+\hline
+\textbf{Scalabilité} & Chaque service peut être scalé indépendamment en fonction de la charge \\
+\hline
+\textbf{Résilience} & En cas de panne d'un consommateur, les messages sont persistés et peuvent être rejoués \\
+\hline
+\textbf{Extensibilité} & Ajout facile de nouveaux services en tant que consommateurs de topics existants \\
+\hline
+\textbf{Traçabilité} & Tous les événements sont loggés, permettant audit et debugging \\
+\hline
+\end{tabular}
+\caption{Avantages de l'Architecture Événementielle}
+\end{table}
+
+\subsection{Microservices vs Monolithe}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{Architecture Monolithique} & \textbf{Architecture Microservices (Choix MANTIS)} \\
+\hline
+Déploiement & Tout ou rien & Indépendant par service \\
+\hline
+Scalabilité & Verticale uniquement & Horizontale fine-grained \\
+\hline
+Langages & Un seul stack & Multi-langages (Python, Java, etc.) \\
+\hline
+Isolation pannes & Panne totale du système & Pannes isolées \\
+\hline
+Complexité & Faible (dev) mais forte (évolution) & Moyenne (orchestration) \\
+\hline
+\end{tabular}
+\caption{Comparaison Monolithe vs Microservices}
+\end{table}
+
+\section{Conclusion}
+
+Ce chapitre a présenté l'analyse et la conception complète de \mantis{}, couvrant le processus métier BPMN, les diagrammes UML (cas d'utilisation, classes, séquences), le modèle de données, les maquettes UI/UX et les justifications architecturales.
+
+La combinaison d'une architecture microservices événementielle avec des modèles de Deep Learning et une interface utilisateur intuitive positionne \mantis{} comme une solution complète et moderne de maintenance prédictive.

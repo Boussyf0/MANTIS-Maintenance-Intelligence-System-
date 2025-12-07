@@ -1,0 +1,493 @@
+%=============================================================================
+% CHAPITRE 3 : OBJECTIFS DU PROJET
+%=============================================================================
+\chapter{Objectifs du Projet}
+
+\section{Introduction}
+
+Ce chapitre définit de manière exhaustive les objectifs du projet MANTIS, organisés en trois catégories : objectifs fonctionnels (ce que le système doit faire), objectifs techniques (comment le système doit être conçu), et objectifs non-fonctionnels (qualité, performance, sécurité). Pour chaque objectif, nous spécifions des critères de succès mesurables permettant d'évaluer l'atteinte de l'objectif.
+
+\section{Objectif Global}
+
+L'objectif global du projet MANTIS est de :
+
+\begin{quote}
+\textcolor{mantisblue}{\textbf{« Concevoir, implémenter et valider une plateforme de maintenance prédictive temps réel, basée sur une architecture microservices événementielle et des modèles de Deep Learning, capable de prédire la durée de vie résiduelle (RUL) d'équipements industriels et de détecter des anomalies en temps réel, tout en garantissant scalabilité, observabilité et industrialisabilité. »}}
+\end{quote}
+
+\section{Objectifs Fonctionnels}
+
+Les objectifs fonctionnels définissent les capacités métier que MANTIS doit offrir.
+
+\subsection{OF1 : Ingestion Multi-Protocole de Données IIoT}
+
+\textbf{Description} : Le système doit être capable d'ingérer des données provenant de sources IIoT hétérogènes.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item Support des protocoles : OPC UA, MQTT, Modbus TCP, REST API
+    \item Fréquence d'acquisition : 1 Hz à 1000 Hz
+    \item Formats de données : JSON, CSV, binaire
+    \item Gestion de la connexion/reconnexion automatique
+    \item Buffering en cas de perte temporaire de connectivité
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Au moins 3 protocoles IIoT supportés (OPC UA, MQTT, Modbus)
+    \item Capacité d'ingestion $\geq$ 1000 messages/seconde par protocole
+    \item Taux de perte de messages $<$ 0.1\%
+    \item Temps de reconnexion automatique $<$ 5 secondes
+\end{enumerate}
+
+\subsection{OF2 : Prétraitement et Nettoyage des Données}
+
+\textbf{Description} : Le système doit appliquer un pipeline complet de prétraitement pour garantir la qualité des données.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item \textbf{Détection et traitement des valeurs manquantes} : Forward-fill, interpolation, imputation
+    \item \textbf{Détection et filtrage des outliers} : Z-score, IQR, Isolation Forest
+    \item \textbf{Normalisation} : Min-Max, Z-score, Robust Scaler
+    \item \textbf{Fenêtrage temporel} : Création de séquences (e.g., 50 timesteps)
+    \item \textbf{Feature Engineering} : Moyennes glissantes, écarts-types glissants, tendances
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Pipeline de prétraitement complet implémenté (6 étapes minimum)
+    \item Taux de données rejetées $<$ 5\%
+    \item Temps de traitement par batch $<$ 1 seconde pour 10 000 samples
+    \item Amélioration de la performance des modèles ML $\geq$ 15\% (RMSE)
+\end{enumerate}
+
+\subsection{OF3 : Prédiction de la Durée de Vie Résiduelle (RUL)}
+
+\textbf{Description} : Le système doit prédire avec précision le nombre de cycles restants avant défaillance.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item Modèle de Deep Learning (LSTM, GRU ou Transformer)
+    \item Entraînement sur NASA C-MAPSS dataset (4 sous-datasets)
+    \item Prédiction pour chaque cycle de fonctionnement
+    \item Intervalle de confiance sur les prédictions
+    \item Support multi-régimes opérationnels
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item RMSE (Root Mean Square Error) $\leq$ 20 cycles sur test set
+    \item MAE (Mean Absolute Error) $\leq$ 15 cycles
+    \item R² Score $\geq$ 0.85
+    \item Latence de prédiction $<$ 100 ms (temps réel)
+\end{enumerate}
+
+\subsection{OF4 : Détection d'Anomalies Temps Réel}
+
+\textbf{Description} : Le système doit détecter les comportements anormaux des équipements en temps réel.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item Approche hybride : règles métier + modèles ML (Isolation Forest, Autoencoder)
+    \item Détection sur fenêtre glissante
+    \item Classification binaire : normal / anormal
+    \item Scoring de sévérité (0-100)
+    \item Identification des variables contributives
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item F1-Score $\geq$ 0.80 sur détection d'anomalies
+    \item Taux de faux positifs $<$ 5\%
+    \item Taux de faux négatifs $<$ 10\%
+    \item Latence de détection $<$ 50 ms
+\end{enumerate}
+
+\subsection{OF5 : Notifications et Alertes Temps Réel}
+
+\textbf{Description} : Le système doit notifier les opérateurs en temps réel lors de détection d'anomalies ou de RUL critique.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item Alertes multi-canaux : WebSocket, REST API, Kafka topic
+    \item Niveaux de sévérité : INFO, WARNING, CRITICAL
+    \item Règles de déclenchement configurables
+    \item Historique des alertes
+    \item Filtrage et agrégation anti-spam
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Latence de notification $<$ 200 ms après détection
+    \item Support WebSocket et REST API
+    \item Taux de livraison des alertes $\geq$ 99.9\%
+    \item Déduplication des alertes redondantes
+\end{enumerate}
+
+\subsection{OF6 : Gestion du Cycle de Vie des Modèles (MLOps)}
+
+\textbf{Description} : Le système doit supporter l'entraînement, le versioning, le déploiement et le monitoring des modèles ML.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item \textbf{MLflow} : Tracking des expérimentations, registry des modèles
+    \item \textbf{Feast} : Feature store pour cohérence train/serve
+    \item \textbf{DVC} : Versioning des datasets
+    \item Déploiement de nouveaux modèles sans downtime (blue/green)
+    \item Monitoring de la performance en production (drift detection)
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item MLflow opérationnel avec $\geq$ 10 expérimentations trackées
+    \item Feast feature store intégré avec $\geq$ 20 features
+    \item Déploiement de nouveau modèle en $<$ 5 minutes
+    \item Détection automatique de drift si performance baisse $>$ 10\%
+\end{enumerate}
+
+\section{Objectifs Techniques}
+
+Les objectifs techniques définissent les contraintes architecturales et technologiques.
+
+\subsection{OT1 : Architecture Microservices Modulaire}
+
+\textbf{Description} : Le système doit adopter une architecture microservices événementielle.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item Au moins 7 microservices indépendants
+    \item Communication asynchrone via Apache Kafka
+    \item API REST pour les interactions synchrones
+    \item Découplage complet (chaque service déployable indépendamment)
+    \item Patterns : Event Sourcing, CQRS, Saga (optionnel)
+\end{itemize}
+
+\textbf{Services à implémenter} :
+\begin{enumerate}
+    \item \textbf{Ingestion Service} : Collecte multi-protocole
+    \item \textbf{Preprocessing Service} : Pipeline de nettoyage et feature engineering
+    \item \textbf{Prediction Service} : Inférence des modèles ML/DL
+    \item \textbf{Anomaly Detection Service} : Détection temps réel
+    \item \textbf{Notification Service} : Alertes multi-canaux
+    \item \textbf{Training Service} : Entraînement et réentraînement des modèles
+    \item \textbf{API Gateway} : Point d'entrée unique, routage, authentification
+\end{enumerate}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item 7 microservices opérationnels et déployés
+    \item Chaque service a son propre repository Git
+    \item Communication 100\% asynchrone via Kafka (sauf API Gateway)
+    \item Temps de déploiement d'un service $<$ 3 minutes
+\end{enumerate}
+
+\subsection{OT2 : Event-Driven Architecture avec Apache Kafka}
+
+\textbf{Description} : Le système doit utiliser Kafka comme bus d'événements central.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item Topics Kafka pour chaque type d'événement
+    \item Partitioning pour scalabilité
+    \item Retention configurée (7 jours minimum)
+    \item Schema Registry pour validation des messages (optionnel)
+    \item Consumer groups pour load balancing
+\end{itemize}
+
+\textbf{Topics à créer} :
+\begin{itemize}
+    \item \texttt{raw-sensor-data} : Données brutes ingérées
+    \item \texttt{preprocessed-data} : Données nettoyées
+    \item \texttt{predictions} : Prédictions RUL
+    \item \texttt{anomalies} : Anomalies détectées
+    \item \texttt{notifications} : Alertes à envoyer
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Kafka cluster opérationnel (3 brokers minimum)
+    \item Throughput $\geq$ 10 000 messages/sec
+    \item Latence end-to-end $<$ 500 ms (ingestion $\rightarrow$ notification)
+    \item Aucune perte de message (exactly-once semantics)
+\end{enumerate}
+
+\subsection{OT3 : Bases de Données Time-Series et Relationnelles}
+
+\textbf{Description} : Le système doit utiliser des bases de données adaptées aux différents types de données.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item \textbf{TimescaleDB} : Stockage des séries temporelles (données capteurs, métriques)
+    \item \textbf{PostgreSQL} : Métadonnées, configurations, utilisateurs
+    \item \textbf{MLflow Backend} : Expérimentations, modèles
+    \item Indexation optimisée pour requêtes temporelles
+    \item Compression des données anciennes
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item TimescaleDB opérationnel avec hypertables
+    \item Capacité de stockage $\geq$ 1 million de points par jour
+    \item Temps de requête sur 1 mois de données $<$ 2 secondes
+    \item Rétention des données : 1 an (raw), 5 ans (agrégées)
+\end{enumerate}
+
+\subsection{OT4 : Infrastructure DevOps et CI/CD}
+
+\textbf{Description} : Le système doit être entièrement conteneurisé et déployable via CI/CD.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item \textbf{Docker} : Chaque service dans un conteneur
+    \item \textbf{Kubernetes} : Orchestration, scaling, self-healing
+    \item \textbf{Helm Charts} : Gestion des déploiements
+    \item \textbf{GitHub Actions} : Pipeline CI/CD automatisé
+    \item \textbf{GitOps} : Déclaratif, versioning de l'infrastructure
+\end{itemize}
+
+\textbf{Pipeline CI/CD} :
+\begin{enumerate}
+    \item Lint \& Format (Black, Flake8, Pylint)
+    \item Tests unitaires (pytest, coverage $\geq$ 80\%)
+    \item Tests d'intégration
+    \item Build Docker images
+    \item Push vers registry
+    \item Déploiement automatique (dev/staging)
+    \item Déploiement manuel (production)
+\end{enumerate}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item 100\% des services conteneurisés
+    \item Déploiement Kubernetes opérationnel (minikube ou cloud)
+    \item Pipeline CI/CD fonctionnel sur GitHub Actions
+    \item Temps de build + déploiement $<$ 10 minutes
+\end{enumerate}
+
+\subsection{OT5 : Observabilité Complète (Monitoring, Logging, Tracing)}
+
+\textbf{Description} : Le système doit offrir une observabilité complète pour le debugging et le monitoring.
+
+\textbf{Exigences détaillées} :
+\begin{itemize}
+    \item \textbf{Prometheus} : Métriques techniques (CPU, RAM, latence, throughput)
+    \item \textbf{Grafana} : Dashboards temps réel
+    \item \textbf{Jaeger} : Tracing distribué (OpenTelemetry)
+    \item \textbf{ELK Stack} (optionnel) : Logs centralisés
+    \item Alerting (AlertManager) sur métriques critiques
+\end{itemize}
+
+\textbf{Métriques à monitorer} :
+\begin{itemize}
+    \item \textbf{Techniques} : Latence (p50, p95, p99), throughput, taux d'erreurs, CPU/RAM
+    \item \textbf{Métier} : RMSE, MAE, F1-score, nombre d'anomalies détectées, taux de prédictions
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Prometheus + Grafana opérationnels avec $\geq$ 5 dashboards
+    \item Jaeger opérationnel avec tracing de bout en bout
+    \item Alertes configurées pour latence $>$ 1s, erreurs $>$ 5\%
+    \item Rétention métriques : 30 jours
+\end{enumerate}
+
+\section{Objectifs Non-Fonctionnels}
+
+Les objectifs non-fonctionnels définissent les qualités requises du système.
+
+\subsection{ONF1 : Performance et Scalabilité}
+
+\textbf{Exigences} :
+\begin{itemize}
+    \item \textbf{Latence de prédiction} : $<$ 100 ms (p95)
+    \item \textbf{Latence de détection d'anomalie} : $<$ 50 ms (p95)
+    \item \textbf{Latence end-to-end} : $<$ 500 ms (ingestion $\rightarrow$ notification)
+    \item \textbf{Throughput} : $\geq$ 1000 prédictions/seconde
+    \item \textbf{Scalabilité horizontale} : Support de 10x charge via scaling Kubernetes
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Tests de charge validant 1000 req/s avec latence $<$ 100 ms
+    \item Démonstration de scaling horizontal (2 $\rightarrow$ 10 replicas)
+    \item CPU/RAM par service $<$ 2 vCPU / 4 GB en production
+\end{enumerate}
+
+\subsection{ONF2 : Disponibilité et Résilience}
+
+\textbf{Exigences} :
+\begin{itemize}
+    \item \textbf{Uptime} : $\geq$ 99.5\% (cible : 99.9\%)
+    \item \textbf{Auto-healing} : Kubernetes restart automatique des pods crashés
+    \item \textbf{Graceful degradation} : Fonctionnement dégradé en cas de panne partielle
+    \item \textbf{Circuit breaker} : Protection contre les cascades de pannes
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Simulation de panne de 1 service $\rightarrow$ système continue à fonctionner
+    \item Temps de recovery $<$ 30 secondes après crash
+    \item Aucune perte de données lors des restarts
+\end{enumerate}
+
+\subsection{ONF3 : Sécurité}
+
+\textbf{Exigences} :
+\begin{itemize}
+    \item \textbf{Authentification} : API Gateway avec JWT ou OAuth2
+    \item \textbf{Secrets management} : Kubernetes secrets, variables d'environnement
+    \item \textbf{Network policies} : Isolation réseau entre services
+    \item \textbf{HTTPS/TLS} : Chiffrement en transit
+    \item \textbf{Scanning} : Analyse de vulnérabilités (Trivy, Snyk)
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item 100\% des API protégées par authentification
+    \item Aucune credential en clair dans le code source
+    \item Scan de sécurité CI/CD sans vulnérabilités critiques
+\end{enumerate}
+
+\subsection{ONF4 : Maintenabilité et Qualité du Code}
+
+\textbf{Exigences} :
+\begin{itemize}
+    \item \textbf{Couverture de tests} : $\geq$ 80\% (unitaires + intégration)
+    \item \textbf{Documentation} : README, Architecture Diagrams, API Docs (OpenAPI)
+    \item \textbf{Code quality} : Linting (Flake8), formatting (Black), type hints
+    \item \textbf{Code review} : Pull requests obligatoires, au moins 1 reviewer
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Coverage $\geq$ 80\% sur tous les services
+    \item Documentation complète (README + Architecture + API)
+    \item 100\% des PRs reviewées avant merge
+\end{enumerate}
+
+\subsection{ONF5 : Reproductibilité et Versioning}
+
+\textbf{Exigences} :
+\begin{itemize}
+    \item \textbf{DVC} : Versioning des datasets
+    \item \textbf{MLflow} : Versioning des modèles et expérimentations
+    \item \textbf{Git} : Versioning du code source
+    \item \textbf{Docker tags} : Versioning des images
+    \item \textbf{Semantic versioning} : v1.0.0, v1.1.0, etc.
+\end{itemize}
+
+\textbf{Critères de succès} :
+\begin{enumerate}
+    \item Possibilité de reproduire n'importe quelle expérimentation MLflow
+    \item Rollback vers version précédente de modèle en $<$ 5 minutes
+    \item Traçabilité complète code-dataset-modèle
+\end{enumerate}
+
+\section{Synthèse des Objectifs et KPIs}
+
+Le tableau suivant synthétise les objectifs et leurs KPIs (Key Performance Indicators) :
+
+\begin{table}[H]
+\centering
+\scriptsize
+\begin{tabular}{|l|l|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Objectif} & \textbf{KPI} & \textbf{Cible} \\
+\hline
+OF1 - Ingestion & Throughput & $\geq$ 1000 msg/s \\
+ & Taux de perte & $<$ 0.1\% \\
+\hline
+OF2 - Prétraitement & Temps de traitement batch & $<$ 1s / 10k samples \\
+ & Amélioration RMSE & $\geq$ 15\% \\
+\hline
+OF3 - Prédiction RUL & RMSE & $\leq$ 20 cycles \\
+ & MAE & $\leq$ 15 cycles \\
+ & R² Score & $\geq$ 0.85 \\
+\hline
+OF4 - Détection anomalies & F1-Score & $\geq$ 0.80 \\
+ & Faux positifs & $<$ 5\% \\
+ & Latence & $<$ 50 ms \\
+\hline
+OF5 - Notifications & Latence & $<$ 200 ms \\
+ & Taux de livraison & $\geq$ 99.9\% \\
+\hline
+OT1 - Microservices & Nombre de services & 7 \\
+ & Temps de déploiement & $<$ 3 min \\
+\hline
+OT2 - Kafka & Throughput & $\geq$ 10k msg/s \\
+ & Latence end-to-end & $<$ 500 ms \\
+\hline
+OT4 - CI/CD & Temps build + déploiement & $<$ 10 min \\
+ & Couverture tests & $\geq$ 80\% \\
+\hline
+OT5 - Observabilité & Nombre de dashboards & $\geq$ 5 \\
+ & Rétention métriques & 30 jours \\
+\hline
+ONF1 - Performance & Latence prédiction (p95) & $<$ 100 ms \\
+ & Throughput & $\geq$ 1000 pred/s \\
+\hline
+ONF2 - Disponibilité & Uptime & $\geq$ 99.5\% \\
+ & Temps de recovery & $<$ 30s \\
+\hline
+ONF4 - Qualité & Couverture tests & $\geq$ 80\% \\
+ & PRs reviewées & 100\% \\
+\hline
+\end{tabular}
+\caption{Synthèse des objectifs et KPIs du projet MANTIS}
+\label{tab:objectifs-kpis}
+\end{table}
+
+\section{Priorisation des Objectifs}
+
+Les objectifs sont priorisés selon la méthode MoSCoW :
+
+\subsection{Must Have (Critique)}
+
+\begin{itemize}
+    \item OF1 : Ingestion multi-protocole (au moins MQTT + REST)
+    \item OF2 : Prétraitement complet
+    \item OF3 : Prédiction RUL avec LSTM
+    \item OT1 : Architecture microservices (7 services)
+    \item OT4 : Dockerization + CI/CD basique
+\end{itemize}
+
+\subsection{Should Have (Important)}
+
+\begin{itemize}
+    \item OF4 : Détection d'anomalies
+    \item OF5 : Notifications temps réel
+    \item OF6 : MLOps (MLflow + Feast)
+    \item OT2 : Kafka opérationnel
+    \item OT5 : Prometheus + Grafana
+\end{itemize}
+
+\subsection{Could Have (Souhaitable)}
+
+\begin{itemize}
+    \item Support OPC UA + Modbus (en plus de MQTT)
+    \item Jaeger tracing distribué
+    \item DVC pour versioning datasets
+    \item Kubernetes deployment (minikube)
+    \item Tests de charge automatisés
+\end{itemize}
+
+\subsection{Won't Have (Hors scope v1.0)}
+
+\begin{itemize}
+    \item Interface utilisateur web complète
+    \item Intégration ERP/MES
+    \item Support de tous les protocoles IIoT
+    \item Déploiement cloud production
+    \item Certification industrielle
+\end{itemize}
+
+\section{Conclusion}
+
+Ce chapitre a défini de manière exhaustive les objectifs du projet MANTIS, organisés en objectifs fonctionnels (capacités métier), techniques (architecture et technologies) et non-fonctionnels (qualité, performance, sécurité).
+
+Pour chaque objectif, nous avons spécifié des critères de succès mesurables (KPIs) permettant d'évaluer objectivement l'atteinte des objectifs. Ces KPIs serviront de référence pour l'évaluation du projet dans les chapitres 13 (Avancement) et 16 (Conclusion).
+
+La priorisation MoSCoW permet de gérer le scope et de concentrer les efforts sur les objectifs critiques (Must Have) tout en gardant une vision des évolutions futures (Could Have, Won't Have).
+
+Le chapitre suivant présentera l'état de l'art scientifique et technique qui sous-tend les choix technologiques et architecturaux de MANTIS.

@@ -1,0 +1,676 @@
+%=============================================================================
+% CHAPITRE 4 : ÉTAT DE L'ART
+%=============================================================================
+\chapter{État de l'Art}
+
+\section{Introduction}
+
+Ce chapitre présente l'état de l'art scientifique et technique qui constitue le socle théorique et pratique du projet MANTIS. Nous couvrons cinq domaines clés : (1) la maintenance prédictive et les approches de prédiction de RUL, (2) les architectures de Machine Learning et Deep Learning pour les séries temporelles, (3) les architectures microservices et event-driven, (4) les protocoles et standards IIoT, et (5) les pratiques MLOps et DevOps modernes.
+
+Pour chaque domaine, nous présentons les concepts fondamentaux, les technologies et méthodes de référence, et les travaux académiques et industriels pertinents.
+
+\section{Maintenance Prédictive et Prédiction de RUL}
+
+\subsection{Définitions et Taxonomie}
+
+La \textbf{Remaining Useful Life (RUL)} est définie comme :
+
+\begin{quote}
+\textit{« Le nombre de cycles ou d'heures de fonctionnement restantes avant qu'un équipement n'atteigne un état de défaillance fonctionnelle, étant donné son état actuel et ses conditions opérationnelles. »}
+\end{quote}
+
+Les approches de prédiction de RUL se classent en trois catégories principales :
+
+\subsubsection{Approches Basées sur des Modèles Physiques}
+
+\textbf{Principe} : Utilisation d'équations différentielles et de modèles physiques de dégradation (fatigue, usure, corrosion).
+
+\textbf{Exemples} :
+\begin{itemize}
+    \item Loi de Paris pour la propagation de fissures
+    \item Modèle d'Arrhenius pour la dégradation thermique
+    \item Équations de Navier-Stokes pour la mécanique des fluides
+\end{itemize}
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Explicabilité et interprétabilité
+    \item Nécessitent peu de données historiques
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Requièrent une connaissance approfondie des mécanismes de défaillance
+    \item Difficiles à modéliser pour des systèmes complexes multi-composants
+    \item Peu adaptés aux phénomènes non-linéaires
+\end{itemize}
+
+\subsubsection{Approches Data-Driven (Machine Learning)}
+
+\textbf{Principe} : Apprentissage de patterns de dégradation à partir de données historiques sans modèle physique explicite.
+
+\textbf{Méthodes classiques} :
+\begin{itemize}
+    \item \textbf{Régression} : Linear Regression, SVR (Support Vector Regression), Random Forest
+    \item \textbf{Classification} : Prédiction de classes de RUL (haute, moyenne, faible)
+\end{itemize}
+
+\textbf{Méthodes Deep Learning} :
+\begin{itemize}
+    \item \textbf{LSTM} (Long Short-Term Memory) : Capture des dépendances temporelles longues
+    \item \textbf{GRU} (Gated Recurrent Unit) : Variante simplifiée de LSTM
+    \item \textbf{CNN-LSTM} : Extraction de features spatiales + temporelles
+    \item \textbf{Transformer} : Mécanismes d'attention pour séries temporelles
+    \item \textbf{Autoencoder} : Détection d'anomalies par reconstruction
+\end{itemize}
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Capturent des patterns complexes et non-linéaires
+    \item Pas de besoin de modèles physiques explicites
+    \item Scalables et automatisables
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Requièrent de grandes quantités de données étiquetées
+    \item Black-box (difficiles à interpréter)
+    \item Sensibles à la qualité des données
+\end{itemize}
+
+\subsubsection{Approches Hybrides}
+
+\textbf{Principe} : Combinaison de modèles physiques et data-driven pour tirer parti des deux mondes.
+
+\textbf{Exemples} :
+\begin{itemize}
+    \item Physics-Informed Neural Networks (PINNs)
+    \item Ensembles de modèles (physical model + LSTM)
+\end{itemize}
+
+\subsection{État de l'Art Académique}
+
+\subsubsection{Travaux Fondateurs}
+
+\begin{enumerate}
+    \item \textbf{Saxena et al. (2008)} : « Damage propagation modeling for aircraft engine run-to-failure simulation »
+    \begin{itemize}
+        \item Création du dataset NASA C-MAPSS
+        \item Benchmark de référence pour RUL prediction
+    \end{itemize}
+    
+    \item \textbf{Heimes (2008)} : « Recurrent neural networks for remaining useful life estimation »
+    \begin{itemize}
+        \item Première application de RNN pour RUL sur moteurs d'avion
+        \item RMSE $\approx$ 30 cycles sur C-MAPSS FD001
+    \end{itemize}
+    
+    \item \textbf{Zheng et al. (2017)} : « Long Short-Term Memory Network for Remaining Useful Life estimation »
+    \begin{itemize}
+        \item LSTM avec fenêtrage temporel de 30 cycles
+        \item RMSE $\approx$ 16 cycles sur FD001, amélioration de 47\%
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Travaux Récents (2020-2024)}
+
+\begin{enumerate}
+    \item \textbf{Li et al. (2021)} : « Attention-based LSTM for RUL prediction »
+    \begin{itemize}
+        \item Mécanisme d'attention pour identifier les features critiques
+        \item RMSE $\approx$ 12.6 cycles sur FD001
+    \end{itemize}
+    
+    \item \textbf{Chen et al. (2022)} : « Transformer-based RUL prediction for industrial equipment »
+    \begin{itemize}
+        \item Multi-head attention pour capturer dépendances complexes
+        \item RMSE $\approx$ 11.2 cycles sur FD001
+        \item Latence d'inférence élevée (200 ms)
+    \end{itemize}
+    
+    \item \textbf{Zhang et al. (2023)} : « Federated Learning for Predictive Maintenance »
+    \begin{itemize}
+        \item Entraînement décentralisé préservant la confidentialité
+        \item Applicable aux flottes d'équipements distribués
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Benchmarks sur NASA C-MAPSS}
+
+Le dataset NASA C-MAPSS est le benchmark de référence pour la prédiction de RUL. Il contient 4 sous-datasets (FD001-FD004) avec complexités croissantes :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Dataset} & \textbf{Train} & \textbf{Test} & \textbf{Régimes} & \textbf{Défaillances} \\
+\hline
+FD001 & 100 & 100 & 1 & 1 (HPC) \\
+\hline
+FD002 & 260 & 259 & 6 & 1 (HPC) \\
+\hline
+FD003 & 100 & 100 & 1 & 2 (HPC, Fan) \\
+\hline
+FD004 & 249 & 248 & 6 & 2 (HPC, Fan) \\
+\hline
+\end{tabular}
+\caption{Caractéristiques des sous-datasets NASA C-MAPSS}
+\label{tab:cmapss-datasets}
+\end{table}
+
+\textbf{Métriques de performance} :
+\begin{itemize}
+    \item \textbf{RMSE} (Root Mean Square Error) : Erreur quadratique moyenne
+    \item \textbf{MAE} (Mean Absolute Error) : Erreur absolue moyenne
+    \item \textbf{Score Function} : Pénalise davantage les prédictions tardives (panne imprévue)
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Méthode} & \textbf{RMSE (FD001)} & \textbf{Année} \\
+\hline
+SVR (baseline) & 37.6 & 2008 \\
+\hline
+RNN (Heimes) & 30.0 & 2008 \\
+\hline
+LSTM (Zheng) & 16.1 & 2017 \\
+\hline
+CNN-LSTM & 13.8 & 2019 \\
+\hline
+Attention-LSTM (Li) & 12.6 & 2021 \\
+\hline
+Transformer (Chen) & 11.2 & 2022 \\
+\hline
+\textbf{Cible MANTIS} & \textbf{$\leq$ 20} & \textbf{2024} \\
+\hline
+\end{tabular}
+\caption{Évolution de la performance des modèles de RUL sur C-MAPSS FD001}
+\label{tab:cmapss-benchmarks}
+\end{table}
+
+\section{Deep Learning pour Séries Temporelles}
+
+\subsection{Réseaux de Neurones Récurrents (RNN)}
+
+\subsubsection{Architecture de Base}
+
+Les RNN traitent les séquences en maintenant un \textit{état caché} $h_t$ mis à jour à chaque timestep :
+
+\begin{equation}
+h_t = \tanh(W_h h_{t-1} + W_x x_t + b)
+\end{equation}
+
+\begin{equation}
+y_t = W_y h_t + b_y
+\end{equation}
+
+\textbf{Problème du gradient vanishing/exploding} : Les gradients disparaissent ou explosent lors de la rétropropagation à travers le temps (BPTT), limitant la capture de dépendances longues.
+
+\subsubsection{Long Short-Term Memory (LSTM)}
+
+Les LSTM résolvent le problème du gradient vanishing via des \textit{cellules mémoire} et des \textit{portes} (gates) :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.7, every node/.style={transform shape}]
+    % Cell
+    \draw[thick, mantisblue, rounded corners] (0,0) rectangle (8,6);
+    \node at (4,5.5) {\textbf{LSTM Cell}};
+    
+    % Inputs
+    \draw[thick, ->] (-2,1) -- (0,1) node[midway, above] {$x_t$};
+    \draw[thick, ->] (-2,5) -- (0,5) node[midway, above] {$h_{t-1}$};
+    \draw[thick, ->] (-2,3) -- (0,3) node[midway, above] {$c_{t-1}$};
+    
+    % Gates
+    \node[draw, circle, fill=mantisorange!30, minimum size=1cm] at (2,1) {$\sigma$};
+    \node[below] at (2,0.3) {\small Forget};
+    
+    \node[draw, circle, fill=mantisorange!30, minimum size=1cm] at (4,1) {$\sigma$};
+    \node[below] at (4,0.3) {\small Input};
+    
+    \node[draw, circle, fill=mantisgreen!30, minimum size=1cm] at (4,3) {$\tanh$};
+    
+    \node[draw, circle, fill=mantisorange!30, minimum size=1cm] at (6,1) {$\sigma$};
+    \node[below] at (6,0.3) {\small Output};
+    
+    % Cell state
+    \draw[thick, mantisblue] (0,3) -- (8,3);
+    \node[above] at (4,3.3) {$c_t$ (Cell State)};
+    
+    % Outputs
+    \draw[thick, ->] (8,3) -- (10,3) node[midway, above] {$c_t$};
+    \draw[thick, ->] (8,5) -- (10,5) node[midway, above] {$h_t$};
+    
+\end{tikzpicture}
+\caption{Architecture d'une cellule LSTM}
+\label{fig:lstm-cell}
+\end{figure}
+
+\textbf{Équations LSTM} :
+\begin{align}
+f_t &= \sigma(W_f [h_{t-1}, x_t] + b_f) \quad \text{(Forget gate)} \\
+i_t &= \sigma(W_i [h_{t-1}, x_t] + b_i) \quad \text{(Input gate)} \\
+\tilde{c}_t &= \tanh(W_c [h_{t-1}, x_t] + b_c) \quad \text{(Candidate cell)} \\
+c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t \quad \text{(Cell state update)} \\
+o_t &= \sigma(W_o [h_{t-1}, x_t] + b_o) \quad \text{(Output gate)} \\
+h_t &= o_t \odot \tanh(c_t) \quad \text{(Hidden state)}
+\end{align}
+
+\textbf{Avantages LSTM} :
+\begin{itemize}
+    \item Capture de dépendances temporelles longues (100+ timesteps)
+    \item Résolution du gradient vanishing
+    \item Performance state-of-the-art sur séries temporelles
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Complexité computationnelle (4 fois plus de paramètres que RNN simple)
+    \item Latence d'inférence plus élevée que CNN
+    \item Difficiles à paralléliser (traitement séquentiel)
+\end{itemize}
+
+\subsubsection{Gated Recurrent Unit (GRU)}
+
+Le GRU est une variante simplifiée du LSTM avec seulement 2 portes (reset et update) :
+
+\begin{align}
+z_t &= \sigma(W_z [h_{t-1}, x_t]) \quad \text{(Update gate)} \\
+r_t &= \sigma(W_r [h_{t-1}, x_t]) \quad \text{(Reset gate)} \\
+\tilde{h}_t &= \tanh(W [r_t \odot h_{t-1}, x_t]) \\
+h_t &= (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
+\end{align}
+
+\textbf{GRU vs. LSTM} :
+\begin{itemize}
+    \item GRU : Moins de paramètres (33\% de réduction), entraînement plus rapide
+    \item LSTM : Performance légèrement supérieure sur tâches complexes
+    \item Choix empirique selon le dataset
+\end{itemize}
+
+\subsection{Transformers pour Séries Temporelles}
+
+Les Transformers, introduits par Vaswani et al. (2017) pour le NLP, ont été adaptés aux séries temporelles.
+
+\textbf{Mécanisme d'attention} :
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V
+\end{equation}
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Parallélisation complète (pas de dépendance séquentielle)
+    \item Capture de dépendances à très longue distance
+    \item Interprétabilité via attention weights
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Complexité quadratique en mémoire et calcul ($O(n^2)$)
+    \item Requiert beaucoup de données pour converger
+    \item Latence d'inférence élevée pour longues séquences
+\end{itemize}
+
+\subsection{Comparaison LSTM vs. GRU vs. Transformer}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{LSTM} & \textbf{GRU} & \textbf{Transformer} \\
+\hline
+Complexité & Élevée & Moyenne & Très élevée \\
+\hline
+Latence inférence & Moyenne & Basse & Élevée \\
+\hline
+Dépendances longues & Excellente & Bonne & Excellente \\
+\hline
+Données requises & Moyenne & Moyenne & Élevée \\
+\hline
+Parallélisation & Non & Non & Oui \\
+\hline
+Interprétabilité & Faible & Faible & Moyenne (attention) \\
+\hline
+\textbf{Choix MANTIS} & \textcolor{mantisgreen}{\textbf{X}} & - & - \\
+\hline
+\end{tabular}
+\caption{Comparaison LSTM vs. GRU vs. Transformer pour RUL prediction}
+\label{tab:dl-comparison}
+\end{table}
+
+\textbf{Choix pour MANTIS} : LSTM pour son excellent compromis performance/latence et sa maturité sur les tâches de prédiction de RUL.
+
+\section{Architectures Microservices et Event-Driven}
+
+\subsection{Principes des Microservices}
+
+Les \textbf{microservices} sont une approche architecturale où une application est structurée en un ensemble de services indépendants, déployables et scalables de manière autonome.
+
+\textbf{Principes fondamentaux} :
+\begin{enumerate}
+    \item \textbf{Single Responsibility} : Chaque service a une responsabilité unique et bien définie
+    \item \textbf{Loose Coupling} : Dépendances minimales entre services
+    \item \textbf{High Cohesion} : Fonctionnalités liées groupées dans un même service
+    \item \textbf{Autonomous} : Déploiement, scaling, évolution indépendants
+    \item \textbf{Decentralized Data} : Chaque service gère sa propre base de données (Database per Service)
+\end{enumerate}
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Scalabilité fine (scale uniquement les services sous charge)
+    \item Résilience (une panne locale ne crash pas tout le système)
+    \item Évolutivité (technologies différentes par service)
+    \item Déploiement indépendant (CI/CD facilité)
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Complexité opérationnelle (monitoring, debugging distribué)
+    \item Latence réseau accrue
+    \item Cohérence des données complexe (distributed transactions)
+\end{itemize}
+
+\subsection{Event-Driven Architecture (EDA)}
+
+L'\textbf{Event-Driven Architecture} repose sur la production, détection, consommation et réaction à des \textit{événements}.
+
+\textbf{Patterns clés} :
+\begin{enumerate}
+    \item \textbf{Event Sourcing} : L'état du système est dérivé de la séquence d'événements
+    \item \textbf{CQRS} (Command Query Responsibility Segregation) : Séparation lecture/écriture
+    \item \textbf{Saga Pattern} : Coordination de transactions distribuées via événements
+\end{enumerate}
+
+\textbf{Apache Kafka} est la plateforme de référence pour l'EDA :
+
+\begin{itemize}
+    \item \textbf{Distributed commit log} : Stockage durable et ordonné des événements
+    \item \textbf{Pub/Sub} : Découplage producteurs/consommateurs
+    \item \textbf{Partitioning} : Scalabilité horizontale
+    \item \textbf{Consumer groups} : Load balancing et fault tolerance
+    \item \textbf{Retention} : Rejouabilité des événements
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+    % Kafka Cluster
+    \draw[thick, mantisblue, rounded corners] (3,2) rectangle (9,8);
+    \node at (6,7.5) {\textbf{Apache Kafka Cluster}};
+    
+    % Brokers
+    \node[draw, fill=mantisblue!20, minimum width=1.5cm, minimum height=1cm] at (4,6) {Broker 1};
+    \node[draw, fill=mantisblue!20, minimum width=1.5cm, minimum height=1cm] at (6,6) {Broker 2};
+    \node[draw, fill=mantisblue!20, minimum width=1.5cm, minimum height=1cm] at (8,6) {Broker 3};
+    
+    % Topics
+    \node[draw, fill=mantisgreen!20, minimum width=2cm] at (4,4) {Topic A};
+    \node[draw, fill=mantisorange!20, minimum width=2cm] at (6,4) {Topic B};
+    \node[draw, fill=mantisred!20, minimum width=2cm] at (8,4) {Topic C};
+    
+    % ZooKeeper
+    \node[draw, fill=mantisgray!20, minimum width=2cm] at (6,2.5) {ZooKeeper};
+    
+    % Producers
+    \node[draw, circle, fill=mantisgreen, text=white] at (0,7) {P1};
+    \node[draw, circle, fill=mantisgreen, text=white] at (0,5) {P2};
+    \draw[thick, ->] (0.5,7) -- (3.5,6.5);
+    \draw[thick, ->] (0.5,5) -- (3.5,5.5);
+    
+    % Consumers
+    \node[draw, circle, fill=mantisorange, text=white] at (12,7) {C1};
+    \node[draw, circle, fill=mantisorange, text=white] at (12,5) {C2};
+    \node[draw, circle, fill=mantisorange, text=white] at (12,3) {C3};
+    \draw[thick, ->] (8.5,6.5) -- (11.5,7);
+    \draw[thick, ->] (8.5,5.5) -- (11.5,5);
+    \draw[thick, ->] (8.5,4.5) -- (11.5,3);
+    
+\end{tikzpicture}
+\caption{Architecture Apache Kafka (Producers, Brokers, Topics, Consumers)}
+\label{fig:kafka-architecture}
+\end{figure}
+
+\section{Protocoles et Standards IIoT}
+
+\subsection{OPC UA (Open Platform Communications Unified Architecture)}
+
+\textbf{Présentation} : Standard IEC 62541 pour la communication industrielle machine-to-machine.
+
+\textbf{Caractéristiques} :
+\begin{itemize}
+    \item Architecture client-serveur
+    \item Modélisation orientée objet des données industrielles
+    \item Sécurité native (chiffrement, authentification, certificats)
+    \item Indépendance plateforme (Windows, Linux, embedded)
+    \item Support pub/sub (en plus du traditionnel request/response)
+\end{itemize}
+
+\textbf{Cas d'usage} : SCADA, automates (PLCs), contrôleurs industriels, MES/ERP integration.
+
+\subsection{MQTT (Message Queuing Telemetry Transport)}
+
+\textbf{Présentation} : Protocole léger de messagerie pub/sub pour IoT.
+
+\textbf{Caractéristiques} :
+\begin{itemize}
+    \item Extrêmement léger (overhead minimal)
+    \item Publish/Subscribe pattern
+    \item QoS (Quality of Service) 3 niveaux : At most once (0), At least once (1), Exactly once (2)
+    \item Last Will and Testament (LWT) pour détection de déconnexion
+    \item Retained messages
+\end{itemize}
+
+\textbf{Cas d'usage} : Capteurs IoT, edge devices, transmission cloud, mobilité.
+
+\subsection{Modbus}
+
+\textbf{Présentation} : Protocole série (RS-232/RS-485) et TCP/IP pour communication automates.
+
+\textbf{Caractéristiques} :
+\begin{itemize}
+    \item Simple et robuste
+    \item Largement répandu dans l'industrie (legacy)
+    \item Modes : Modbus RTU (série), Modbus TCP (Ethernet)
+    \item Requête/réponse (pas de pub/sub)
+\end{itemize}
+
+\textbf{Cas d'usage} : Équipements anciens, régulation, mesure.
+
+\subsection{Comparaison OPC UA vs. MQTT vs. Modbus}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\begin{tabular}{|l|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Critère} & \textbf{OPC UA} & \textbf{MQTT} & \textbf{Modbus} \\
+\hline
+Architecture & Client-serveur (+ pub/sub) & Pub/sub & Client-serveur \\
+\hline
+Complexité & Élevée & Faible & Très faible \\
+\hline
+Sécurité & Native (X.509) & TLS optionnel & Aucune (TCP sans TLS) \\
+\hline
+Overhead & Élevé & Très faible & Faible \\
+\hline
+Bande passante & Élevée & Faible & Moyenne \\
+\hline
+Use case & SCADA, automates & Capteurs IoT & Legacy industrial \\
+\hline
+\end{tabular}
+\caption{Comparaison des protocoles IIoT}
+\label{tab:iiot-protocols-comparison}
+\end{table}
+
+\section{MLOps : DevOps pour Machine Learning}
+
+\subsection{Principes MLOps}
+
+Le \textbf{MLOps} (Machine Learning Operations) est l'ensemble des pratiques DevOps appliquées au cycle de vie des modèles ML.
+
+\textbf{Objectifs} :
+\begin{itemize}
+    \item \textbf{Reproductibilité} : Toute expérimentation doit être reproductible
+    \item \textbf{Versioning} : Code, données, modèles versionnés ensemble
+    \item \textbf{Automatisation} : CI/CD pour entraînement, validation, déploiement
+    \item \textbf{Monitoring} : Surveillance de la performance en production
+    \item \textbf{Gouvernance} : Traçabilité, audit, compliance
+\end{itemize}
+
+\subsection{Composants Clés}
+
+\subsubsection{MLflow}
+
+\textbf{Rôle} : Plateforme open-source pour le cycle de vie ML complet.
+
+\textbf{Composants} :
+\begin{itemize}
+    \item \textbf{MLflow Tracking} : Logging des paramètres, métriques, artifacts
+    \item \textbf{MLflow Projects} : Empaquetage reproductible des expérimentations
+    \item \textbf{MLflow Models} : Format standardisé de modèles (PyTorch, TensorFlow, scikit-learn)
+    \item \textbf{MLflow Registry} : Versioning et déploiement de modèles
+\end{itemize}
+
+\subsubsection{Feast (Feature Store)}
+
+\textbf{Rôle} : Gestion centralisée des features pour cohérence train/serve.
+
+\textbf{Problématique} : Train-Serving Skew (features différentes entre entraînement et production).
+
+\textbf{Solution Feast} :
+\begin{itemize}
+    \item Définition unique des features
+    \item Stockage online (faible latence, Redis) et offline (batch, S3/Parquet)
+    \item Versioning des features
+    \item Point-in-time correctness (pas de data leakage)
+\end{itemize}
+
+\subsubsection{DVC (Data Version Control)}
+
+\textbf{Rôle} : Git pour les données et modèles.
+
+\textbf{Fonctionnalités} :
+\begin{itemize}
+    \item Versioning de datasets (stockage externe S3/GCS/Azure)
+    \item Pipelines reproductibles (DAG de transformations)
+    \item Lightweight (seuls les pointeurs dans Git)
+\end{itemize}
+
+\subsection{Pipeline MLOps Complet}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.7, every node/.style={transform shape}, 
+    box/.style={draw, rectangle, rounded corners, minimum width=2cm, minimum height=1cm, align=center}]
+    
+    % Data
+    \node[box, fill=mantisblue!20] (data) at (0,0) {Data\\(DVC)};
+    
+    % Feature Engineering
+    \node[box, fill=mantisgreen!20] (feat) at (3,0) {Feature\\Engineering};
+    
+    % Training
+    \node[box, fill=mantisorange!20] (train) at (6,0) {Training\\(MLflow)};
+    
+    % Validation
+    \node[box, fill=mantisorange!20] (val) at (9,0) {Validation};
+    
+    % Registry
+    \node[box, fill=mantisred!20] (reg) at (12,0) {Model\\Registry};
+    
+    % Serving
+    \node[box, fill=mantisgreen!20] (serve) at (12,-3) {Serving\\(API)};
+    
+    % Monitoring
+    \node[box, fill=mantisblue!20] (mon) at (9,-3) {Monitoring\\(Prometheus)};
+    
+    % Feast
+    \node[box, fill=mantisorange!20] (feast) at (3,-3) {Feast\\Feature Store};
+    
+    % Arrows
+    \draw[thick, ->] (data) -- (feat);
+    \draw[thick, ->] (feat) -- (train);
+    \draw[thick, ->] (train) -- (val);
+    \draw[thick, ->] (val) -- (reg);
+    \draw[thick, ->] (reg) -- (serve);
+    \draw[thick, ->] (serve) -- (mon);
+    \draw[thick, ->, dashed] (mon) -- (train) node[midway, above, sloped] {\small Retrain};
+    \draw[thick, ->] (feat) -- (feast);
+    \draw[thick, ->] (feast) -- (serve);
+    
+\end{tikzpicture}
+\caption{Pipeline MLOps complet avec MLflow, Feast, DVC}
+\label{fig:mlops-pipeline}
+\end{figure}
+
+\section{Synthèse et Positionnement de MANTIS}
+
+\subsection{Choix Technologiques de MANTIS}
+
+Le tableau suivant synthétise les choix technologiques de MANTIS basés sur l'état de l'art :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|l|p{5cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Domaine} & \textbf{Choix MANTIS} & \textbf{Justification} \\
+\hline
+\textbf{RUL Prediction} & LSTM & Meilleur compromis performance/latence, maturité \\
+\hline
+\textbf{Architecture} & Microservices + EDA & Scalabilité, résilience, évolutivité \\
+\hline
+\textbf{Event Bus} & Apache Kafka & Standard industrie, throughput élevé \\
+\hline
+\textbf{Protocoles IIoT} & OPC UA, MQTT, Modbus & Couverture de 90\% des use cases industriels \\
+\hline
+\textbf{Time-Series DB} & TimescaleDB & PostgreSQL + optimisations temporelles \\
+\hline
+\textbf{MLOps} & MLflow + Feast + DVC & Écosystème complet et mature \\
+\hline
+\textbf{Monitoring} & Prometheus + Grafana + Jaeger & Standard CNCF, intégration Kubernetes \\
+\hline
+\textbf{Orchestration} & Kubernetes & Standard container orchestration \\
+\hline
+\end{tabular}
+\caption{Choix technologiques de MANTIS et justifications}
+\label{tab:mantis-tech-choices}
+\end{table}
+
+\subsection{Positionnement par Rapport à l'État de l'Art}
+
+MANTIS se positionne comme une \textbf{plateforme de référence} combinant :
+
+\begin{enumerate}
+    \item \textbf{État de l'art académique} : Modèles LSTM pour RUL (cible RMSE $\leq$ 20 cycles)
+    \item \textbf{Standards industriels} : OPC UA, MQTT, Modbus, Kafka, Kubernetes
+    \item \textbf{MLOps moderne} : MLflow, Feast, DVC pour industrialisation
+    \item \textbf{Observabilité complète} : Prometheus, Grafana, Jaeger
+\end{enumerate}
+
+\textbf{Valeur ajoutée de MANTIS} :
+\begin{itemize}
+    \item Architecture complète et opérationnelle (pas seulement un modèle ML isolé)
+    \item Multi-protocoles IIoT (flexibilité maximale)
+    \item MLOps complet (du lab à la production)
+    \item Open-source et extensible
+\end{itemize}
+
+\section{Conclusion}
+
+Ce chapitre a présenté l'état de l'art scientifique et technique qui sous-tend le projet MANTIS, couvrant la maintenance prédictive, le Deep Learning pour séries temporelles, les architectures microservices événementielles, les protocoles IIoT et les pratiques MLOps.
+
+Les choix technologiques de MANTIS (LSTM, Kafka, OPC UA/MQTT/Modbus, MLflow, Kubernetes, Prometheus) sont justifiés par leur maturité, leur performance et leur adoption industrielle.
+
+Le chapitre suivant présentera l'architecture technique détaillée de MANTIS, détaillant comment ces technologies sont intégrées dans une plateforme cohérente et scalable.

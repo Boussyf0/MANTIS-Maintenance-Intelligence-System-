@@ -1,0 +1,34 @@
+\babel@toc {french}{}\relax 
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Positionnement technologique de \textsc {Mantis}{}}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces De la donnée silotée à la valeur actionnable}}{13}{figure.caption.11}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Chaîne de valeur complète de \textsc {Mantis}{}}}{14}{figure.caption.13}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces Git branching strategy}}{15}{figure.caption.15}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Évolution des révolutions industrielles}}{18}{figure.caption.17}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Comparaison des stratégies de maintenance selon la courbe de dégradation}}{20}{figure.caption.19}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Architecture d'une cellule LSTM}}{38}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Architecture Apache Kafka (Producers, Brokers, Topics, Consumers)}}{41}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Pipeline MLOps complet avec MLflow, Feast, DVC}}{43}{figure.caption.28}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Processus de Maintenance Prédictive (BPMN)}}{45}{figure.caption.30}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Diagramme de Cas d'Utilisation Global}}{46}{figure.caption.31}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Diagramme de Classes - Service d'Ingestion}}{47}{figure.caption.32}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Diagramme de Classes - Service de Prédiction}}{47}{figure.caption.33}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Diagramme de Séquence - Ingestion OPC UA}}{49}{figure.caption.34}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Diagramme de Séquence - Prédiction RUL End-to-End}}{50}{figure.caption.35}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Architecture Complète de la Plateforme MANTIS}}{51}{figure.caption.36}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Maquette Dashboard Principal - Vue Synthétique}}{52}{figure.caption.37}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Maquette Vue Détail - Équipement Spécifique}}{53}{figure.caption.38}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Vue d'ensemble de l'architecture MANTIS}}{55}{figure.caption.41}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Flux d'Entraînement et Déploiement ML}}{58}{figure.caption.42}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Architecture de monitoring (Prometheus + Grafana + Jaeger)}}{60}{figure.caption.44}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Séquence Complète : De l'Ingestion OPC UA à la Notification}}{65}{figure.caption.50}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Flux d'Entraînement et Déploiement des Modèles ML}}{66}{figure.caption.51}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

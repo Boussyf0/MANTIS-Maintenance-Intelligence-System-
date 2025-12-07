@@ -14,7 +14,7 @@ import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.core.AttributeId;
-import org.eclipse.milo.opcua.stack.core.Identifiers;
+
 import org.eclipse.milo.opcua.stack.core.types.builtin.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MonitoringMode;
@@ -155,12 +155,12 @@ public class OpcUaConnector {
     /**
      * Souscrit à un nœud OPC UA.
      *
-     * @param nodeId ID du nœud OPC UA
-     * @param assetId ID de l'asset MANTIS
-     * @param sensorId ID du capteur MANTIS
+     * @param nodeId     ID du nœud OPC UA
+     * @param assetId    ID de l'asset MANTIS
+     * @param sensorId   ID du capteur MANTIS
      * @param sensorCode Code du capteur
      * @param sensorType Type de capteur
-     * @param unit Unité de mesure
+     * @param unit       Unité de mesure
      */
     public void subscribeToNode(
             String nodeId,
@@ -168,8 +168,7 @@ public class OpcUaConnector {
             UUID sensorId,
             String sensorCode,
             String sensorType,
-            String unit
-    ) {
+            String unit) {
         if (!connected.get()) {
             log.warn("Cannot subscribe to node {}: not connected", nodeId);
             return;
@@ -186,8 +185,7 @@ public class OpcUaConnector {
                     node,
                     AttributeId.Value.uid(),
                     null,
-                    QualifiedName.NULL_VALUE
-            );
+                    QualifiedName.NULL_VALUE);
 
             MonitoringParameters parameters = new MonitoringParameters(
                     uint(1), // clientHandle
@@ -200,16 +198,15 @@ public class OpcUaConnector {
             MonitoredItemCreateRequest request = new MonitoredItemCreateRequest(
                     readValueId,
                     MonitoringMode.Reporting,
-                    parameters
-            );
+                    parameters);
 
             // Créer l'item surveillé
-            List<UaMonitoredItem> items = subscription
+            subscription
                     .createMonitoredItems(
                             TimestampsToReturn.Both,
                             Collections.singletonList(request),
-                            (item, id) -> item.setValueConsumer(this::onValueChange)
-                    ).get();
+                            (item, id) -> item.setValueConsumer(this::onValueChange))
+                    .get();
 
             log.info("Subscribed to OPC UA node: nodeId={}, sensorCode={}", nodeId, sensorCode);
 
@@ -253,8 +250,8 @@ public class OpcUaConnector {
 
             // Créer l'objet SensorData
             SensorData sensorData = SensorData.builder()
-                    .timestamp(value.getSourceTime() != null ?
-                            Instant.ofEpochMilli(value.getSourceTime().getJavaTime()) : Instant.now())
+                    .timestamp(value.getSourceTime() != null ? Instant.ofEpochMilli(value.getSourceTime().getJavaTime())
+                            : Instant.now())
                     .assetId(metadata.assetId)
                     .sensorId(metadata.sensorId)
                     .sensorCode(metadata.sensorCode)
@@ -265,9 +262,7 @@ public class OpcUaConnector {
                     .source("opcua")
                     .metadata(Map.of(
                             "nodeId", nodeId.toParseableString(),
-                            "serverTimestamp", value.getServerTime() != null ?
-                                    value.getServerTime().getJavaTime() : 0
-                    ))
+                            "serverTimestamp", value.getServerTime() != null ? value.getServerTime().getJavaTime() : 0))
                     .build();
 
             // Envoyer vers Kafka
@@ -313,8 +308,7 @@ public class OpcUaConnector {
     public CompletableFuture<DataValue> readNode(String nodeId) {
         if (!connected.get()) {
             return CompletableFuture.failedFuture(
-                    new IllegalStateException("OPC UA client not connected")
-            );
+                    new IllegalStateException("OPC UA client not connected"));
         }
 
         NodeId node = NodeId.parse(nodeId);

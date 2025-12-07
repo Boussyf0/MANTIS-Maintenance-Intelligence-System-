@@ -1,0 +1,135 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{appendix}
+
+% Configuration
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+\definecolor{mantisblue}{RGB}{0, 102, 204}
+\definecolor{mantisgreen}{RGB}{0, 153, 76}
+\definecolor{mantisorange}{RGB}{255, 128, 0}
+\definecolor{mantisred}{RGB}{204, 0, 0}
+\definecolor{mantisgray}{RGB}{128, 128, 128}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=mantisblue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Rapport MANTIS},
+    pdfauthor={Abderrahim BOUSSYF},
+}
+
+% Commandes personnalisées
+\newcommand{\mantis}{\textsc{Mantis}}
+\newcommand{\opcua}{\textsc{OPC UA}}
+\newcommand{\mqtt}{\textsc{MQTT}}
+\newcommand{\iiot}{\textsc{IIoT}}
+\newcommand{\rul}{\textsc{RUL}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{mantisblue}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+\begin{document}
+
+    % Page de titre
+    \begin{titlepage}
+        \begin{tikzpicture}[remember picture, overlay]
+            % Arrière-plan
+            \node[opacity=0.1, inner sep=0pt] at (current page.center) {
+                \begin{tikzpicture}
+                    \foreach \i in {1,...,20} {
+                        \draw[mantisblue, line width=0.5pt] (rand*20, rand*30) circle (rand*2);
+                    }
+                \end{tikzpicture}
+            };
+            
+            % En-tête
+            \node[anchor=north west] at ([xshift=2cm, yshift=-2cm]current page.north west) {
+                \includegraphics[height=2cm]{images/emsi_logo.png} % Assurez-vous d'avoir le logo
+            };
+            
+            \node[anchor=north east, align=right, font=\sffamily\small, color=mantisgray] at ([xshift=-2cm, yshift=-2cm]current page.north east) {
+                École Marocaine des Sciences de l'Ingénieur\\
+                Année Universitaire 2024-2025
+            };
+            
+            % Titre central
+            \node[align=center] at (current page.center) {
+                \fontfamily{phv}\selectfont
+                \color{mantisblue}\Huge\bfseries PROJET DE FIN D'ANNÉE\\[1cm]
+                \color{black}\Large Filière : Ingénierie Informatique et Réseaux (IIR)\\[0.5cm]
+                \color{black}\large Option : MIAGE\\[2cm]
+                
+                \color{mantisgreen}\Huge\bfseries MANTIS\\[0.5cm]
+                \color{mantisgray}\Large MAiNtenance prédictive Temps-réel pour usines Intelligentes\\[2cm]
+            };
+            
+            % Auteurs et Encadrants
+            \node[anchor=south west] at ([xshift=3cm, yshift=4cm]current page.south west) {
+                \textbf{\large Réalisé par :}\\[0.2cm]
+                Abderrahim BOUSSYF
+            };
+            
+            \node[anchor=south east, align=right] at ([xshift=-3cm, yshift=4cm]current page.south east) {
+                \textbf{\large Encadré par :}\\[0.2cm]
+                Pr. O. OUEDRHIRI\\
+                Pr. H. TABBAA\\
+                Pr. M. LACHGAR
+            };
+            
+            % Pied de page
+            \node[anchor=south] at ([yshift=1cm]current page.south) {
+                \today
+            };
+        \end{tikzpicture}
+    \end{titlepage}
+
+    % Frontmatter (Remerciements, Résumé, Abréviations)
+    \input{chapters/00_frontmatter}
+
+    % Table des matières
+    \tableofcontents
+    \listoffigures
+    \listoftables
+
+    % Chapitres
+    \input{chapters/01_introduction}
+    \input{chapters/02_contexte}
+    \input{chapters/03_objectifs}
+    \input{chapters/04_etat_art}
+    \input{chapters/05_analyse_conception}
+    \input{chapters/06_architecture_technique}
+    \input{chapters/07_implementation}
+    \input{chapters/08_tests_validation}
+    \input{chapters/09_conclusion}
+
+    % Bibliographie et Annexes
+    \input{chapters/99_bibliography}
+    \input{chapters/99_annexes}
+
+\end{document}

@@ -1,0 +1,755 @@
+%=============================================================================
+% CHAPITRE 7 : IMPLÉMENTATION
+%=============================================================================
+\chapter{Implémentation}
+
+\section{Introduction}
+
+Ce chapitre présente l'implémentation détaillée des microservices de la plateforme MANTIS. Nous détaillons la structure du projet, le code source des composants critiques, les modèles de données, et les APIs REST exposées.
+
+\section{Structure du Projet}
+
+La structure du projet suit une organisation monorepo avec un dossier par microservice :
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily, frame=single]
+MANTIS/
+├── services/
+│   ├── ingestion-iiot/          # Service Ingestion (Python/FastAPI)
+│   │   ├── src/
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   ├── preprocessing/            # Service Preprocessing (Python)
+│   │   ├── src/
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   ├── anomaly-detection/        # Service Anomaly (Python/PyOD)
+│   ├── rul-prediction/           # Service RUL (Python/PyTorch)
+│   ├── notification-service/     # Service Notification (Python/FastAPI)
+│   ├── training-service/         # Service Training (Python/MLflow)
+│   └── dashboard-ui/             # Dashboard (React/Next.js)
+├── infrastructure/
+│   ├── docker/
+│   └── kubernetes/
+├── ml/
+│   ├── notebooks/
+│   └── models/
+└── scripts/
+\end{lstlisting}
+
+\section{Service d'Ingestion IIoT}
+
+\subsection{Modèle de Données (Pydantic)}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single]
+from pydantic import BaseModel, Field, validator
+from datetime import datetime
+from typing import Dict, Any, Optional
+
+class SensorDataSchema(BaseModel):
+    source: str = Field(..., description="Source protocol: opcua, mqtt, modbus, rest")
+    equipment_id: str = Field(..., description="Unique equipment identifier")
+    sensor_id: str = Field(..., description="Sensor identifier")
+    timestamp: datetime = Field(..., description="ISO 8601 timestamp")
+    value: float = Field(..., description="Sensor reading value")
+    unit: Optional[str] = Field(None, description="Unit of measurement")
+    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    
+    @validator('source')
+    def validate_source(cls, v):
+        allowed = ['opcua', 'mqtt', 'modbus', 'rest']
+        if v not in allowed:
+            raise ValueError(f"Source must be one of {allowed}")
+        return v
+    
+    @validator('value')
+    def validate_value(cls, v):
+        if not -1e6 <= v <= 1e6:  # Sanity check
+            raise ValueError("Value out of reasonable range")
+        return v
+\end{lstlisting}
+
+\subsection{Connecteur OPC UA (Asyncio)}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single]
+from asyncua import Client
+import logging
+
+class OPCUAConnector:
+    def __init__(self, endpoint: str, namespace: int, kafka_producer):
+        self.endpoint = endpoint
+        self.namespace = namespace
+        self.producer = kafka_producer
+        self.client = None
+        self.logger = logging.getLogger(__name__)
+    
+    async def connect(self):
+        self.client = Client(url=self.endpoint)
+        await self.client.connect()
+        self.logger.info(f"Connected to OPC UA server: {self.endpoint}")
+    
+    async def subscribe(self, node_ids: list):
+        """Subscribe to OPC UA nodes and stream data to Kafka"""
+        for node_id in node_ids:
+            node = self.client.get_node(f"ns={self.namespace};i={node_id}")
+            
+            # Create subscription
+            handler = DataChangeHandler(self.producer, node_id)
+            sub = await self.client.create_subscription(500, handler)
+            await sub.subscribe_data_change(node)
+            
+            self.logger.info(f"Subscribed to node {node_id}")
+
+class DataChangeHandler:
+    def __init__(self, kafka_producer, node_id):
+        self.producer = kafka_producer
+        self.node_id = node_id
+    
+    def datachange_notification(self, node, val, data):
+        # Normalize data
+        message = {
+            "source": "opcua",
+            "node_id": self.node_id,
+            "timestamp": data.monitored_item.Value.SourceTimestamp.isoformat(),
+            "value": val,
+            "status": data.monitored_item.Value.StatusCode.name
+        }
+        
+        # Send to Kafka
+        self.producer.send("raw-sensor-data", value=message)
+\end{lstlisting}
+
+\section{Service de Prédiction RUL}
+
+\subsection{Modèle LSTM (PyTorch)}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single]
+import torch
+import torch.nn as nn
+
+class RULPredictor(nn.Module):
+    def __init__(self, input_size=21, hidden_size=128, num_layers=2, dropout=0.2):
+        super().__init__()
+        
+        self.lstm = nn.LSTM(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout
+        )
+        
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_size, 64),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(64, 1)
+        )
+    
+    def forward(self, x):
+        # x shape: (batch, sequence_length, input_size)
+        lstm_out, _ = self.lstm(x)
+        
+        # Take last hidden state
+        last_hidden = lstm_out[:, -1, :]
+        
+        return self.fc(last_hidden).squeeze(-1)
+\end{lstlisting}
+
+\subsection{API d'Inférence (FastAPI)}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single]
+from fastapi import FastAPI
+import torch
+
+app = FastAPI(title="RUL Prediction Service")
+
+class PredictionRequest(BaseModel):
+    equipment_id: str
+    sequence: list[list[float]]
+
+@app.post("/predict")
+async def predict(request: PredictionRequest):
+    sequence = torch.tensor([request.sequence], dtype=torch.float32)
+    
+    with torch.no_grad():
+        rul_pred = model(sequence).item()
+    
+    return {
+        "equipment_id": request.equipment_id,
+        "rul": max(0, rul_pred),
+        "model_version": "v1.0.0"
+    }
+\end{lstlisting}
+
+\section{Dashboard React}
+
+\subsection{Composant Graphique RUL}
+
+\begin{lstlisting}[language=JavaScript, basicstyle=\tiny\ttfamily, frame=single]
+// components/RULChart.tsx
+import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
+import { useQuery } from 'react-query';
+
+export const RULChart = ({ equipmentId, criticalThreshold = 50 }) => {
+  const { data } = useQuery({
+    queryKey: ['rul-history', equipmentId],
+    queryFn: () => fetchRULHistory(equipmentId),
+    refetchInterval: 5000,
+  });
+
+  return (
+    <LineChart width={600} height={300} data={data}>
+      <XAxis dataKey="timestamp" />
+      <YAxis label={{ value: 'RUL (cycles)', angle: -90, position: 'insideLeft' }} />
+      <Tooltip />
+      <ReferenceLine y={criticalThreshold} stroke="red" label="Critical" />
+      <Line type="monotone" dataKey="rul" stroke="#1976D2" strokeWidth={2} />
+    </LineChart>
+  );
+};
+\end{lstlisting}
+
+\section{Service de Détection d'Anomalies}
+
+\subsection{Implémentation Isolation Forest}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single, caption=Détection d'Anomalies avec Isolation Forest]
+from sklearn.ensemble import IsolationForest
+import numpy as np
+
+class AnomalyDetector:
+    def __init__(self, contamination=0.05, n_estimators=100):
+        """
+        Détecteur d'anomalies utilisant Isolation Forest
+
+        Args:
+            contamination: Proportion attendue d'anomalies (0.05 = 5%)
+            n_estimators: Nombre d'arbres dans la forêt
+        """
+        self.model = IsolationForest(
+            contamination=contamination,
+            n_estimators=n_estimators,
+            max_samples='auto',
+            random_state=42,
+            n_jobs=-1
+        )
+        self.is_fitted = False
+
+    def fit(self, X_normal):
+        """Entraînement sur données normales uniquement"""
+        self.model.fit(X_normal)
+        self.is_fitted = True
+        return self
+
+    def predict(self, X):
+        """
+        Prédiction d'anomalies
+
+        Returns:
+            - 1: Normal
+            - -1: Anomalie
+        """
+        if not self.is_fitted:
+            raise ValueError("Le modèle doit être entraîné avant la prédiction")
+
+        predictions = self.model.predict(X)
+        scores = self.model.score_samples(X)  # Plus négatif = plus anormal
+
+        return {
+            'predictions': predictions,
+            'anomaly_scores': -scores,  # Convertir en score positif
+            'is_anomaly': predictions == -1
+        }
+
+    def detect_streaming(self, sensor_data):
+        """Détection en streaming pour un point de données"""
+        features = np.array(sensor_data).reshape(1, -1)
+        result = self.predict(features)
+
+        return {
+            'is_anomaly': bool(result['is_anomaly'][0]),
+            'anomaly_score': float(result['anomaly_scores'][0]),
+            'severity': self._compute_severity(result['anomaly_scores'][0])
+        }
+
+    @staticmethod
+    def _compute_severity(score):
+        """Calcul du niveau de sévérité basé sur le score"""
+        if score < 0.5:
+            return 'LOW'
+        elif score < 0.7:
+            return 'MEDIUM'
+        elif score < 0.9:
+            return 'HIGH'
+        else:
+            return 'CRITICAL'
+\end{lstlisting}
+
+\subsection{Autoencoder pour Détection d'Anomalies}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single, caption=Autoencoder PyTorch pour Anomalies]
+import torch
+import torch.nn as nn
+
+class ConvAutoencoder(nn.Module):
+    """Autoencoder convolutionnel pour séries temporelles"""
+
+    def __init__(self, input_size=21, sequence_length=50, latent_dim=10):
+        super().__init__()
+
+        # Encoder
+        self.encoder = nn.Sequential(
+            nn.Conv1d(input_size, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.Conv1d(64, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.Flatten(),
+            nn.Linear(32 * (sequence_length // 4), latent_dim)
+        )
+
+        # Decoder
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 32 * (sequence_length // 4)),
+            nn.ReLU(),
+            nn.Unflatten(1, (32, sequence_length // 4)),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv1d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv1d(64, input_size, kernel_size=3, padding=1)
+        )
+
+    def forward(self, x):
+        # x shape: (batch, sequence_length, input_size)
+        x = x.transpose(1, 2)  # -> (batch, input_size, sequence_length)
+        latent = self.encoder(x)
+        reconstructed = self.decoder(latent)
+        return reconstructed.transpose(1, 2)
+
+    def compute_anomaly_score(self, x):
+        """Calcul du score d'anomalie basé sur l'erreur de reconstruction"""
+        self.eval()
+        with torch.no_grad():
+            reconstructed = self(x)
+            mse = torch.mean((x - reconstructed) ** 2, dim=(1, 2))
+            return mse.cpu().numpy()
+\end{lstlisting}
+
+\section{Infrastructure Docker}
+
+\subsection{Dockerfile Microservice Python}
+
+\begin{lstlisting}[language=Docker, basicstyle=\tiny\ttfamily, frame=single, caption=Dockerfile pour Service Python]
+# Base image
+FROM python:3.11-slim as base
+
+# Variables d'environnement
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Dépendances système
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Builder stage
+FROM base as builder
+
+COPY requirements.txt .
+RUN pip install --user --no-warn-script-location -r requirements.txt
+
+# Runtime stage
+FROM base
+
+# Copie des dépendances depuis builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copie du code source
+COPY src/ ./src/
+
+# Utilisateur non-root pour sécurité
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+
+# Commande de démarrage
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+\end{lstlisting}
+
+\subsection{Docker Compose Infrastructure}
+
+\begin{lstlisting}[language=yaml, basicstyle=\tiny\ttfamily, frame=single, caption=docker-compose.infrastructure.yml]
+version: '3.9'
+
+services:
+  # Apache Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: mantis-kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - mantis-network
+
+  # TimescaleDB
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: mantis-timescaledb
+    environment:
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: mantis_secure_password
+      POSTGRES_DB: mantis_timeseries
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - mantis-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: mantis-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mantis-network
+
+  # MLflow
+  mlflow:
+    image: python:3.11-slim
+    container_name: mantis-mlflow
+    command: >
+      sh -c "pip install mlflow psycopg2-binary boto3 &&
+             mlflow server --backend-store-uri postgresql://mantis:mantis_secure_password@postgres:5432/mlflow
+             --default-artifact-root s3://mlflow-artifacts
+             --host 0.0.0.0 --port 5000"
+    ports:
+      - "5000:5000"
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    depends_on:
+      - postgres
+      - minio
+    networks:
+      - mantis-network
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mantis-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - mantis-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mantis-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - mantis-network
+
+volumes:
+  kafka-data:
+  timescaledb-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  mantis-network:
+    driver: bridge
+\end{lstlisting}
+
+\section{Configuration Kubernetes}
+
+\subsection{Deployment Prediction Service}
+
+\begin{lstlisting}[language=yaml, basicstyle=\tiny\ttfamily, frame=single, caption=Kubernetes Deployment - Prediction Service]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rul-prediction-service
+  namespace: mantis
+  labels:
+    app: rul-prediction
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: rul-prediction
+  template:
+    metadata:
+      labels:
+        app: rul-prediction
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: rul-prediction
+        image: mantis/rul-prediction:1.0.0
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka-0.kafka-headless.mantis.svc.cluster.local:9092"
+        - name: MLFLOW_TRACKING_URI
+          value: "http://mlflow.mantis.svc.cluster.local:5000"
+        - name: REDIS_HOST
+          value: "redis.mantis.svc.cluster.local"
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rul-prediction
+  namespace: mantis
+spec:
+  selector:
+    app: rul-prediction
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rul-prediction-hpa
+  namespace: mantis
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rul-prediction-service
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+\end{lstlisting}
+
+\section{API REST Complète}
+
+\subsection{Endpoints Dashboard API}
+
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, frame=single, caption=API REST FastAPI Complète]
+from fastapi import FastAPI, HTTPException, Depends, Query
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from datetime import datetime, timedelta
+import asyncpg
+
+app = FastAPI(
+    title="MANTIS Dashboard API",
+    version="1.0.0",
+    description="API REST pour le dashboard de maintenance prédictive"
+)
+
+# Modèles Pydantic
+class Equipment(BaseModel):
+    id: str
+    name: str
+    type: str
+    location: str
+    status: str  # 'normal', 'warning', 'critical'
+    health_score: float = Field(ge=0, le=100)
+    last_maintenance: Optional[datetime]
+
+class RULPrediction(BaseModel):
+    equipment_id: str
+    rul_cycles: int
+    rul_hours: float
+    confidence: float = Field(ge=0, le=1)
+    predicted_at: datetime
+    model_version: str
+
+class Anomaly(BaseModel):
+    id: int
+    equipment_id: str
+    detected_at: datetime
+    anomaly_type: str
+    severity: str  # 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'
+    anomaly_score: float
+    description: str
+
+# Endpoints
+@app.get("/api/v1/equipments", response_model=List[Equipment])
+async def get_all_equipments(
+    status: Optional[str] = Query(None, regex="^(normal|warning|critical)$"),
+    location: Optional[str] = None
+):
+    """Récupère la liste de tous les équipements avec filtres optionnels"""
+    # Connexion base de données
+    conn = await asyncpg.connect(DATABASE_URL)
+
+    query = "SELECT * FROM equipments WHERE 1=1"
+    params = []
+
+    if status:
+        query += f" AND status = ${len(params)+1}"
+        params.append(status)
+
+    if location:
+        query += f" AND location = ${len(params)+1}"
+        params.append(location)
+
+    rows = await conn.fetch(query, *params)
+    await conn.close()
+
+    return [Equipment(**dict(row)) for row in rows]
+
+@app.get("/api/v1/equipments/{equipment_id}/rul", response_model=RULPrediction)
+async def get_equipment_rul(equipment_id: str):
+    """Récupère la dernière prédiction RUL pour un équipement"""
+    conn = await asyncpg.connect(DATABASE_URL)
+
+    query = """
+        SELECT * FROM rul_predictions
+        WHERE equipment_id = $1
+        ORDER BY predicted_at DESC
+        LIMIT 1
+    """
+
+    row = await conn.fetchrow(query, equipment_id)
+    await conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Aucune prédiction trouvée")
+
+    return RULPrediction(**dict(row))
+
+@app.get("/api/v1/anomalies", response_model=List[Anomaly])
+async def get_anomalies(
+    equipment_id: Optional[str] = None,
+    severity: Optional[str] = Query(None, regex="^(LOW|MEDIUM|HIGH|CRITICAL)$"),
+    hours_ago: int = Query(24, ge=1, le=720)
+):
+    """Récupère les anomalies récentes avec filtres"""
+    conn = await asyncpg.connect(DATABASE_URL)
+
+    since = datetime.now() - timedelta(hours=hours_ago)
+
+    query = "SELECT * FROM anomalies WHERE detected_at >= $1"
+    params = [since]
+
+    if equipment_id:
+        query += f" AND equipment_id = ${len(params)+1}"
+        params.append(equipment_id)
+
+    if severity:
+        query += f" AND severity = ${len(params)+1}"
+        params.append(severity)
+
+    query += " ORDER BY detected_at DESC"
+
+    rows = await conn.fetch(query, *params)
+    await conn.close()
+
+    return [Anomaly(**dict(row)) for row in rows]
+
+@app.get("/api/v1/health")
+async def health_check():
+    """Health check endpoint pour monitoring"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "1.0.0"
+    }
+\end{lstlisting}
+
+\section{Conclusion}
+
+Ce chapitre a présenté l'implémentation détaillée des composants clés de \mantis{} :
+
+\begin{itemize}
+    \item \textbf{Service d'Ingestion} : Connecteurs OPC UA, MQTT avec gestion asynchrone
+    \item \textbf{Service de Prédiction} : Modèle LSTM PyTorch avec API d'inférence FastAPI
+    \item \textbf{Service de Détection d'Anomalies} : Isolation Forest et Autoencoder
+    \item \textbf{Infrastructure Docker} : Dockerfiles optimisés multi-stage
+    \item \textbf{Orchestration Kubernetes} : Deployments avec auto-scaling
+    \item \textbf{API REST} : Endpoints complets pour le dashboard
+\end{itemize}
+
+L'utilisation de Python/FastAPI pour les microservices backend, combinée à PyTorch pour les modèles de Deep Learning, Docker pour la conteneurisation et Kubernetes pour l'orchestration, offre une stack technologique moderne, performante et maintenable conforme aux meilleures pratiques de l'industrie.

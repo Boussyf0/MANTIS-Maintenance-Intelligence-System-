@@ -78,8 +78,7 @@ public class MqttConnector implements MqttCallback {
     public MqttConnector(
             KafkaProducerService kafkaProducerService,
             ObjectMapper objectMapper,
-            MeterRegistry meterRegistry
-    ) {
+            MeterRegistry meterRegistry) {
         this.kafkaProducerService = kafkaProducerService;
         this.objectMapper = objectMapper;
 
@@ -169,7 +168,8 @@ public class MqttConnector implements MqttCallback {
         connected.set(false);
         connectionFailuresCounter.increment();
 
-        // Le client tentera de se reconnecter automatiquement grâce à automaticReconnect=true
+        // Le client tentera de se reconnecter automatiquement grâce à
+        // automaticReconnect=true
         log.info("MQTT client will attempt to reconnect automatically");
     }
 
@@ -226,7 +226,9 @@ public class MqttConnector implements MqttCallback {
         try {
             // Essayer de parser comme JSON complet
             if (payload.trim().startsWith("{")) {
-                Map<String, Object> jsonMap = objectMapper.readValue(payload, Map.class);
+                Map<String, Object> jsonMap = objectMapper.readValue(payload,
+                        new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                        });
 
                 // Vérifier si c'est un objet SensorData complet
                 if (jsonMap.containsKey("sensorCode") && jsonMap.containsKey("value")) {
@@ -251,34 +253,28 @@ public class MqttConnector implements MqttCallback {
      * Construit un SensorData à partir d'un objet JSON partiel.
      */
     private SensorData buildSensorDataFromJson(String topic, Map<String, Object> jsonMap) {
-        // Extraire les informations du topic (ex: factory/sensors/MOTOR-001/temperature)
+        // Extraire les informations du topic (ex:
+        // factory/sensors/MOTOR-001/temperature)
         String[] topicParts = topic.split("/");
         String sensorCode = topicParts.length > 2 ? topicParts[topicParts.length - 2] : "UNKNOWN";
         String sensorType = topicParts.length > 1 ? topicParts[topicParts.length - 1] : "unknown";
 
-        Double value = jsonMap.get("value") != null ?
-                ((Number) jsonMap.get("value")).doubleValue() : null;
+        Double value = jsonMap.get("value") != null ? ((Number) jsonMap.get("value")).doubleValue() : null;
 
         String timestampStr = (String) jsonMap.get("timestamp");
-        Instant timestamp = timestampStr != null ?
-                Instant.parse(timestampStr) : Instant.now();
+        Instant timestamp = timestampStr != null ? Instant.parse(timestampStr) : Instant.now();
 
         return SensorData.builder()
                 .timestamp(timestamp)
-                .assetId(jsonMap.containsKey("assetId") ?
-                        UUID.fromString((String) jsonMap.get("assetId")) :
-                        UUID.randomUUID())
-                .sensorId(jsonMap.containsKey("sensorId") ?
-                        UUID.fromString((String) jsonMap.get("sensorId")) :
-                        UUID.randomUUID())
-                .sensorCode(jsonMap.containsKey("sensorCode") ?
-                        (String) jsonMap.get("sensorCode") : sensorCode)
-                .sensorType(jsonMap.containsKey("sensorType") ?
-                        (String) jsonMap.get("sensorType") : sensorType)
+                .assetId(jsonMap.containsKey("assetId") ? UUID.fromString((String) jsonMap.get("assetId"))
+                        : UUID.randomUUID())
+                .sensorId(jsonMap.containsKey("sensorId") ? UUID.fromString((String) jsonMap.get("sensorId"))
+                        : UUID.randomUUID())
+                .sensorCode(jsonMap.containsKey("sensorCode") ? (String) jsonMap.get("sensorCode") : sensorCode)
+                .sensorType(jsonMap.containsKey("sensorType") ? (String) jsonMap.get("sensorType") : sensorType)
                 .value(value)
                 .unit(jsonMap.containsKey("unit") ? (String) jsonMap.get("unit") : "")
-                .quality(jsonMap.containsKey("quality") ?
-                        ((Number) jsonMap.get("quality")).intValue() : 100)
+                .quality(jsonMap.containsKey("quality") ? ((Number) jsonMap.get("quality")).intValue() : 100)
                 .source("mqtt")
                 .build();
     }
@@ -313,7 +309,8 @@ public class MqttConnector implements MqttCallback {
     }
 
     /**
-     * Publie un message MQTT (utile pour les tests ou la communication bidirectionnelle).
+     * Publie un message MQTT (utile pour les tests ou la communication
+     * bidirectionnelle).
      */
     public void publish(String topic, String payload, int qos, boolean retained) throws MqttException {
         if (!connected.get()) {

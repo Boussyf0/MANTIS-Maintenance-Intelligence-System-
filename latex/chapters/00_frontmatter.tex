@@ -1,0 +1,166 @@
+%=============================================================================
+% REMERCIEMENTS
+%=============================================================================
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Nous tenons à exprimer notre profonde gratitude à toutes les personnes qui ont contribué à la réalisation de ce projet \mantis{}.
+
+Nos remerciements s'adressent en premier lieu à nos encadrants académiques :
+
+\begin{itemize}
+    \item \textbf{Pr. Oumayma OUEDRHIRI}, pour ses conseils avisés en Big Data, architectures distribuées et gestion de projet
+    \item \textbf{Pr. Hiba TABBAA}, pour son expertise en Intelligence Artificielle, Machine Learning et Deep Learning
+    \item \textbf{Pr. Mohamed LACHGAR}, pour son accompagnement en DevOps, MLOps et bonnes pratiques de développement logiciel
+\end{itemize}
+
+Nous remercions également :
+
+\begin{itemize}
+    \item L'\textbf{École Marocaine des Sciences de l'Ingénieur (EMSI)} pour la qualité de la formation dispensée et les moyens mis à notre disposition
+    \item La \textbf{NASA} pour la mise à disposition du dataset C-MAPSS, essentiel à notre projet
+    \item La \textbf{communauté open-source} pour les nombreux frameworks et bibliothèques qui ont rendu ce projet possible
+    \item Nos \textbf{familles et amis} pour leur soutien constant
+\end{itemize}
+
+Ce projet constitue l'aboutissement d'un parcours académique enrichissant qui nous a permis de développer des compétences techniques et méthodologiques solides dans le domaine de l'Industrie 4.0 et de l'Intelligence Artificielle appliquée.
+
+%=============================================================================
+% RÉSUMÉ
+%=============================================================================
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+\textbf{\mantis{}} (MAiNtenance prédictive Temps-réel pour usines Intelligentes) est une plateforme modulaire et intelligente conçue pour révolutionner la maintenance industrielle dans le contexte de l'Industrie 4.0.
+
+\paragraph{Contexte.} Les arrêts non planifiés dans le secteur manufacturier coûtent environ \textbf{50 milliards USD par an} à l'échelle mondiale, avec un coût médian supérieur à \textbf{125 000 USD par heure}. Les approches traditionnelles de maintenance (corrective et préventive) montrent leurs limites face à la complexité croissante des équipements industriels et aux volumes massifs de données générées par les capteurs IoT.
+
+\paragraph{Problématique.} Comment concevoir une plateforme capable d'exploiter en temps réel les données hétérogènes provenant de capteurs industriels pour détecter les anomalies, prédire les défaillances et optimiser la planification des interventions de maintenance ?
+
+\paragraph{Objectif.} Développer une plateforme basée sur une architecture microservices capable d'ingérer des données \iiot{} en temps réel (via \opcua{}, \mqtt{}, Modbus), de les analyser avec des algorithmes de Machine Learning et de Deep Learning, et de fournir des recommandations actionnables pour la maintenance prédictive.
+
+\paragraph{Architecture.} Le système \mantis{} est composé de 7 microservices indépendants et scalables :
+\begin{enumerate}
+    \item \textbf{Ingestion \iiot{}} (Java/Spring Boot) : Collecte multi-protocoles
+    \item \textbf{Prétraitement} (Python/Kafka Streams) : Nettoyage et normalisation
+    \item \textbf{Extraction de caractéristiques} (Python/tsfresh) : Features temps-fréquence
+    \item \textbf{Détection d'anomalies} (Python/PyOD) : Isolation Forest, Autoencoders
+    \item \textbf{Prédiction \rul{}} (Python/PyTorch) : LSTM pour estimation durée de vie
+    \item \textbf{Orchestrateur} (Python/Drools) : Règles métier et optimisation
+    \item \textbf{Dashboard} (React.js/Next.js) : Visualisation temps-réel
+\end{enumerate}
+
+\paragraph{Technologies.} Kafka pour le streaming événementiel, PostgreSQL et TimescaleDB pour le stockage, MLflow et Feast pour le MLOps, Prometheus/Grafana/Jaeger pour l'observabilité, Docker et Kubernetes pour le déploiement.
+
+\paragraph{Dataset.} NASA C-MAPSS (Commercial Modular Aero-Propulsion System Simulation) avec 4 sous-ensembles, 21 capteurs, 3 réglages opératoires, et 160 359 cycles d'entraînement.
+
+\paragraph{Résultats.} Le projet atteint \textbf{40\% de complétion} avec une infrastructure complète opérationnelle, le service d'ingestion fonctionnel, et des modèles LSTM atteignant un RMSE de 12,5 cycles sur C-MAPSS. Les objectifs de performance visent : latence end-to-end <5 secondes, throughput >100K points/seconde, précision détection >85\%, rappel >90\%.
+
+\paragraph{Impact.} \mantis{} permet une réduction estimée de 25-30\% des coûts de maintenance et 70-75\% des arrêts non planifiés, avec un ROI démontrable et une architecture reproductible conforme aux standards académiques.
+
+\paragraph{Mots-clés.} Maintenance prédictive, Industrie 4.0, Microservices, IIoT, Machine Learning, Deep Learning, MLOps, RUL, LSTM, Kafka, TimescaleDB.
+
+%=============================================================================
+% ABSTRACT (ANGLAIS)
+%=============================================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\textbf{\mantis{}} (Real-time Predictive Maintenance for Intelligent Factories) is a modular and intelligent platform designed to revolutionize industrial maintenance in the Industry 4.0 context.
+
+\paragraph{Context.} Unplanned downtime in the manufacturing sector costs approximately \textbf{50 billion USD per year} globally, with a median cost exceeding \textbf{125,000 USD per hour}. Traditional maintenance approaches (corrective and preventive) show their limitations in the face of increasing industrial equipment complexity and massive volumes of data generated by IoT sensors.
+
+\paragraph{Problem.} How to design a platform capable of exploiting heterogeneous data from industrial sensors in real-time to detect anomalies, predict failures, and optimize maintenance intervention planning?
+
+\paragraph{Objective.} Develop a microservices-based platform capable of ingesting \iiot{} data in real-time (via \opcua{}, \mqtt{}, Modbus), analyzing it with Machine Learning and Deep Learning algorithms, and providing actionable recommendations for predictive maintenance.
+
+\paragraph{Architecture.} The \mantis{} system consists of 7 independent and scalable microservices:
+\begin{enumerate}
+    \item \textbf{\iiot{} Ingestion} (Java/Spring Boot): Multi-protocol collection
+    \item \textbf{Preprocessing} (Python/Kafka Streams): Cleaning and normalization
+    \item \textbf{Feature Extraction} (Python/tsfresh): Time-frequency features
+    \item \textbf{Anomaly Detection} (Python/PyOD): Isolation Forest, Autoencoders
+    \item \textbf{\rul{} Prediction} (Python/PyTorch): LSTM for lifetime estimation
+    \item \textbf{Orchestrator} (Python/Drools): Business rules and optimization
+    \item \textbf{Dashboard} (React.js/Next.js): Real-time visualization
+\end{enumerate}
+
+\paragraph{Technologies.} Kafka for event streaming, PostgreSQL and TimescaleDB for storage, MLflow and Feast for MLOps, Prometheus/Grafana/Jaeger for observability, Docker and Kubernetes for deployment.
+
+\paragraph{Dataset.} NASA C-MAPSS with 4 subsets, 21 sensors, 3 operational settings, and 160,359 training cycles.
+
+\paragraph{Results.} The project achieves \textbf{40\% completion} with a fully operational infrastructure, functional ingestion service, and LSTM models achieving 12.5 cycles RMSE on C-MAPSS. Performance targets: end-to-end latency <5 seconds, throughput >100K points/second, detection precision >85\%, recall >90\%.
+
+\paragraph{Impact.} \mantis{} enables an estimated 25-30\% reduction in maintenance costs and 70-75\% reduction in unplanned downtime, with demonstrable ROI and reproducible architecture compliant with academic standards.
+
+\paragraph{Keywords.} Predictive maintenance, Industry 4.0, Microservices, IIoT, Machine Learning, Deep Learning, MLOps, RUL, LSTM, Kafka, TimescaleDB.
+
+%=============================================================================
+% LISTE DES ABRÉVIATIONS
+%=============================================================================
+\chapter*{Liste des Abréviations}
+\addcontentsline{toc}{chapter}{Liste des Abréviations}
+
+\begin{longtable}{lp{11cm}}
+\toprule
+\textbf{Abréviation} & \textbf{Signification} \\
+\midrule
+\endhead
+
+AI & Artificial Intelligence (Intelligence Artificielle) \\
+API & Application Programming Interface \\
+CBM & Condition-Based Maintenance (Maintenance Conditionnelle) \\
+CI/CD & Continuous Integration / Continuous Deployment \\
+CMMS & Computerized Maintenance Management System \\
+CNN & Convolutional Neural Network (Réseau de Neurones Convolutifs) \\
+DCS & Distributed Control System \\
+DVC & Data Version Control \\
+EAM & Enterprise Asset Management \\
+EMSI & École Marocaine des Sciences de l'Ingénieur \\
+ERP & Enterprise Resource Planning \\
+FFT & Fast Fourier Transform (Transformée de Fourier Rapide) \\
+GRU & Gated Recurrent Unit \\
+HTTP & Hypertext Transfer Protocol \\
+IEC & International Electrotechnical Commission \\
+IIoT & Industrial Internet of Things \\
+IoT & Internet of Things \\
+ISO & International Organization for Standardization \\
+IT & Information Technology \\
+JSON & JavaScript Object Notation \\
+LSTM & Long Short-Term Memory \\
+MES & Manufacturing Execution System \\
+ML & Machine Learning (Apprentissage Automatique) \\
+MLOps & Machine Learning Operations \\
+MQTT & Message Queuing Telemetry Transport \\
+MSE & Mean Squared Error \\
+MTBF & Mean Time Between Failures \\
+MTTR & Mean Time To Repair \\
+NASA & National Aeronautics and Space Administration \\
+OEE & Overall Equipment Effectiveness \\
+OPC UA & OPC Unified Architecture \\
+OT & Operational Technology \\
+PdM & Predictive Maintenance (Maintenance Prédictive) \\
+PDF & Portable Document Format \\
+PHM & Prognostics and Health Management \\
+PLC & Programmable Logic Controller \\
+REST & Representational State Transfer \\
+RMSE & Root Mean Square Error \\
+RMS & Root Mean Square \\
+ROI & Return On Investment \\
+RUL & Remaining Useful Life (Durée de Vie Utile Restante) \\
+SCADA & Supervisory Control and Data Acquisition \\
+SHAP & SHapley Additive exPlanations \\
+SLA & Service Level Agreement \\
+SMOTE & Synthetic Minority Over-sampling Technique \\
+SSL & Secure Sockets Layer \\
+STFT & Short-Time Fourier Transform \\
+SVM & Support Vector Machine \\
+TCN & Temporal Convolutional Network \\
+TLS & Transport Layer Security \\
+UAV & Unmanned Aerial Vehicle (Drone) \\
+URL & Uniform Resource Locator \\
+USD & United States Dollar \\
+YAML & YAML Ain't Markup Language \\
+
+\bottomrule
+\end{longtable}

@@ -1,0 +1,442 @@
+%=============================================================================
+% CHAPITRE 2 : CONTEXTE ET PROBLÉMATIQUE
+%=============================================================================
+\chapter{Contexte et Problématique}
+
+\section{Introduction}
+
+La maintenance industrielle représente un enjeu stratégique majeur pour les entreprises manufacturières modernes. Dans un contexte d'Industrie 4.0, où la connectivité, l'intelligence artificielle et l'IoT transforment radicalement les processus de production, la maintenance prédictive émerge comme une solution incontournable pour optimiser la disponibilité des équipements tout en réduisant les coûts opérationnels.
+
+Ce chapitre présente le contexte industriel et académique dans lequel s'inscrit le projet MANTIS, analyse la problématique de la maintenance traditionnelle, identifie les défis techniques et fonctionnels, et formule les questions de recherche que notre projet se propose d'adresser.
+
+\section{Contexte Industriel : L'Industrie 4.0}
+
+\subsection{Définition et Évolution}
+
+L'Industrie 4.0, également appelée \textit{quatrième révolution industrielle}, représente une transformation numérique profonde des systèmes de production. Elle se caractérise par :
+
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Connectivité ubiquitaire} : Tous les équipements, capteurs et systèmes sont interconnectés via des protocoles IIoT (OPC UA, MQTT, Modbus)
+    \item \textbf{Cyber-Physical Systems (CPS)} : Convergence du monde physique (machines) et numérique (logiciels)
+    \item \textbf{Intelligence artificielle} : Utilisation du Machine Learning et Deep Learning pour la prise de décision
+    \item \textbf{Big Data industriel} : Collecte, stockage et analyse de volumes massifs de données en temps réel
+    \item \textbf{Automatisation avancée} : Robots collaboratifs, systèmes autonomes, production flexible
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
+    % Timeline
+    \draw[thick, ->, mantisblue] (0,0) -- (14,0) node[right] {\textbf{Temps}};
+    
+    % Industry 1.0
+    \node[circle, fill=mantisgray, text=white, minimum size=1.5cm] at (1.5,2) {\textbf{1.0}};
+    \node[below, text width=2.5cm, align=center] at (1.5,0.5) {\small \textbf{1784}\\ Mécanisation\\ Vapeur};
+    \draw[->, thick] (1.5,1.2) -- (1.5,0.2);
+    
+    % Industry 2.0
+    \node[circle, fill=mantisgray, text=white, minimum size=1.5cm] at (5,2) {\textbf{2.0}};
+    \node[below, text width=2.5cm, align=center] at (5,0.5) {\small \textbf{1870}\\ Production\\ Électricité};
+    \draw[->, thick] (5,1.2) -- (5,0.2);
+    
+    % Industry 3.0
+    \node[circle, fill=mantisgray, text=white, minimum size=1.5cm] at (8.5,2) {\textbf{3.0}};
+    \node[below, text width=2.5cm, align=center] at (8.5,0.5) {\small \textbf{1969}\\ Automatisation\\ Informatique};
+    \draw[->, thick] (8.5,1.2) -- (8.5,0.2);
+    
+    % Industry 4.0
+    \node[circle, fill=mantisblue, text=white, minimum size=1.5cm] at (12,2) {\textbf{4.0}};
+    \node[below, text width=2.5cm, align=center] at (12,0.5) {\small \textbf{Aujourd'hui}\\ Cyber-Physical\\ IA \& IoT};
+    \draw[->, thick, mantisblue] (12,1.2) -- (12,0.2);
+\end{tikzpicture}
+\caption{Évolution des révolutions industrielles}
+\label{fig:industry-evolution}
+\end{figure}
+
+\subsection{Impact sur les Systèmes de Production}
+
+L'Industrie 4.0 transforme les systèmes de production traditionnels en \textbf{usines intelligentes} (Smart Factories) caractérisées par :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{5.5cm}|p{5.5cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Aspect} & \textbf{Production Traditionnelle} & \textbf{Usine Intelligente} \\
+\hline
+\textbf{Données} & Limitées, manuelles, non structurées & Massives, temps réel, structurées \\
+\hline
+\textbf{Décisions} & Humaines, réactives & Assistées par IA, prédictives \\
+\hline
+\textbf{Maintenance} & Préventive (calendaire) ou corrective & Prédictive (basée sur l'état réel) \\
+\hline
+\textbf{Flexibilité} & Faible (lignes rigides) & Élevée (reconfigurations dynamiques) \\
+\hline
+\textbf{Efficience} & OEE $\approx$ 60-70\% & OEE $>$ 85\% \\
+\hline
+\textbf{Downtime} & Pannes imprévues fréquentes & Prédites et planifiées \\
+\hline
+\end{tabular}
+\caption{Comparaison Production Traditionnelle vs. Usine Intelligente}
+\label{tab:traditional-vs-smart}
+\end{table}
+
+\subsection{Enjeux Économiques}
+
+Les enjeux économiques de l'Industrie 4.0 sont considérables :
+
+\begin{itemize}
+    \item \textbf{Coûts de maintenance} : Représentent 15-40\% des coûts de production totaux
+    \item \textbf{Downtime non planifié} : Coût moyen de 260 000\$ par heure (source : Aberdeen Group)
+    \item \textbf{Gain potentiel} : La maintenance prédictive permet de :
+    \begin{itemize}
+        \item Réduire les coûts de maintenance de 10-40\%
+        \item Diminuer le downtime de 35-45\%
+        \item Augmenter la durée de vie des équipements de 20-40\%
+        \item Améliorer l'OEE (Overall Equipment Effectiveness) de 10-20\%
+    \end{itemize}
+\end{itemize}
+
+\section{Problématique de la Maintenance Industrielle}
+
+\subsection{Approches Traditionnelles de Maintenance}
+
+Les entreprises industrielles utilisent traditionnellement trois approches de maintenance :
+
+\subsubsection{Maintenance Corrective (Run-to-Failure)}
+
+\textbf{Principe} : Réparer uniquement lorsque la panne survient.
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Coûts de maintenance planifiée nuls
+    \item Simplicité de gestion
+    \item Utilisation maximale de la durée de vie des composants
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Arrêts de production imprévus et coûteux
+    \item Risques de dommages collatéraux (effet domino)
+    \item Difficulté de planification des ressources
+    \item Coûts de réparation d'urgence élevés (main d'œuvre, pièces express)
+\end{itemize}
+
+\subsubsection{Maintenance Préventive Systématique}
+
+\textbf{Principe} : Interventions planifiées selon un calendrier fixe ou un nombre d'heures de fonctionnement.
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Réduction des pannes imprévues
+    \item Planification facilitée des interventions
+    \item Simplicité de mise en œuvre
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Remplacement prématuré de composants encore fonctionnels
+    \item Coûts de maintenance élevés (pièces, main d'œuvre)
+    \item Arrêts de production planifiés mais potentiellement inutiles
+    \item Pas d'adaptation à l'état réel de la machine
+\end{itemize}
+
+\subsubsection{Maintenance Conditionnelle}
+
+\textbf{Principe} : Surveillance de l'état des équipements via des inspections régulières et déclenchement d'interventions selon des seuils.
+
+\textbf{Avantages} :
+\begin{itemize}
+    \item Meilleure adaptation à l'état réel
+    \item Réduction des interventions inutiles
+    \item Détection de certaines anomalies avant la panne
+\end{itemize}
+
+\textbf{Inconvénients} :
+\begin{itemize}
+    \item Nécessite des inspections manuelles régulières
+    \item Réactive plutôt que prédictive
+    \item Seuils statiques ne capturant pas la complexité des dégradations
+    \item Pas d'anticipation de la RUL (Remaining Useful Life)
+\end{itemize}
+
+\subsection{Limites des Approches Traditionnelles}
+
+Les approches traditionnelles présentent des limitations fondamentales dans le contexte de l'Industrie 4.0 :
+
+\begin{enumerate}
+    \item \textbf{Manque d'anticipation} : Aucune capacité à prédire les pannes futures avec précision
+    \item \textbf{Inefficience économique} : Sur-maintenance (préventive) ou sous-maintenance (corrective)
+    \item \textbf{Non-exploitation des données} : Les capteurs génèrent des téraoctets de données inexploitées
+    \item \textbf{Décisions non optimales} : Basées sur l'expérience humaine plutôt que sur l'analyse data-driven
+    \item \textbf{Manque de visibilité globale} : Pas de vue d'ensemble temps réel de l'état du parc machine
+\end{enumerate}
+
+\subsection{Émergence de la Maintenance Prédictive}
+
+La \textbf{maintenance prédictive} (Predictive Maintenance - PdM) représente le paradigme de maintenance de l'Industrie 4.0. Elle se définit comme :
+
+\begin{quote}
+\textit{« L'utilisation de techniques d'analyse de données et de Machine Learning pour anticiper les pannes futures d'équipements en se basant sur leur état réel et leur historique, permettant d'intervenir au moment optimal avant la défaillance. »}
+\end{quote}
+
+\textbf{Caractéristiques clés} :
+\begin{itemize}
+    \item \textbf{Prédiction RUL} : Estimation du temps restant avant défaillance (Remaining Useful Life)
+    \item \textbf{Détection d'anomalies} : Identification de comportements anormaux en temps réel
+    \item \textbf{Optimisation des interventions} : Maintenance au moment optimal (ni trop tôt, ni trop tard)
+    \item \textbf{Data-driven} : Décisions basées sur les données réelles des capteurs et modèles ML/DL
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
+    % Axes
+    \draw[thick, ->] (0,0) -- (12,0) node[right] {\textbf{Temps}};
+    \draw[thick, ->] (0,0) -- (0,6) node[above] {\textbf{État Équipement}};
+    
+    % Zones
+    \fill[mantisgreen!20] (0,3.5) rectangle (12,6);
+    \node at (10,5) {\textcolor{mantisgreen}{\textbf{Zone Normale}}};
+    
+    \fill[mantisorange!20] (0,1.5) rectangle (12,3.5);
+    \node at (10,2.5) {\textcolor{mantisorange}{\textbf{Zone Dégradée}}};
+    
+    \fill[mantisred!20] (0,0) rectangle (12,1.5);
+    \node at (10,0.8) {\textcolor{mantisred}{\textbf{Zone Panne}}};
+    
+    % Courbe de dégradation
+    \draw[very thick, mantisblue] plot[smooth, tension=0.7] coordinates {
+        (0,5.5) (2,5.3) (4,4.8) (6,3.8) (8,2.5) (10,1.2) (11,0.5)
+    };
+    
+    % Points clés
+    \node[circle, fill=mantisgreen, inner sep=3pt, label=above:{\small Bon état}] at (2,5.3) {};
+    \node[circle, fill=mantisorange, inner sep=3pt, label=above:{\small Anomalie détectée}] at (6,3.8) {};
+    \node[circle, fill=mantisred, inner sep=3pt, label=below:{\small Panne}] at (11,0.5) {};
+    
+    % Flèches d'intervention
+    \draw[->, ultra thick, mantisgreen] (6,5.8) -- (6,4.2) node[midway, right] {\small \textbf{PdM: Intervention optimale}};
+    \draw[->, dashed, thick, mantisgray] (4,5.8) -- (4,5) node[midway, left] {\small Préventive (trop tôt)};
+    \draw[->, dashed, thick, mantisred] (11,5.8) -- (11,0.7) node[midway, left] {\small Corrective (trop tard)};
+    
+\end{tikzpicture}
+\caption{Comparaison des stratégies de maintenance selon la courbe de dégradation}
+\label{fig:maintenance-strategies}
+\end{figure}
+
+\section{Défis Techniques et Scientifiques}
+
+\subsection{Hétérogénéité des Sources de Données IIoT}
+
+Les environnements industriels présentent une grande diversité de protocoles et systèmes :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|p{4cm}|p{6cm}|}
+\hline
+\rowcolor{mantisblue!20}
+\textbf{Protocole} & \textbf{Caractéristiques} & \textbf{Cas d'Usage} \\
+\hline
+\textbf{OPC UA} & Client-serveur, sécurisé, standardisé & SCADA, automates industriels, PLCs \\
+\hline
+\textbf{MQTT} & Pub/Sub, léger, asynchrone & Capteurs IoT, transmission cloud \\
+\hline
+\textbf{Modbus} & Simple, legacy, série/TCP & Équipements anciens, régulation \\
+\hline
+\textbf{REST APIs} & HTTP, universel, synchrone & Intégrations modernes, web services \\
+\hline
+\end{tabular}
+\caption{Principaux protocoles IIoT dans l'industrie}
+\label{tab:iiot-protocols}
+\end{table}
+
+\textbf{Défi} : Concevoir une architecture capable d'ingérer, normaliser et traiter des flux de données provenant de sources hétérogènes en temps réel.
+
+\subsection{Volume et Vélocité des Données}
+
+Les systèmes industriels modernes génèrent des volumes massifs de données :
+
+\begin{itemize}
+    \item \textbf{Fréquence d'acquisition} : 1-1000 Hz selon les capteurs
+    \item \textbf{Nombre de capteurs} : Dizaines à centaines par machine
+    \item \textbf{Volume journalier} : Plusieurs Go par machine et par jour
+    \item \textbf{Latence requise} : $<$ 100 ms pour les alertes critiques
+\end{itemize}
+
+\textbf{Défi} : Concevoir un pipeline de données scalable capable de traiter des flux haute fréquence tout en garantissant une latence faible pour les prédictions temps réel.
+
+\subsection{Complexité des Modèles de Machine Learning}
+
+La maintenance prédictive requiert des modèles ML/DL sophistiqués :
+
+\begin{enumerate}
+    \item \textbf{Séries temporelles multivariées} : Prendre en compte la corrélation entre dizaines de variables
+    \item \textbf{Dégradations non-linéaires} : Phénomènes complexes (fatigue, usure, corrosion)
+    \item \textbf{Conditions opérationnelles variables} : Régimes de fonctionnement changeants
+    \item \textbf{Déséquilibre des classes} : Peu d'exemples de pannes vs. beaucoup d'exemples normaux
+    \item \textbf{Explainability} : Nécessité d'expliquer les prédictions pour la confiance opérationnelle
+\end{enumerate}
+
+\textbf{Défi} : Développer et déployer des modèles LSTM/GRU ou Transformer capables de capturer ces complexités tout en restant interprétables et performants en production.
+
+\subsection{Qualité et Fiabilité des Données}
+
+Les données industrielles présentent souvent des problèmes de qualité :
+
+\begin{itemize}
+    \item \textbf{Valeurs manquantes} : Pannes de capteurs, pertes de communication
+    \item \textbf{Outliers} : Erreurs de mesure, interférences électromagnétiques
+    \item \textbf{Drift temporel} : Vieillissement des capteurs, changements de calibration
+    \item \textbf{Biais} : Données collectées uniquement en conditions normales
+\end{itemize}
+
+\textbf{Défi} : Mettre en place un pipeline robuste de prétraitement, validation et nettoyage des données garantissant leur qualité pour l'entraînement des modèles.
+
+\subsection{Déploiement et MLOps}
+
+Le passage du prototypage à la production industrielle est complexe :
+
+\begin{itemize}
+    \item \textbf{Versioning des modèles} : Traçabilité, reproductibilité, rollback
+    \item \textbf{Monitoring de la performance} : Détection de la dégradation des modèles (drift)
+    \item \textbf{Réentraînement} : Automatisation, déclenchement sur dérive détectée
+    \item \textbf{A/B Testing} : Validation en production de nouveaux modèles
+    \item \textbf{Scalabilité} : Support de milliers de machines simultanément
+\end{itemize}
+
+\textbf{Défi} : Implémenter une infrastructure MLOps complète (MLflow, Feast, DVC) permettant le cycle de vie complet des modèles en production.
+
+\section{Problématique du Projet MANTIS}
+
+Dans ce contexte, le projet MANTIS se propose de répondre à la problématique suivante :
+
+\begin{quote}
+\textcolor{mantisblue}{\textbf{« Comment concevoir et implémenter une plateforme de maintenance prédictive temps réel, scalable, modulaire et industrialisable, capable d'ingérer des données IIoT hétérogènes, d'entraîner et déployer des modèles de Deep Learning pour la prédiction de RUL et la détection d'anomalies, tout en garantissant une observabilité complète et une intégration DevOps/MLOps conforme aux standards de l'Industrie 4.0 ? »}}
+\end{quote}
+
+Cette problématique centrale se décline en plusieurs sous-problématiques :
+
+\subsection{Sous-Problématique 1 : Architecture Distribuée}
+
+\textbf{Question} : Comment concevoir une architecture microservices événementielle capable de :
+\begin{itemize}
+    \item Découpler les composants pour la scalabilité et la résilience ?
+    \item Gérer la communication asynchrone entre services ?
+    \item Garantir la cohérence des données dans un système distribué ?
+    \item Supporter l'évolution indépendante des services ?
+\end{itemize}
+
+\subsection{Sous-Problématique 2 : Ingestion de Données IIoT}
+
+\textbf{Question} : Comment implémenter un service d'ingestion capable de :
+\begin{itemize}
+    \item Supporter OPC UA, MQTT, Modbus et REST simultanément ?
+    \item Normaliser des schémas de données hétérogènes ?
+    \item Gérer des flux haute fréquence (1000+ messages/sec) ?
+    \item Garantir la fiabilité (exactly-once delivery) ?
+\end{itemize}
+
+\subsection{Sous-Problématique 3 : Pipeline de Prétraitement}
+
+\textbf{Question} : Comment concevoir un pipeline de prétraitement qui :
+\begin{itemize}
+    \item Détecte et traite les valeurs manquantes et aberrantes ?
+    \item Applique des transformations (normalisation, fenêtrage) de manière scalable ?
+    \item Génère des features engineered pertinentes pour le ML ?
+    \item Soit versionné et reproductible (Data Version Control) ?
+\end{itemize}
+
+\subsection{Sous-Problématique 4 : Modélisation et Prédiction}
+
+\textbf{Question} : Quels modèles de Deep Learning (LSTM, GRU, Transformer) sont les plus adaptés pour :
+\begin{itemize}
+    \item La prédiction de RUL avec haute précision (RMSE, MAE) ?
+    \item La détection d'anomalies en temps réel ($<$ 100 ms) ?
+    \item La généralisation à différents régimes opérationnels ?
+    \item L'interprétabilité des prédictions (SHAP, attention) ?
+\end{itemize}
+
+\subsection{Sous-Problématique 5 : MLOps et Déploiement}
+
+\textbf{Question} : Comment industrialiser le cycle de vie ML avec :
+\begin{itemize}
+    \item Versioning des modèles, datasets et expérimentations (MLflow, DVC) ?
+    \item Feature store pour la cohérence train/serve (Feast) ?
+    \item Monitoring de la performance et détection de drift ?
+    \item Automatisation du réentraînement (CI/CD ML) ?
+\end{itemize}
+
+\subsection{Sous-Problématique 6 : Observabilité et Monitoring}
+
+\textbf{Question} : Comment assurer une observabilité complète avec :
+\begin{itemize}
+    \item Métriques temps réel (Prometheus) et dashboards (Grafana) ?
+    \item Logs centralisés structurés et requêtables ?
+    \item Tracing distribué (Jaeger, OpenTelemetry) pour le debugging ?
+    \item Alerting intelligent sur anomalies système et métier ?
+\end{itemize}
+
+\section{Questions de Recherche}
+
+Les questions de recherche que MANTIS se propose d'explorer sont :
+
+\begin{enumerate}
+    \item \textbf{QR1 - Architecture} : Quelle architecture microservices événementielle est la plus adaptée pour une plateforme de maintenance prédictive temps réel scalable ?
+    
+    \item \textbf{QR2 - Ingestion IIoT} : Comment concevoir un service d'ingestion universel supportant les principaux protocoles IIoT (OPC UA, MQTT, Modbus) avec garantie de fiabilité ?
+    
+    \item \textbf{QR3 - Prétraitement} : Quelles techniques de prétraitement et feature engineering sont les plus efficaces pour améliorer la performance des modèles de prédiction de RUL ?
+    
+    \item \textbf{QR4 - Modèles DL} : LSTM vs. GRU vs. Transformer : quelle architecture de Deep Learning offre le meilleur compromis précision/latence/interprétabilité pour la prédiction de RUL sur le dataset NASA C-MAPSS ?
+    
+    \item \textbf{QR5 - MLOps} : Comment implémenter une infrastructure MLOps complète (MLflow, Feast, DVC) garantissant la reproductibilité, le versioning et le monitoring des modèles en production ?
+    
+    \item \textbf{QR6 - Observabilité} : Quelles métriques techniques (latence, throughput, erreurs) et métier (RMSE, MAE, F1-score) sont critiques pour le monitoring d'une plateforme PdM ?
+\end{enumerate}
+
+\section{Périmètre et Hypothèses du Projet}
+
+\subsection{Périmètre}
+
+\textbf{Dans le périmètre} :
+\begin{itemize}
+    \item Architecture microservices complète (7 services)
+    \item Support OPC UA, MQTT, Modbus, REST
+    \item Pipeline complet de prétraitement (nettoyage, normalisation, fenêtrage, features)
+    \item Modèles LSTM pour prédiction RUL
+    \item Détection d'anomalies (basée sur seuils et ML)
+    \item MLOps (MLflow, Feast, DVC)
+    \item Infrastructure DevOps (Docker, Kubernetes, CI/CD)
+    \item Monitoring complet (Prometheus, Grafana, Jaeger)
+    \item Dataset NASA C-MAPSS (4 sous-datasets)
+    \item API REST et WebSocket pour notifications temps réel
+\end{itemize}
+
+\textbf{Hors périmètre} :
+\begin{itemize}
+    \item Intégration avec des systèmes ERP/MES réels
+    \item Déploiement sur site industriel physique
+    \item Support de tous les protocoles IIoT existants (focus sur OPC UA, MQTT, Modbus)
+    \item Interface utilisateur web complète (seulement API + dashboards Grafana)
+    \item Maintenance corrective automatisée (intervention humaine requise)
+    \item Certification industrielle (ISO, IEC)
+\end{itemize}
+
+\subsection{Hypothèses}
+
+Les hypothèses clés du projet sont :
+
+\begin{enumerate}
+    \item \textbf{H1 - Données} : Le dataset NASA C-MAPSS est représentatif des dégradations réelles de turbines industrielles
+    \item \textbf{H2 - Modèles} : Les modèles LSTM peuvent généraliser à de nouveaux régimes opérationnels non vus à l'entraînement
+    \item \textbf{H3 - Architecture} : Une architecture microservices événementielle est plus scalable qu'une architecture monolithique pour ce use case
+    \item \textbf{H4 - Latence} : Une latence de prédiction $<$ 100 ms est suffisante pour les alertes temps réel industrielles
+    \item \textbf{H5 - Infrastructure} : Kubernetes est adapté au déploiement et à l'orchestration de services ML en production
+\end{enumerate}
+
+\section{Conclusion}
+
+Ce chapitre a présenté le contexte industriel et académique du projet MANTIS, analysé la problématique de la maintenance traditionnelle et ses limites, identifié les défis techniques et scientifiques majeurs, et formulé les questions de recherche que notre projet se propose d'adresser.
