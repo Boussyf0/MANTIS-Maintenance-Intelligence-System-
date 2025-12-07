@@ -54,6 +54,7 @@ jobs:
     name: Test Java Services
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service: [ingestion-iiot, preprocessing, orchestrator, dashboard-api]
     steps:
@@ -99,6 +100,7 @@ jobs:
     name: Test Python Services
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.11']
         service: [feature-extraction, anomaly-detection, rul-prediction]
