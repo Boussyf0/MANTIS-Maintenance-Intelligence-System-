@@ -86,15 +86,18 @@ jobs:
           if-no-files-found: ignore
 
       - name: Code Coverage
+        continue-on-error: true
         run: |
           cd services/${{ matrix.service }}
           mvn -B jacoco:report
 
       - name: Upload Coverage Report
+        if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report-${{ matrix.service }}
           path: services/${{ matrix.service }}/target/site/jacoco/
+          if-no-files-found: ignore
 
   test-python-services:
     name: Test Python Services
