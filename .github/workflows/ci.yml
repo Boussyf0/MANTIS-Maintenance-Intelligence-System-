@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [ingestion-iiot]
+        service: [ingestion-iiot, preprocessing, orchestrator, dashboard-api]
     steps:
       - uses: actions/checkout@v4
 
@@ -100,7 +100,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.11']
-        service: [preprocessing, feature-extraction, anomaly-detection, rul-prediction]
+        service: [feature-extraction, anomaly-detection, rul-prediction]
     steps:
       - uses: actions/checkout@v4
 
@@ -219,6 +219,8 @@ jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -231,7 +233,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -251,10 +253,6 @@ jobs:
           args: >
             -Dsonar.projectKey=mantis-pr_mantis-project
             -Dsonar.organization=mantis-pr
-            -Dsonar.projectName=Mantis-project
-            -Dsonar.projectVersion=1.0
-            -Dsonar.sources=.
-            -Dsonar.sourceEncoding=UTF-8
 
   deployment-ready:
     name: Deployment Ready Check
