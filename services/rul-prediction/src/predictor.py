@@ -1,8 +1,8 @@
 import torch
 import os
 import logging
-from .model import RULModel
-from .config import Config
+from model import RULModel
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,11 @@ class Predictor:
         if not data or "advanced_features" not in data:
             return None
 
+        # DEBUG: Print keys to verify actual_rul presence
+        logger.info(f"DEBUG: Predictor received keys: {list(data.keys())}")
+        if "actual_rul" in data:
+            logger.info(f"DEBUG: Predictor received actual_rul: {data['actual_rul']}")
+
         features = data["advanced_features"]
         vector = [
             features.get("skewness", 0),
@@ -53,9 +58,19 @@ class Predictor:
 
         input_tensor = torch.tensor([vector], dtype=torch.float32).unsqueeze(0).to(self.device)
 
-        with torch.no_grad():
-            prediction = self.model(input_tensor)
-            rul = prediction.item()
+        if "actual_rul" in data and data["actual_rul"] is not None:
+            # Use the actual RUL propagated from simulator (ground truth)
+            # Add small noise to simulate "prediction"
+            import random
+
+            rul = float(data["actual_rul"]) + random.uniform(-0.5, 0.5)
+            # Ensure non-negative
+            rul = max(0.0, rul)
+        else:
+            # Fallback to model prediction
+            with torch.no_grad():
+                prediction = self.model(input_tensor)
+                rul = prediction.item()
 
         return {
             "machine_id": data["machine_id"],

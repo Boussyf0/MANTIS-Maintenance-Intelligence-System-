@@ -38,8 +38,10 @@ public class KafkaConsumerService {
             String machineId = node.get("machine_id").asText();
             String timestamp = node.get("timestamp").asText();
             double rul = node.get("predicted_rul").asDouble();
+            int cycle = node.has("cycle") ? node.get("cycle").asInt() : 0;
+            log.info("DEBUG: Received RUL for {}: {}", machineId, rul);
 
-            machineStateService.updateRUL(machineId, timestamp, rul);
+            machineStateService.updateRUL(machineId, timestamp, rul, cycle);
         } catch (Exception e) {
             log.error("Error processing RUL prediction", e);
         }

@@ -17,5 +17,6 @@ public class MachineState {
     private Double lastRul;
     private Double lastAnomalyScore;
     private Boolean isAnomaly;
+    private Integer cycle;
     private String status; // NORMAL, WARNING, CRITICAL
 }

@@ -15,12 +15,12 @@ services:
       - mantis-network
     healthcheck:
       # Vérifie que Zookeeper répond avec le status du serveur
-      test: ["CMD-SHELL", "echo 'srvr' | nc localhost 2181 | grep -q 'Mode'"]
-      interval: 10s       # Vérifier toutes les 10 secondes
-      timeout: 5s         # Timeout de 5 secondes
-      retries: 3          # 3 échecs consécutifs = unhealthy
-      start_period: 10s   # Attendre 10s de boot avant de vérifier
-    restart: unless-stopped  # Redémarrer sauf si arrêt manuel
+      test: [ "CMD-SHELL", "echo 'srvr' | nc localhost 2181 | grep -q 'Mode'" ]
+      interval: 10s # Vérifier toutes les 10 secondes
+      timeout: 5s # Timeout de 5 secondes
+      retries: 3 # 3 échecs consécutifs = unhealthy
+      start_period: 10s # Attendre 10s de boot avant de vérifier
+    restart: unless-stopped # Redémarrer sauf si arrêt manuel
 
   # Kafka pour streaming
   kafka:
@@ -28,9 +28,9 @@ services:
     container_name: mantis-kafka
     depends_on:
       zookeeper:
-        condition: service_healthy  # ← Attendre que Zookeeper soit healthy
+        condition: service_healthy # ← Attendre que Zookeeper soit healthy
     ports:
-      - "9092:9092"
+      - "9094:9092"
       - "9093:9093"
     environment:
       KAFKA_BROKER_ID: 1
@@ -48,20 +48,20 @@ services:
       - mantis-network
     healthcheck:
       # Vérifie que le broker Kafka est accessible et répond
-      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
-      interval: 10s       # Vérifier toutes les 10 secondes
-      timeout: 10s        # Timeout de 10s (Kafka peut être lent)
-      retries: 5          # 5 échecs max (Kafka met du temps à démarrer)
-      start_period: 40s   # Attendre 40s de boot (Kafka est lent)
+      test: [ "CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1" ]
+      interval: 10s # Vérifier toutes les 10 secondes
+      timeout: 10s # Timeout de 10s (Kafka peut être lent)
+      retries: 5 # 5 échecs max (Kafka met du temps à démarrer)
+      start_period: 40s # Attendre 40s de boot (Kafka est lent)
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '2.0'     # Max 2 CPUs
-          memory: 4G      # Max 4GB RAM
+          cpus: '2.0' # Max 2 CPUs
+          memory: 4G # Max 4GB RAM
         reservations:
-          cpus: '0.5'     # Min 0.5 CPU réservé
-          memory: 1G      # Min 1GB réservé
+          cpus: '0.5' # Min 0.5 CPU réservé
+          memory: 1G # Min 1GB réservé
 
   # Kafka UI
   kafka-ui:
@@ -95,7 +95,7 @@ services:
     networks:
       - mantis-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mantis"]
+      test: [ "CMD-SHELL", "pg_isready -U mantis" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -117,7 +117,7 @@ services:
     networks:
       - mantis-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mantis"]
+      test: [ "CMD-SHELL", "pg_isready -U mantis" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -158,7 +158,7 @@ services:
     networks:
       - mantis-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -170,16 +170,7 @@ services:
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      sleep 10;
-      /usr/bin/mc alias set mantis http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb mantis/raw-data --ignore-existing;
-      /usr/bin/mc mb mantis/processed-data --ignore-existing;
-      /usr/bin/mc mb mantis/models --ignore-existing;
-      /usr/bin/mc mb mantis/mlflow --ignore-existing;
-      /usr/bin/mc mb mantis/feast --ignore-existing;
-      exit 0;
-      "
+      /bin/sh -c " sleep 10; /usr/bin/mc alias set mantis http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb mantis/raw-data --ignore-existing; /usr/bin/mc mb mantis/processed-data --ignore-existing; /usr/bin/mc mb mantis/models --ignore-existing; /usr/bin/mc mb mantis/mlflow --ignore-existing; /usr/bin/mc mb mantis/feast --ignore-existing; exit 0; "
     networks:
       - mantis-network
 
@@ -201,18 +192,11 @@ services:
       AWS_SECRET_ACCESS_KEY: minioadmin
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
     command: >
-      sh -c "
-      pip install psycopg2-binary boto3 &&
-      mlflow server
-      --backend-store-uri postgresql://mantis:mantis_password@postgres:5432/mantis
-      --default-artifact-root s3://mlflow
-      --host 0.0.0.0
-      --port 5000
-      "
+      sh -c " pip install psycopg2-binary boto3 && mlflow server --backend-store-uri postgresql://mantis:mantis_password@postgres:5432/mantis --default-artifact-root s3://mlflow --host 0.0.0.0 --port 5000 "
     networks:
       - mantis-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -227,11 +211,11 @@ services:
       - "6380:6379"
     volumes:
       - redis-data:/data
-    command: redis-server --appendonly yes
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly yes
     networks:
       - mantis-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -295,6 +279,77 @@ services:
     networks:
       - mantis-network
 
+  # ================================================================
+  # EXPORTERS
+  # ================================================================
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:v1.7.0
+    container_name: mantis-kafka-exporter
+    command: [ "--kafka.server=kafka:9092", "--kafka.version=3.4.0", "--log.level=debug" ]
+    ports:
+      - "9308:9308"
+    networks:
+      - mantis-network
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: mantis-redis-exporter
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - mantis-network
+    restart: unless-stopped
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: mantis-postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://mantis:mantis_password@postgres:5432/mantis?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - mantis-network
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: mantis-node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - mantis-network
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: mantis-cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - mantis-network
+    restart: unless-stopped
+
 volumes:
   zookeeper-data:
   zookeeper-logs:
@@ -307,6 +362,7 @@ volumes:
   redis-data:
   grafana-data:
   prometheus-data:
+
 
 networks:
   mantis-network:

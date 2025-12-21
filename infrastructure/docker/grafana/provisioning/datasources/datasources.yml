@@ -1,4 +1,5 @@
 # Grafana datasources configuration
+# Using mantis- prefixed hostnames to match Docker container names
 
 apiVersion: 1
 
@@ -6,8 +7,9 @@ datasources:
   # Prometheus
   - name: Prometheus
     type: prometheus
+    uid: prometheus
     access: proxy
-    url: http://prometheus:9091
+    url: http://mantis-prometheus:9090
     isDefault: true
     editable: true
 
@@ -15,7 +17,7 @@ datasources:
   - name: TimescaleDB
     type: postgres
     access: proxy
-    url: timescaledb:5432
+    url: mantis-timescaledb:5432
     database: mantis_timeseries
     user: mantis
     secureJsonData:
@@ -30,7 +32,7 @@ datasources:
   - name: PostgreSQL
     type: postgres
     access: proxy
-    url: postgres:5432
+    url: mantis-postgres:5432
     database: mantis
     user: mantis
     secureJsonData:
@@ -43,8 +45,9 @@ datasources:
   # InfluxDB
   - name: InfluxDB
     type: influxdb
+    uid: influxdb
     access: proxy
-    url: http://influxdb:8086
+    url: http://mantis-influxdb:8086
     jsonData:
       version: Flux
       organization: mantis-org
@@ -58,5 +61,5 @@ datasources:
   - name: Jaeger
     type: jaeger
     access: proxy
-    url: http://jaeger:16686
+    url: http://mantis-jaeger:16686
     editable: true

@@ -1,6 +1,6 @@
 import json
 from kafka import KafkaProducer
-from .config import Config
+from config import Config
 
 
 class Producer:

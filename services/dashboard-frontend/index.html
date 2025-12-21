@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANTIS - Dashboard Maintenance Prédictive</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>MANTIS</h1>
+                    <span class="subtitle">Maintenance Prédictive</span>
+                </div>
+                <div class="header-status">
+                    <div class="status-item connected" id="kafka-status">
+                        <span class="status-dot"></span>
+                        Kafka
+                    </div>
+                    <div class="status-item" id="api-status">
+                        <span class="status-dot"></span>
+                        API
+                    </div>
+                    <div class="time" id="current-time">--:--:--</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-value" id="total-machines">3</span>
+                        <span class="stat-label">Machines Actives</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-value" id="total-alerts">0</span>
+                        <span class="stat-label">Alertes Actives</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-value" id="critical-count">0</span>
+                        <span class="stat-label">RUL Critique (&lt;30)</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-value" id="anomaly-count">0</span>
+                        <span class="stat-label">Anomalies Détectées</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Machines Status Panel -->
+                <section class="panel machines-panel">
+                    <h2 class="panel-title">État des Machines</h2>
+                    <div class="machines-grid" id="machines-container">
+                        <!-- Machine cards will be inserted here -->
+                    </div>
+                </section>
+
+                <!-- RUL Chart Panel -->
+                <section class="panel chart-panel">
+                    <h2 class="panel-title">Prédiction RUL (Remaining Useful Life)</h2>
+                    <div class="chart-container">
+                        <canvas id="rul-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Sensor Data Panel -->
+                <section class="panel sensors-panel">
+                    <h2 class="panel-title">Données Capteurs Temps Réel</h2>
+                    <div class="chart-container">
+                        <canvas id="sensor-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Events Log Panel -->
+                <section class="panel events-panel">
+                    <h2 class="panel-title">Journal des Événements</h2>
+                    <div class="events-list" id="events-container">
+                        <div class="event-item info">
+                            <span class="event-time">--:--:--</span>
+                            <span class="event-message">En attente de données...</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>MANTIS v1.0 | EMSI Engineering School | © 2025</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

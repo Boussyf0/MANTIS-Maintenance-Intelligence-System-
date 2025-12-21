@@ -31,9 +31,9 @@ public class MachineStateService {
         return alertRepository.findTop10ByOrderByTimestampDesc();
     }
 
-    public void updateAnomalyStatus(String machineId, String timestamp, double score, boolean isAnomaly) {
+    public synchronized void updateAnomalyStatus(String machineId, String timestamp, double score, boolean isAnomaly) {
         MachineState state = machineStateRepository.findById(machineId)
-                .orElse(new MachineState(machineId, timestamp, null, score, isAnomaly, "NORMAL"));
+                .orElse(new MachineState(machineId, timestamp, null, score, isAnomaly, 0, "NORMAL"));
 
         state.setLastUpdated(timestamp);
         state.setLastAnomalyScore(score);
@@ -44,12 +44,13 @@ public class MachineStateService {
         machineStateRepository.save(state);
     }
 
-    public void updateRUL(String machineId, String timestamp, double rul) {
+    public synchronized void updateRUL(String machineId, String timestamp, double rul, int cycle) {
         MachineState state = machineStateRepository.findById(machineId)
-                .orElse(new MachineState(machineId, timestamp, rul, null, false, "NORMAL"));
+                .orElse(new MachineState(machineId, timestamp, rul, null, false, cycle, "NORMAL"));
 
         state.setLastUpdated(timestamp);
         state.setLastRul(rul);
+        state.setCycle(cycle);
 
         // Simple status update based on RUL if not already warning
         if (!"WARNING".equals(state.getStatus())) {

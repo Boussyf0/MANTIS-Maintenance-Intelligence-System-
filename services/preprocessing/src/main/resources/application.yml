@@ -7,7 +7,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
     consumer:
-      group-id: ${CONSUMER_GROUP:preprocessing-group}
+      group-id: ${CONSUMER_GROUP:preprocessing-group-v2}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -15,8 +15,33 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+influxdb:
+  url: ${INFLUXDB_URL:http://mantis-influxdb:8086}
+  token: ${INFLUXDB_TOKEN:mantis-super-secret-token}
+  org: ${INFLUXDB_ORG:mantis-org}
+  bucket: ${INFLUXDB_BUCKET:sensors}
+
 app:
   topic:
     input: ${INPUT_TOPIC:raw-sensor-data}
     output: ${OUTPUT_TOPIC:preprocessed-data}
+    rul-predictions: ${RUL_TOPIC:rul-predictions}
   window-size: ${WINDOW_SIZE:30}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics,info
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.mantis: DEBUG

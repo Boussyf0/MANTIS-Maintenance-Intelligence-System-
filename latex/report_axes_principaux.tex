@@ -1,0 +1,132 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{float}
+
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+
+\title{\textbf{Rapport sur les Axes Principaux du Projet MANTIS}}
+\author{Abderrahim Boussyf}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+Le projet MANTIS (MAiNtenance prédictive Temps-réel pour usines Intelligentes) est une plateforme modulaire conçue pour répondre aux défis de l'industrie 4.0. Ce rapport détaille les trois axes technologiques majeurs qui constituent le cœur du système :
+\begin{enumerate}
+    \item \textbf{Data Mining} : L'exploration et la préparation des données industrielles.
+    \item \textbf{Machine Learning / Deep Learning} : La modélisation prédictive de la durée de vie utile (RUL).
+    \item \textbf{Architecture Microservices} : L'infrastructure logicielle distribuée et scalable.
+\end{enumerate}
+
+\chapter{Data Mining : Exploration et Préparation des Données}
+
+\section{Description du Dataset NASA C-MAPSS}
+Les données utilisées proviennent du \textit{Prognostics Data Repository} de la NASA, spécifiquement le dataset C-MAPSS. Ce jeu de données simule la dégradation de moteurs turbofans sous différentes conditions opérationnelles.
+\begin{itemize}
+    \item \textbf{Unités} : Plusieurs moteurs suivis du début de leur vie jusqu'à la défaillance.
+    \item \textbf{Capteurs} : 21 capteurs mesurant diverses grandeurs physiques (température, pression, vitesse, etc.).
+    \item \textbf{Settings} : 3 conditions opératoires influençant les mesures.
+\end{itemize}
+
+\section{Pipeline de Traitement des Données}
+Le processus de Data Mining suit un pipeline rigoureux illustré ci-dessous :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/data_mining_pipeline_1766326762807.png}
+    \caption{Pipeline de Data Mining pour les données capteurs industrielles.}
+    \label{fig:mining-pipeline}
+\end{figure}
+
+Ce pipeline comprend :
+\begin{enumerate}
+    \item \textbf{Nettoyage} : Gestion des valeurs manquantes et suppression des outliers statistiques.
+    \item \textbf{Rééchantillonnage} : Alignement temporel des séries provenant de capteurs à fréquences variées.
+    \item \textbf{Denoising} : Application de filtres (ex: moyenne mobile, filtres de Kalman) pour réduire le bruit de mesure.
+\end{enumerate}
+
+\section{Ingénierie des Fonctionnalités (Feature Engineering)}
+Afin d'alimenter les modèles d'apprentissage, des caractéristiques (features) pertinentes sont extraites des signaux bruts :
+\begin{itemize}
+    \item \textbf{Domaine Temporel} : Moyenne, écart-type, kurtosis, skewness, valeur efficace (RMS).
+    \item \textbf{Domaine Fréquentiel} : Transformée de Fourier Rapide (FFT) pour identifier les fréquences dominantes de vibration.
+    \item \textbf{Feature Store} : Stockage centralisé des features calculées pour garantir la cohérence entre l'entraînement et l'inférence (utilisation de Feast).
+\end{itemize}
+
+\chapter{Machine Learning et Deep Learning}
+
+\section{Objectif : Prédiction de la RUL}
+L'objectif principal est la régression de la \textit{Remaining Useful Life} (RUL), c'est-à-dire le nombre de cycles restants avant la défaillance du moteur. C'est un problème critique pour la maintenance prédictive.
+
+\section{Architectures de Modèles}
+Nous avons exploré plusieurs architectures de Deep Learning, notamment les Réseaux de Neurones Récurrents (RNN) adaptés aux séries temporelles.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/mldl_architecture_1766326795542.png}
+    \caption{Architecture Deep Learning pour la prédiction de RUL (LSTM/GRU).}
+    \label{fig:dl-arch}
+\end{figure}
+
+Les modèles utilisés incluent :
+\begin{itemize}
+    \item \textbf{LSTM (Long Short-Term Memory)} : Capables de capturer les dépendances à long terme dans les séquences de dégradation.
+    \item \textbf{GRU (Gated Recurrent Unit)} : Variante plus légère des LSTM, souvent plus rapide à entraîner.
+    \item \textbf{TCN (Temporal Convolutional Networks)} : Utilisation de convolutions dilatées pour une grande fenêtre de réception.
+\end{itemize}
+
+\section{Évaluation et Métriques}
+La performance des modèles est évaluée sur un jeu de test indépendant en utilisant :
+\begin{itemize}
+    \item \textbf{RMSE (Root Mean Squared Error)} : Pénalise fortement les grandes erreurs de prédiction.
+    \item \textbf{Score NASA} : Fonction de coût asymétrique qui pénalise davantage les prédictions optimistes (prédire une RUL plus longue que la réalité) car elles posent un risque de sécurité.
+\end{itemize}
+
+\chapter{Architecture Microservices}
+
+\section{Approche Modulaire et Polyglotte}
+L'architecture de MANTIS est basée sur des microservices autonomes, permettant une scalabilité indépendante et l'utilisation de la technologie la plus adaptée pour chaque tâche. Le système est \textbf{polyglotte} :
+\begin{itemize}
+    \item \textbf{Java / Spring Boot} : Pour les composants nécessitant haute performance et robustesse (Ingestion, Orchestrator).
+    \item \textbf{Python / FastAPI} : Pour les composants Data Science et ML (Preprocessing, Prediction, Anomaly Detection).
+\end{itemize}
+
+\section{Vue d'Ensemble du Système}
+L'architecture globale est centrée autour d'un bus d'événements Kafka pour le couplage lâche.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/microservices_architecture_1766326828217.png}
+    \caption{Architecture Microservices de la plateforme MANTIS.}
+    \label{fig:microservices}
+\end{figure}
+
+\section{Composants Principaux}
+\begin{enumerate}
+    \item \textbf{Ingestion Service} : Collecte les données via OPC UA et MQTT.
+    \item \textbf{Kafka Broker} : Assure la communication asynchrone et résiliente entre les services.
+    \item \textbf{Processing Services} : Chaîne de traitement (Preprocessing $\rightarrow$ Feature Extraction $\rightarrow$ Prediction).
+    \item \textbf{Orchestrator} : Moteur de règles (Drools) qui déclenche des actions de maintenance basées sur les prédictions.
+    \item \textbf{Dashboard} : Interface utilisateur React pour la visualisation temps-réel.
+\end{enumerate}
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+Le projet MANTIS démontre l'intégration réussie de techniques avancées de Data Mining et de Deep Learning au sein d'une architecture Microservices robuste. Cette combinaison permet de transformer des données capteurs brutes en décisions de maintenance actionnables, répondant ainsi aux exigences de fiabilité et d'efficacité de l'industrie moderne.
+
+\end{document}

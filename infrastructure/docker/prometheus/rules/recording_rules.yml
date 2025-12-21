@@ -8,7 +8,7 @@ groups:
       # Database connection pool usage
       - record: mantis:postgres:connection_pool_usage:ratio
         expr: |
-          pg_stat_database_numbackends / pg_settings_max_connections
+          sum(pg_stat_database_numbackends) by (instance) / on (instance) max(pg_settings_max_connections) by (instance)
 
       # Redis memory usage percentage
       - record: mantis:redis:memory_usage:ratio
@@ -18,12 +18,12 @@ groups:
       # Container CPU usage (per service)
       - record: mantis:container:cpu_usage:rate5m
         expr: |
-          rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_project="mantis"}[5m])
+          rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_project=~"mantis|docker"}[5m])
 
       # Container memory usage (per service)
       - record: mantis:container:memory_usage:bytes
         expr: |
-          container_memory_usage_bytes{container_label_com_docker_compose_project="mantis"}
+          container_memory_usage_bytes{container_label_com_docker_compose_project=~"mantis|docker"}
 
   - name: mantis_application
     interval: 15s
@@ -31,22 +31,22 @@ groups:
       # HTTP request rate (per service)
       - record: mantis:http:requests:rate1m
         expr: |
-          rate(http_requests_total{job=~"ingestion-iiot|preprocessing|feature-extraction"}[1m])
+          rate(http_server_requests_seconds_count{job=~"ingestion-iiot|preprocessing|orchestrator|dashboard-api"}[1m])
 
       # HTTP error rate (4xx + 5xx)
       - record: mantis:http:errors:rate1m
         expr: |
-          rate(http_requests_total{status=~"4..|5..", job=~"ingestion-iiot|preprocessing"}[1m])
+          rate(http_server_requests_seconds_count{status=~"4..|5..", job=~"ingestion-iiot|preprocessing|orchestrator|dashboard-api"}[1m])
 
       # Kafka message processing rate
       - record: mantis:kafka:messages:rate1m
         expr: |
-          rate(kafka_consumer_records_consumed_total[1m])
+          rate(spring_kafka_listener_seconds_count[1m]) or rate(feature_extraction_messages_processed_total[1m]) or rate(anomaly_detection_messages_processed_total[1m]) or rate(rul_prediction_messages_processed_total[1m])
 
       # Data processing latency (p95)
       - record: mantis:processing:latency:p95
         expr: |
-          histogram_quantile(0.95, rate(processing_duration_seconds_bucket[5m]))
+          histogram_quantile(0.95, rate(feature_extraction_processing_seconds_bucket[5m])) or histogram_quantile(0.95, rate(anomaly_detection_processing_seconds_bucket[5m])) or histogram_quantile(0.95, rate(rul_prediction_processing_seconds_bucket[5m]))
 
   - name: mantis_ml_metrics
     interval: 60s

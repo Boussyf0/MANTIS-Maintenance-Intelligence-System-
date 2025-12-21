@@ -20,3 +20,18 @@ app:
     anomaly-events: ${ANOMALY_TOPIC:anomaly-events}
     rul-predictions: ${RUL_TOPIC:rul-predictions}
     alerts: ${ALERTS_TOPIC:alerts}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics,info
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true

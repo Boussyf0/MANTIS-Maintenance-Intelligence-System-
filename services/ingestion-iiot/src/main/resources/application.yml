@@ -4,7 +4,7 @@ spring:
 
   # Kafka Configuration
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:mantis-kafka:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -19,31 +19,15 @@ spring:
 
     # Topics
     topics:
-      sensor-raw: sensor.raw
-      sensor-preprocessed: sensor.preprocessed
+      sensor-raw: raw-sensor-data
+      sensor-preprocessed: preprocessed-data
 
-  # Database (PostgreSQL)
-  datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:mantis}
-    username: ${POSTGRES_USER:mantis}
-    password: ${POSTGRES_PASSWORD:mantis_password}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        use_sql_comments: true
+  # Autoconfigure - disable database for now
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 
   # Jackson
   jackson:
@@ -69,7 +53,7 @@ management:
       base-path: /actuator
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
       probes:
         enabled: true
   metrics:
@@ -79,9 +63,6 @@ management:
     tags:
       application: ${spring.application.name}
       environment: ${ENVIRONMENT:development}
-  tracing:
-    sampling:
-      probability: 1.0
 
 # Logging
 logging:
@@ -96,9 +77,9 @@ logging:
 # Custom Application Properties
 mantis:
   ingestion:
-    # OPC UA Configuration
+    # OPC UA Configuration - DISABLED by default (no OPC server available)
     opcua:
-      enabled: ${OPCUA_ENABLED:true}
+      enabled: ${OPCUA_ENABLED:false}
       endpoint: ${OPCUA_ENDPOINT:opc.tcp://localhost:4840}
       security-mode: ${OPCUA_SECURITY_MODE:None}
       subscription-interval-ms: ${OPCUA_SUBSCRIPTION_INTERVAL_MS:100}
@@ -107,11 +88,11 @@ mantis:
       max-reconnect-attempts: 5
       reconnect-delay-ms: 5000
 
-    # MQTT Configuration
+    # MQTT Configuration - DISABLED by default (no MQTT broker available)
     mqtt:
-      enabled: ${MQTT_ENABLED:true}
+      enabled: ${MQTT_ENABLED:false}
       broker-url: ${MQTT_BROKER_URL:tcp://localhost:1883}
-      client-id: ${MQTT_CLIENT_ID:mantis-ingestion-${random.uuid}}
+      client-id: ${MQTT_CLIENT_ID:mantis-ingestion}
       username: ${MQTT_USERNAME:}
       password: ${MQTT_PASSWORD:}
       topic-prefix: ${MQTT_TOPIC_PREFIX:factory/sensors/#}

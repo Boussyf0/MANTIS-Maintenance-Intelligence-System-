@@ -11,5 +11,6 @@ public class ProcessedData {
     private String machine_id;
     private String timestamp;
     private int cycle;
+    private Double actual_rul;
     private Map<String, List<Double>> features;
 }

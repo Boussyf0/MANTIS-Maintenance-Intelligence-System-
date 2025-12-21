@@ -1,4 +1,5 @@
 # Prometheus configuration for MANTIS
+# Fixed to use correct Docker container names with mantis- prefix
 
 global:
   scrape_interval: 15s
@@ -12,7 +13,6 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets: []
-          # - alertmanager:9093
 
 # Load rules once and periodically evaluate them
 rule_files:
@@ -21,72 +21,86 @@ rule_files:
 
 # Scrape configurations
 scrape_configs:
-  # Prometheus itself
+  # Prometheus itself - use internal port 9090
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9091']
+      - targets: ['localhost:9090']
 
-  # MANTIS microservices
-  - job_name: 'ingestion-iiot'
+  # Kafka metrics (via exporter)
+  - job_name: 'kafka'
     static_configs:
-      - targets: ['ingestion-iiot:9091']
+      - targets: ['mantis-kafka-exporter:9308']
     metrics_path: '/metrics'
+    scrape_timeout: 5s
 
-  - job_name: 'preprocessing'
+  # Redis metrics (via exporter)
+  - job_name: 'redis-exporter'
     static_configs:
-      - targets: ['preprocessing:9092']
+      - targets: ['mantis-redis-exporter:9121']
     metrics_path: '/metrics'
+    scrape_timeout: 5s
 
+  # Postgres metrics
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['mantis-postgres-exporter:9187']
+    metrics_path: '/metrics'
+    scrape_timeout: 5s
+
+  # Node metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['mantis-node-exporter:9100']
+    metrics_path: '/metrics'
+    scrape_timeout: 5s
+
+  # cAdvisor metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['mantis-cadvisor:8080']
+    metrics_path: '/metrics'
+    scrape_timeout: 5s
+
+  # MANTIS microservices - Python services expose on their app port
   - job_name: 'feature-extraction'
     static_configs:
-      - targets: ['feature-extraction:9093']
+      - targets: ['mantis-feature-extraction:8003']
     metrics_path: '/metrics'
+    scrape_timeout: 5s
 
   - job_name: 'anomaly-detection'
     static_configs:
-      - targets: ['anomaly-detection:9094']
+      - targets: ['mantis-anomaly-detection:8004']
     metrics_path: '/metrics'
+    scrape_timeout: 5s
 
   - job_name: 'rul-prediction'
     static_configs:
-      - targets: ['rul-prediction:9095']
+      - targets: ['mantis-rul-prediction:8005']
     metrics_path: '/metrics'
+    scrape_timeout: 5s
 
-  - job_name: 'maintenance-orchestrator'
+  # Java services use actuator metrics
+  - job_name: 'ingestion-iiot'
     static_configs:
-      - targets: ['maintenance-orchestrator:9096']
-    metrics_path: '/metrics'
+      - targets: ['mantis-ingestion-iiot:8001']
+    metrics_path: '/actuator/prometheus'
+    scrape_timeout: 5s
 
-  # Infrastructure services
-  - job_name: 'postgres-exporter'
+  - job_name: 'preprocessing'
     static_configs:
-      - targets: ['postgres-exporter:9187']
-    metrics_path: '/metrics'
+      - targets: ['mantis-preprocessing:8080']
+    metrics_path: '/actuator/prometheus'
+    scrape_timeout: 5s
 
-  - job_name: 'redis-exporter'
+  - job_name: 'orchestrator'
     static_configs:
-      - targets: ['redis-exporter:9121']
-    metrics_path: '/metrics'
+      - targets: ['mantis-orchestrator:8082']
+    metrics_path: '/actuator/prometheus'
+    scrape_timeout: 5s
 
-  - job_name: 'node-exporter'
+  - job_name: 'dashboard-api'
     static_configs:
-      - targets: ['node-exporter:9100']
-    metrics_path: '/metrics'
-
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['cadvisor:8080']
-    metrics_path: '/metrics'
-
-  # Database self-monitoring
-  - job_name: 'postgres'
-    static_configs:
-      - targets: ['postgres:5432']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
-
-  - job_name: 'timescaledb'
-    static_configs:
-      - targets: ['timescaledb:5432']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
+      - targets: ['mantis-dashboard-api:8083']
+    metrics_path: '/actuator/prometheus'
+    scrape_timeout: 5s

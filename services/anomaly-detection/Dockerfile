@@ -7,4 +7,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ src/
 
-CMD ["python", "-u", "src/main.py"]
+WORKDIR /app/src
+CMD ["python", "-u", "main.py"]

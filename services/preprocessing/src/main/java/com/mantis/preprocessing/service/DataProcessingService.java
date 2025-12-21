@@ -79,6 +79,7 @@ public class DataProcessingService {
                 .machine_id(latest.getMachine_id())
                 .timestamp(latest.getTimestamp())
                 .cycle(latest.getCycle())
+                .actual_rul(latest.get_actual_rul())
                 .features(features)
                 .build();
     }

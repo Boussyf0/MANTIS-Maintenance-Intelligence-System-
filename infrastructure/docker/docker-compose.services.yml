@@ -1,16 +1,17 @@
 version: '3.8'
 
 # Docker Compose file for MANTIS microservices
-# This file defines all application services that depend on the infrastructure
+# All application services that depend on the infrastructure
 # defined in docker-compose.infrastructure.yml
 
 networks:
   mantis-network:
     external: true
+    name: docker_mantis-network
 
 services:
   # ================================================================
-  # SERVICE 1: Ingestion IIoT Service
+  # SERVICE 1: Ingestion IIoT Service (Java/Spring Boot)
   # ================================================================
   ingestion-iiot:
     build:
@@ -20,189 +21,183 @@ services:
     container_name: mantis-ingestion-iiot
     hostname: ingestion-iiot
     restart: unless-stopped
-
     ports:
       - "8001:8001"
-
     environment:
-      # Server
       SERVER_PORT: 8001
       ENVIRONMENT: ${ENVIRONMENT:-development}
-
-      # Kafka
       KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
-
-      # PostgreSQL
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
       POSTGRES_HOST: mantis-postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: mantis
       POSTGRES_USER: ${POSTGRES_USER:-mantis}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mantis_password}
-
-      # OPC UA
-      OPCUA_ENABLED: ${OPCUA_ENABLED:-false}
-      OPCUA_ENDPOINT: ${OPCUA_ENDPOINT:-opc.tcp://opcua-server:4840}
-      OPCUA_SUBSCRIPTION_INTERVAL_MS: ${OPCUA_SUBSCRIPTION_INTERVAL_MS:-100}
-
-      # MQTT
-      MQTT_ENABLED: ${MQTT_ENABLED:-false}
-      MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://mqtt-broker:1883}
-      MQTT_CLIENT_ID: mantis-ingestion-${RANDOM_ID:-001}
-      MQTT_TOPIC_PREFIX: ${MQTT_TOPIC_PREFIX:-factory/sensors/#}
-      MQTT_QOS: ${MQTT_QOS:-1}
-
-      # Modbus
-      MODBUS_ENABLED: ${MODBUS_ENABLED:-false}
-      MODBUS_HOST: ${MODBUS_HOST:-modbus-server}
-      MODBUS_PORT: ${MODBUS_PORT:-502}
-      MODBUS_POLL_INTERVAL_MS: ${MODBUS_POLL_INTERVAL_MS:-1000}
-
-      # Edge Buffer
-      EDGE_BUFFER_ENABLED: ${EDGE_BUFFER_ENABLED:-true}
-      EDGE_BUFFER_MAX_SIZE: ${EDGE_BUFFER_MAX_SIZE:-100000}
-      EDGE_BUFFER_FLUSH_INTERVAL_MS: ${EDGE_BUFFER_FLUSH_INTERVAL_MS:-60000}
-
-      # JVM
       JAVA_OPTS: >-
-        -Xmx512m -Xms256m
-        -XX:+UseG1GC
-        -XX:MaxGCPauseMillis=200
-        -Duser.timezone=UTC
-
-    volumes:
-      - ingestion-logs:/app/logs
-      - ingestion-buffer:/tmp/mantis-buffer
-
+        -Xmx512m -Xms256m -XX:+UseG1GC -Duser.timezone=UTC
     networks:
       - mantis-network
-
     depends_on:
-      - kafka
-      - postgres
-
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/actuator/health"]
-      interval: 30s
-      timeout: 3s
-      start_period: 60s
-      retries: 3
-
-    labels:
-      - "mantis.service=ingestion-iiot"
-      - "mantis.version=1.0.0"
-      - "mantis.description=IIoT data ingestion service"
+      kafka-wait:
+        condition: service_completed_successfully
 
   # ================================================================
-  # SERVICE 2: Preprocessing Service (To be implemented)
+  # SERVICE 2: Preprocessing Service (Java/Spring Boot)
   # ================================================================
-  # preprocessing:
-  #   build:
-  #     context: ../../services/preprocessing
-  #     dockerfile: Dockerfile
-  #   image: mantis/preprocessing:1.0.0
-  #   container_name: mantis-preprocessing
-  #   ports:
-  #     - "8002:8002"
-  #   networks:
-  #     - mantis-network
-
-  # ================================================================
-  # SERVICE 3: Feature Extraction Service (To be implemented)
-  # ================================================================
-  # feature-extraction:
-  #   build:
-  #     context: ../../services/feature-extraction
-  #     dockerfile: Dockerfile
-  #   image: mantis/feature-extraction:1.0.0
-  #   container_name: mantis-feature-extraction
-  #   ports:
-  #     - "8003:8003"
-  #   networks:
-  #     - mantis-network
-
-  # ================================================================
-  # SERVICE 4: Anomaly Detection Service (To be implemented)
-  # ================================================================
-  # anomaly-detection:
-  #   build:
-  #     context: ../../services/anomaly-detection
-  #     dockerfile: Dockerfile
-  #   image: mantis/anomaly-detection:1.0.0
-  #   container_name: mantis-anomaly-detection
-  #   ports:
-  #     - "8004:8004"
-  #   networks:
-  #     - mantis-network
-
-  # ================================================================
-  # SERVICE 5: RUL Prediction Service (To be implemented)
-  # ================================================================
-  # rul-prediction:
-  #   build:
-  #     context: ../../services/rul-prediction
-  #     dockerfile: Dockerfile
-  #   image: mantis/rul-prediction:1.0.0
-  #   container_name: mantis-rul-prediction
-  #   ports:
-  #     - "8005:8005"
-  #   networks:
-  #     - mantis-network
-
-  # ================================================================
-  # SERVICE 6: Maintenance Orchestrator (To be implemented)
-  # ================================================================
-  # maintenance-orchestrator:
-  #   build:
-  #     context: ../../services/maintenance-orchestrator
-  #     dockerfile: Dockerfile
-  #   image: mantis/maintenance-orchestrator:1.0.0
-  #   container_name: mantis-maintenance-orchestrator
-  #   ports:
-  #     - "8006:8006"
-  #   networks:
-  #     - mantis-network
-
-  # ================================================================
-  # SERVICE 7: Dashboard (To be implemented)
-  # ================================================================
-  # dashboard:
-  #   build:
-  #     context: ../../services/dashboard
-  #     dockerfile: Dockerfile
-  #   image: mantis/dashboard:1.0.0
-  #   container_name: mantis-dashboard
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - mantis-network
-
-  # ================================================================
-  # External Services (for reference - defined in infrastructure.yml)
-  # ================================================================
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: mantis-kafka
-    external_links:
-      - mantis-kafka
+  preprocessing:
+    build:
+      context: ../../services/preprocessing
+      dockerfile: Dockerfile
+    image: mantis/preprocessing:1.0.0
+    container_name: mantis-preprocessing
+    hostname: preprocessing
+    restart: unless-stopped
+    ports:
+      - "8002:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://mantis-postgres:5432/mantis
+      SPRING_DATASOURCE_USERNAME: mantis
+      SPRING_DATASOURCE_PASSWORD: mantis_password
     networks:
       - mantis-network
+    depends_on:
+      kafka-wait:
+        condition: service_completed_successfully
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: mantis-postgres
-    external_links:
-      - mantis-postgres
+  # ================================================================
+  # SERVICE 3: Feature Extraction Service (Python)
+  # ================================================================
+  feature-extraction:
+    build:
+      context: ../../services/feature-extraction
+      dockerfile: Dockerfile
+    image: mantis/feature-extraction:1.0.0
+    container_name: mantis-feature-extraction
+    hostname: feature-extraction
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+      POSTGRES_HOST: mantis-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mantis
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: mantis_password
     networks:
       - mantis-network
+    depends_on:
+      kafka-wait:
+        condition: service_completed_successfully
 
-# ================================================================
-# Volumes
-# ================================================================
-volumes:
-  ingestion-logs:
-    driver: local
-    name: mantis_ingestion_logs
+  # ================================================================
+  # SERVICE 4: Anomaly Detection Service (Python)
+  # ================================================================
+  anomaly-detection:
+    build:
+      context: ../../services/anomaly-detection
+      dockerfile: Dockerfile
+    image: mantis/anomaly-detection:1.0.0
+    container_name: mantis-anomaly-detection
+    hostname: anomaly-detection
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+      POSTGRES_HOST: mantis-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mantis
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: mantis_password
+    networks:
+      - mantis-network
+    depends_on:
+      kafka-wait:
+        condition: service_completed_successfully
 
-  ingestion-buffer:
-    driver: local
-    name: mantis_ingestion_buffer
+  # ================================================================
+  # SERVICE 5: RUL Prediction Service (Python)
+  # ================================================================
+  rul-prediction:
+    build:
+      context: ../../services/rul-prediction
+      dockerfile: Dockerfile
+    image: mantis/rul-prediction:1.0.0
+    container_name: mantis-rul-prediction
+    hostname: rul-prediction
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+      POSTGRES_HOST: mantis-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mantis
+      POSTGRES_USER: mantis
+      POSTGRES_PASSWORD: mantis_password
+      MLFLOW_TRACKING_URI: http://mantis-mlflow:5000
+    networks:
+      - mantis-network
+    depends_on:
+      kafka-wait:
+        condition: service_completed_successfully
+
+  # ================================================================
+  # SERVICE 6: Maintenance Orchestrator (Java/Spring Boot)
+  # ================================================================
+  orchestrator:
+    build:
+      context: ../../services/orchestrator
+      dockerfile: Dockerfile
+    image: mantis/orchestrator:1.0.0
+    container_name: mantis-orchestrator
+    hostname: orchestrator
+    restart: unless-stopped
+    ports:
+      - "8006:8082"
+    environment:
+      SERVER_PORT: 8082
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://mantis-postgres:5432/mantis
+      SPRING_DATASOURCE_USERNAME: mantis
+      SPRING_DATASOURCE_PASSWORD: mantis_password
+    networks:
+      - mantis-network
+    depends_on:
+      kafka-wait:
+        condition: service_completed_successfully
+
+  # ================================================================
+  # SERVICE 7: Dashboard API (Java/Spring Boot)
+  # ================================================================
+  dashboard-api:
+    build:
+      context: ../../services/dashboard-api
+      dockerfile: Dockerfile
+    image: mantis/dashboard-api:1.0.0
+    container_name: mantis-dashboard-api
+    hostname: dashboard-api
+    restart: unless-stopped
+    ports:
+      - "8007:8083"
+    environment:
+      SERVER_PORT: 8083
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: mantis-kafka:9092
+    networks:
+      - mantis-network
+    depends_on:
+      kafka-wait:
+        condition: service_completed_successfully
+
+  # ================================================================
+  # Wait for Kafka to be ready (from infrastructure)
+  # ================================================================
+  kafka-wait:
+    image: alpine:3.18
+    container_name: mantis-kafka-wait
+    command: [ "sh", "-c", "echo 'Waiting for Kafka...' && sleep 10 && echo 'Kafka should be ready'" ]
+    networks:
+      - mantis-network

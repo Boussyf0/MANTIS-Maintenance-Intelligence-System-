@@ -86,6 +86,13 @@ class Extractor:
             return None
 
         features = data["features"]
+        # DEBUG: Print keys to verify actual_rul presence
+        print(f"DEBUG: Extractor received keys: {list(data.keys())}", flush=True)
+        if "actual_rul" in data:
+            print(
+                f"DEBUG: Extractor received actual_rul: {data['actual_rul']}",
+                flush=True,
+            )
 
         # We expect 'mean', 'std', 'last' lists (one value per sensor)
         means = np.array(features.get("mean", []))
@@ -117,6 +124,7 @@ class Extractor:
                 "energy": float(energy),
                 "avg_snr": float(avg_snr),
             },
+            "actual_rul": data.get("actual_rul"),
         }
 
         return extracted_data

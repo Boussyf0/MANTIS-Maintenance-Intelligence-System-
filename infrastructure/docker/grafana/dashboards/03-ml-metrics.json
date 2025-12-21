@@ -35,7 +35,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Predictions/sec",
+            "axisLabel": "Messages/sec",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -105,12 +105,30 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "mantis:ml:inference:rate5m",
-          "legendFormat": "{{model}}",
+          "expr": "rate(feature_extraction_messages_processed_total[5m])",
+          "legendFormat": "Feature Extraction",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "rate(anomaly_detection_messages_processed_total[5m])",
+          "legendFormat": "Anomaly Detection",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "rate(rul_prediction_messages_processed_total[5m])",
+          "legendFormat": "RUL Prediction",
+          "refId": "C"
         }
       ],
-      "title": "Model Inference Rate",
+      "title": "Throughput (Messages/sec)",
       "type": "timeseries"
     },
     {
@@ -201,8 +219,8 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "mantis:ml:inference_latency:p99",
-          "legendFormat": "P99 - {{model}}",
+          "expr": "histogram_quantile(0.99, rate(feature_extraction_processing_seconds_bucket[5m]))",
+          "legendFormat": "Feature Extraction P99",
           "refId": "A"
         },
         {
@@ -210,8 +228,8 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "histogram_quantile(0.95, rate(ml_inference_duration_seconds_bucket[5m]))",
-          "legendFormat": "P95 - {{model}}",
+          "expr": "histogram_quantile(0.99, rate(anomaly_detection_processing_seconds_bucket[5m]))",
+          "legendFormat": "Anomaly Detection P99",
           "refId": "B"
         },
         {
@@ -219,12 +237,12 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "histogram_quantile(0.50, rate(ml_inference_duration_seconds_bucket[5m]))",
-          "legendFormat": "P50 - {{model}}",
+          "expr": "histogram_quantile(0.99, rate(rul_prediction_processing_seconds_bucket[5m]))",
+          "legendFormat": "RUL Prediction P99",
           "refId": "C"
         }
       ],
-      "title": "Model Inference Latency",
+      "title": "Processing Latency (P99)",
       "type": "timeseries"
     },
     {
@@ -319,8 +337,8 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "mantis:ml:anomalies_detected:rate1h * 3600",
-          "legendFormat": "{{asset_type}}",
+          "expr": "rate(anomaly_detection_anomalies_detected_total[1h]) * 3600",
+          "legendFormat": "Anomalies/Hour",
           "refId": "A"
         }
       ],
@@ -342,16 +360,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
                 "color": "yellow",
-                "value": 30
+                "value": 50
               },
               {
-                "color": "red",
-                "value": 50
+                "color": "green",
+                "value": 100
               }
             ]
           },
@@ -385,199 +403,13 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "mantis:ml:rul_mae:avg5m",
-          "legendFormat": "RUL MAE",
+          "expr": "avg(rul_prediction_last_rul)",
+          "legendFormat": "Avg Predicted RUL",
           "refId": "A"
         }
       ],
-      "title": "RUL Prediction Error (MAE)",
+      "title": "Average Predicted RUL",
       "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Accuracy",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 16
-      },
-      "id": 5,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "expr": "ml_model_accuracy",
-          "legendFormat": "{{model}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Model Accuracy",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "F1 Score",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
-      "id": 6,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "expr": "ml_model_f1_score",
-          "legendFormat": "{{model}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Model F1 Score",
-      "type": "timeseries"
     },
     {
       "datasource": {
@@ -607,7 +439,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 24
+        "y": 16
       },
       "id": 7,
       "options": {
@@ -631,11 +463,11 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(ml_model_predictions_total)",
+          "expr": "sum(rul_prediction_predictions_made_total)",
           "refId": "A"
         }
       ],
-      "title": "Total Predictions",
+      "title": "Total RUL Predictions",
       "type": "stat"
     },
     {
@@ -666,7 +498,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 24
+        "y": 16
       },
       "id": 8,
       "options": {
@@ -690,7 +522,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(anomalies_detected_total)",
+          "expr": "sum(anomaly_detection_anomalies_detected_total)",
           "refId": "A"
         }
       ],
@@ -725,7 +557,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 24
+        "y": 16
       },
       "id": 9,
       "options": {
@@ -749,11 +581,11 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "count(ml_model_info)",
+          "expr": "count(up{job=~\"feature-extraction|anomaly-detection|rul-prediction\"})",
           "refId": "A"
         }
       ],
-      "title": "Active Models",
+      "title": "Active ML Services",
       "type": "stat"
     }
   ],

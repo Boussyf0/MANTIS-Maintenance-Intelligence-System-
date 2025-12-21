@@ -84,17 +84,27 @@ echo -e "\n${YELLOW}[4/5]${NC} Exécution des tests Python..."
 # Skip tests pendant la phase de setup
 if [ "${MANTIS_SKIP_TESTS:-false}" = "true" ]; then
     echo -e "${YELLOW}⚠${NC} Tests Python skippés (MANTIS_SKIP_TESTS=true)"
-elif [ -f "requirements.txt" ] && command -v pytest &> /dev/null; then
-    pytest tests/ --maxfail=3 -q || {
-        echo -e "${RED}✗${NC} Tests Python échoués"
-        ERRORS=$((ERRORS + 1))
-    }
-
-    if [ $ERRORS -eq 0 ]; then
-        echo -e "${GREEN}✓${NC} Tous les tests Python passent"
-    fi
 else
-    echo -e "${YELLOW}⚠${NC} Tests Python non configurés ou pytest non installé"
+    PYTHON_SERVICES=$(find services -name "requirements.txt" -type f | sed 's|/requirements.txt||' || true)
+    
+    if [ ! -z "$PYTHON_SERVICES" ]; then
+        for service in $PYTHON_SERVICES; do
+            if [ -d "$service/tests" ]; then
+                echo "  Testing $service..."
+                # Run pytest in the service directory to avoid import conflicts
+                (cd "$service" && pytest tests/ -q) || {
+                    echo -e "${RED}✗${NC} Tests Python échoués pour $service"
+                    ERRORS=$((ERRORS + 1))
+                }
+            fi
+        done
+
+        if [ $ERRORS -eq 0 ]; then
+            echo -e "${GREEN}✓${NC} Tous les tests Python passent"
+        fi
+    else
+        echo -e "${YELLOW}⚠${NC} Aucun service Python trouvé"
+    fi
 fi
 
 # 5. Vérifier la connexion avec le remote

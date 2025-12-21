@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") // Allow all for demo
 @RequiredArgsConstructor
 public class DashboardController {
 

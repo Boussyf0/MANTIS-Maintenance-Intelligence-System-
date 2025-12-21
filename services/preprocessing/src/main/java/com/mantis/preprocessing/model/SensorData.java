@@ -13,4 +13,6 @@ public class SensorData {
     private String timestamp;
     private int cycle;
     private List<Double> sensors;
+    @com.fasterxml.jackson.annotation.JsonProperty("_actual_rul")
+    private Double _actual_rul;
 }

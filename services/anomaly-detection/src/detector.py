@@ -1,5 +1,5 @@
 from sklearn.ensemble import IsolationForest
-from .config import Config
+from config import Config
 
 
 class Detector:

@@ -2,6 +2,7 @@ package com.mantis.preprocessing.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mantis.preprocessing.model.ProcessedData;
+import com.mantis.preprocessing.model.RULPrediction;
 import com.mantis.preprocessing.model.SensorData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class KafkaConsumerService {
     private final DataProcessingService processingService;
     private final KafkaTemplate<String, ProcessedData> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final InfluxDBService influxDBService;
 
     @Value("${app.topic.output}")
     private String outputTopic;
@@ -30,16 +32,33 @@ public class KafkaConsumerService {
             SensorData data = objectMapper.readValue(message, SensorData.class);
             log.debug("Received data for machine {}", data.getMachine_id());
 
+            // Write raw data to InfluxDB
+            influxDBService.writeSensorData(data);
+
             Optional<ProcessedData> result = processingService.process(data);
 
             result.ifPresent(processedData -> {
                 kafkaTemplate.send(outputTopic, processedData);
-                log.info("Processed and sent data for machine {}, cycle {}", 
+                log.info("Processed and sent data for machine {}, cycle {}",
                         processedData.getMachine_id(), processedData.getCycle());
             });
 
         } catch (Exception e) {
-            log.error("Error processing message: {}", message, e);
+            log.error("Error processing sensor data: {}", message, e);
+        }
+    }
+
+    @KafkaListener(topics = "${app.topic.rul-predictions}", groupId = "${spring.kafka.consumer.group-id}")
+    public void consumeRUL(String message) {
+        try {
+            RULPrediction prediction = objectMapper.readValue(message, RULPrediction.class);
+            log.debug("Received RUL prediction: {}", prediction);
+
+            // Write to InfluxDB
+            influxDBService.writeRULPrediction(prediction);
+
+        } catch (Exception e) {
+            log.error("Error processing RUL prediction: {}", message, e);
         }
     }
 }
