@@ -94,11 +94,23 @@ class Extractor:
                 flush=True,
             )
 
-        # We expect 'mean', 'std', 'last' lists (one value per sensor)
-        means = np.array(features.get("mean", []))
-        stds = np.array(features.get("std", []))
+        # EXPERT FILTERING: Keep only useful sensors (Index 0-20 mapped to Sensor 1-21)
+        # Dropping: 1, 5, 6, 10, 16, 18, 19 -> Indices: 0, 4, 5, 9, 15, 17, 18
+        # We keep indices: 1, 2, 3, 6, 7, 8, 10, 11, 12, 13, 14, 16, 19, 20
+        USEFUL_INDICES = [1, 2, 3, 6, 7, 8, 10, 11, 12, 13, 14, 16, 19, 20]
 
-        if len(means) == 0:
+        # We expect 'mean', 'std', 'last' lists (one value per sensor, total 21)
+        means_raw = np.array(features.get("mean", []))
+        stds_raw = np.array(features.get("std", []))
+
+        if len(means_raw) == 21:
+             means = means_raw[USEFUL_INDICES]
+             stds = stds_raw[USEFUL_INDICES]
+        elif len(means_raw) > 0:
+             # Fallback if dimension is unexpected, assume already filtered?
+             means = means_raw
+             stds = stds_raw
+        else:
             return None
 
         # 1. Statistical features across sensors (e.g. is there high variance between sensors?)
@@ -113,16 +125,22 @@ class Extractor:
         snr = np.divide(means, stds, out=np.zeros_like(means), where=stds != 0)
         avg_snr = np.mean(snr)
 
-        # Construct new payload
+        # Construct new payload with FILTERED features for the model
         extracted_data = {
             "machine_id": data["machine_id"],
             "timestamp": data["timestamp"],
             "cycle": data["cycle"],
             "advanced_features": {
+                # Features for visualization or downstream
                 "skewness": float(feat_skew),
                 "kurtosis": float(feat_kurt),
                 "energy": float(energy),
                 "avg_snr": float(avg_snr),
+            },
+            # We pass the FILTERED vectors for inference
+            "model_features": {
+                "mean": means.tolist(),
+                "std": stds.tolist()
             },
             "actual_rul": data.get("actual_rul"),
         }

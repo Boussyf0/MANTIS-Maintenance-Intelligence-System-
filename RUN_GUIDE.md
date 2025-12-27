@@ -1,113 +1,69 @@
-# MANTIS - Guide de Démarrage
+# MANTIS - Guide de Démarrage (Mise à jour)
 
-Ce guide détaille les étapes pour lancer l'ensemble de la plateforme MANTIS sur votre machine locale.
+Ce guide détaille les étapes pour lancer l'ensemble de la plateforme MANTIS.
 
-## Prérequis
+## 🚀 Démarrage Rapide (Recommandé)
 
-Assurez-vous d'avoir installé :
-- **Docker** et **Docker Compose**
-- **Python 3.10+** (pour le simulateur et le serveur frontend)
-- **Java 17+** (optionnel, si vous souhaitez compiler hors Docker)
+Nous avons un script qui gère tout (arrêt, nettoyage, build, démarrage) :
 
----
+1.  **Lancer tout le projet :**
+    ```bash
+    ./start_all.sh
+    ```
+    *Ce script lance Kafka, bases de données, monitoring (Prometheus/Grafana), MLflow et tous les microservices.*
 
-## Étape 1 : Démarrer l'Infrastructure
-
-L'infrastructure comprend Kafka, Zookeeper, les bases de données (Postgres, InfluxDB) et les outils de monitoring (Prometheus, Grafana).
-
-1. Ouvrez un terminal à la racine du projet.
-2. Naviguez vers le dossier docker :
-   ```bash
-   cd infrastructure/docker
-   ```
-3. Lancez l'infrastructure :
-   ```bash
-   docker-compose -f docker-compose.infrastructure.yml up -d
-   ```
-4. Attendez que tous les conteneurs soient "healthy" (environ 30-60 secondes).
+2.  **Lancer le simulateur de données :** (Dans un nouveau terminal, requis pour avoir des données)
+    ```bash
+    export KAFKA_BROKER=localhost:9093
+    python3 scripts/sensor-simulator.py
+    ```
 
 ---
 
-## Étape 2 : Démarrer les Microservices
+## 🛠 Accès aux Interfaces
 
-Les microservices incluent l'ingestion, le prétraitement, l'extraction de features, la prédiction RUL, la détection d'anomalies, l'orchestrateur et l'API dashboard.
-
-1. Toujours dans le dossier `infrastructure/docker` :
-   ```bash
-   docker-compose -f docker-compose.services.yml up -d --build
-   ```
-   *(L'option `--build` assure que vous utilisez la dernière version du code)*
-
-2. Vérifiez que les services tournent :
-   ```bash
-   docker ps
-   ```
+| Service | URL | Identifiants |
+| :--- | :--- | :--- |
+| **Grafana** (Dashboards) | [http://localhost:3000](http://localhost:3000) | `admin` / `admin` |
+| **MLflow** (Modèles IA) | [http://localhost:5002](http://localhost:5002) | - |
+| **Frontend App** | [http://localhost:3001](http://localhost:3001) | - |
+| **MinIO** (Stockage S3) | [http://localhost:9001](http://localhost:9001) | `minioadmin` / `minioadmin` |
+| **Prometheus** | [http://localhost:9095](http://localhost:9095) | - |
+| **Kafka UI** | [http://localhost:8082](http://localhost:8082) | - |
 
 ---
 
-## Étape 3 : Démarrer le Simulateur de Capteurs
+## 🧠 Workflow AI / ML (Optionnel)
 
-Le simulateur génère des données réalistes pour 3 machines et les envoie à Kafka.
+Si vous souhaitez ré-entraîner les modèles et peupler le registre MLflow :
 
-1. Ouvrez un **nouveau terminal** à la racine du projet.
-2. Installez les dépendances Python (si ce n'est pas déjà fait) :
-   ```bash
-   pip install kafka-python
-   ```
-3. Lancez le simulateur :
-   ```bash
-   export KAFKA_BROKER=localhost:9093
-   python scripts/sensor-simulator.py
-   ```
-   *Vous devriez voir des logs défiler avec des données de capteurs.*
+1.  **Entraîner & Enregistrer le modèle d'Anomalie :**
+    ```bash
+    # Dépendances requises : pip install mlflow==2.5.0 boto3 pyod torch torchvision
+    export AWS_ACCESS_KEY_ID=minioadmin
+    export AWS_SECRET_ACCESS_KEY=minioadmin
+    export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+    
+    python3 notebooks/train_and_log_mlflow.py
+    ```
 
----
+2.  **Entraîner & Enregistrer le modèle RUL (LSTM) :**
+    ```bash
+    export AWS_ACCESS_KEY_ID=minioadmin
+    export AWS_SECRET_ACCESS_KEY=minioadmin
+    export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+    
+    python3 notebooks/train_lstm_and_log_mlflow.py
+    ```
 
-## Étape 4 : Démarrer le Dashboard Frontend
-
-Pour éviter les problèmes de sécurité (CORS) liés à l'ouverture directe des fichiers HTML, nous servons le frontend via un petit serveur HTTP local.
-
-1. Ouvrez un **nouveau terminal** à la racine du projet.
-2. Naviguez vers le dossier du frontend :
-   ```bash
-   cd services/dashboard-frontend
-   ```
-3. Lancez le serveur HTTP Python sur le port 8081 :
-   ```bash
-   python -m http.server 8081
-   ```
+3.  **Optimisation des Hyperparamètres (Grid Search) :**
+    ```bash
+    python3 notebooks/optimize_lstm_mlflow.py
+    ```
 
 ---
 
-## Étape 5 : Accéder à l'Application
-
-Tout est prêt ! Voici les liens pour accéder aux différentes interfaces :
-
-### 🏭 Dashboard Principal
-👉 **[http://localhost:8081](http://localhost:8081)**
-*Visualisation temps-réel de l'état des machines, RUL et anomalies.*
-
-### 📊 Grafana (Monitoring Technique)
-👉 **[http://localhost:3001](http://localhost:3001)**
-*Login: `admin` / Password: `admin`*
-*Dashboards disponibles :*
-- *MANTIS / Application Performance*
-- *MANTIS / ML Metrics*
-- *MANTIS / Sensor Data*
-
-### 🔍 Autres Interfaces
-- **Prometheus** : [http://localhost:9091](http://localhost:9091)
-- **Kafka UI** : [http://localhost:8080](http://localhost:8080)
-- **API Dashboard (Backend)** : [http://localhost:8007/api/machines](http://localhost:8007/api/machines)
-
----
-
-## Arrêt de l'Application
-
-Pour tout arrêter proprement :
-
+## 🛑 Arrêt
 ```bash
-cd infrastructure/docker
-docker-compose -f docker-compose.services.yml down
-docker-compose -f docker-compose.infrastructure.yml down
+docker-compose -f infrastructure/docker/docker-compose.infrastructure.yml -f infrastructure/docker/docker-compose.services.yml down
 ```

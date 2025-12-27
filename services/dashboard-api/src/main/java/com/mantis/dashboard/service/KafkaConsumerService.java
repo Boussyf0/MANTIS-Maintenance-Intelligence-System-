@@ -56,4 +56,27 @@ public class KafkaConsumerService {
             log.error("Error processing alert", e);
         }
     }
+
+    @KafkaListener(topics = "${app.topic.sensor-raw}", groupId = "${spring.kafka.consumer.group-id}")
+    public void consumeSensors(String message) {
+        try {
+            JsonNode node = objectMapper.readTree(message);
+            String machineId = node.get("machine_id").asText();
+            String timestamp = node.get("timestamp").asText();
+
+            java.util.Map<String, Double> sensorMap = new java.util.HashMap<>();
+            if (node.has("sensors") && node.get("sensors").isArray()) {
+                int i = 1;
+                for (JsonNode val : node.get("sensors")) {
+                    sensorMap.put(String.format("sensor_%02d", i++), val.asDouble());
+                }
+            }
+
+            if (!sensorMap.isEmpty()) {
+                machineStateService.updateSensors(machineId, timestamp, sensorMap);
+            }
+        } catch (Exception e) {
+            log.error("Error processing sensor data", e);
+        }
+    }
 }

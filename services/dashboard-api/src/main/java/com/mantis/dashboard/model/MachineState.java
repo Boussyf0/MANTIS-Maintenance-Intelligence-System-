@@ -19,4 +19,7 @@ public class MachineState {
     private Boolean isAnomaly;
     private Integer cycle;
     private String status; // NORMAL, WARNING, CRITICAL
+
+    @jakarta.persistence.ElementCollection
+    private java.util.Map<String, Double> sensors;
 }

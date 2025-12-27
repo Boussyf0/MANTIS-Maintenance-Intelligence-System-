@@ -201,3 +201,21 @@ services:
     command: [ "sh", "-c", "echo 'Waiting for Kafka...' && sleep 10 && echo 'Kafka should be ready'" ]
     networks:
       - mantis-network
+
+  # ================================================================
+  # SERVICE 8: Dashboard Frontend (Static)
+  # ================================================================
+  dashboard-frontend:
+    build:
+      context: ../../services/dashboard-frontend
+      dockerfile: Dockerfile
+    image: mantis/dashboard-frontend:1.0.0
+    container_name: mantis-dashboard-frontend
+    hostname: dashboard-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    networks:
+      - mantis-network
+    depends_on:
+      - dashboard-api

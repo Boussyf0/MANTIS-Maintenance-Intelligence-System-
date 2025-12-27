@@ -41,12 +41,17 @@ groups:
       # Kafka message processing rate
       - record: mantis:kafka:messages:rate1m
         expr: |
-          rate(spring_kafka_listener_seconds_count[1m]) or rate(feature_extraction_messages_processed_total[1m]) or rate(anomaly_detection_messages_processed_total[1m]) or rate(rul_prediction_messages_processed_total[1m])
+          rate(spring_kafka_listener_seconds_count[1m]) or rate(feature_extraction_messages_processed_total[1m]) or rate(anomaly_detection_messages_processed_total[1m]) or rate(rul_prediction_messages_processed_total[1m]) or rate(kafka_producer_record_send_total{job="ingestion-iiot"}[1m])
 
       # Data processing latency (p95)
       - record: mantis:processing:latency:p95
         expr: |
           histogram_quantile(0.95, rate(feature_extraction_processing_seconds_bucket[5m])) or histogram_quantile(0.95, rate(anomaly_detection_processing_seconds_bucket[5m])) or histogram_quantile(0.95, rate(rul_prediction_processing_seconds_bucket[5m]))
+
+      # Data Ingestion Rate (derived from producer metrics)
+      - record: sensor_data_ingested_total
+        expr: |
+          sum(rate(kafka_topic_partition_current_offset{topic="raw-sensor-data"}[1m]))
 
   - name: mantis_ml_metrics
     interval: 60s
@@ -54,12 +59,12 @@ groups:
       # Model inference rate
       - record: mantis:ml:inference:rate5m
         expr: |
-          rate(ml_model_predictions_total[5m])
+          rate(rul_prediction_predictions_made_total[5m])
 
       # Model inference latency (p99)
       - record: mantis:ml:inference_latency:p99
         expr: |
-          histogram_quantile(0.99, rate(ml_inference_duration_seconds_bucket[5m]))
+          histogram_quantile(0.99, rate(rul_prediction_processing_seconds_bucket[5m]))
 
       # Anomaly detection rate
       - record: mantis:ml:anomalies_detected:rate1h

@@ -44,8 +44,12 @@ public class KafkaConfig {
     /**
      * Configure le ProducerFactory pour les messages SensorData.
      */
+    /**
+     * Configure le ProducerFactory pour les messages SensorData.
+     */
     @Bean
-    public ProducerFactory<String, SensorData> sensorDataProducerFactory() {
+    public ProducerFactory<String, SensorData> sensorDataProducerFactory(
+            io.micrometer.core.instrument.MeterRegistry meterRegistry) {
         Map<String, Object> configProps = new HashMap<>();
 
         // Configuration de base
@@ -68,14 +72,20 @@ public class KafkaConfig {
         // Configuration du sérialiseur JSON
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
 
-        return new DefaultKafkaProducerFactory<>(configProps);
+        DefaultKafkaProducerFactory<String, SensorData> factory = new DefaultKafkaProducerFactory<>(configProps);
+        factory.addListener(new org.springframework.kafka.core.MicrometerProducerListener<>(meterRegistry));
+        return factory;
     }
 
     /**
      * KafkaTemplate pour l'envoi de données de capteurs.
      */
+    /**
+     * KafkaTemplate pour l'envoi de données de capteurs.
+     */
     @Bean
-    public KafkaTemplate<String, SensorData> sensorDataKafkaTemplate() {
-        return new KafkaTemplate<>(sensorDataProducerFactory());
+    public KafkaTemplate<String, SensorData> sensorDataKafkaTemplate(
+            io.micrometer.core.instrument.MeterRegistry meterRegistry) {
+        return new KafkaTemplate<>(sensorDataProducerFactory(meterRegistry));
     }
 }

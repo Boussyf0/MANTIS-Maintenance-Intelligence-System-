@@ -1,0 +1,34 @@
+=== OPTIMIZATION STARTED ===
+Loading data...
+Applying Feature Selection: Keeping 14 relevant sensors.
+Modeling with 28 features (Mean + Std).
+
+--- [Unsupervised] Default Isolation Forest Results ---
+ROC-AUC: 0.9684
+
+--- [Unsupervised] Optimized Isolation Forest Results ---
+              precision    recall  f1-score   support
+
+      Normal       0.98      0.95      0.96     17531
+     Anomaly       0.75      0.87      0.81      3100
+
+    accuracy                           0.94     20631
+   macro avg       0.86      0.91      0.88     20631
+weighted avg       0.94      0.94      0.94     20631
+
+ROC-AUC: 0.9692
+
+--- [Supervised] Random Forest Results (Validation Set) ---
+              precision    recall  f1-score   support
+
+      Normal       0.97      0.97      0.97      3873
+     Anomaly       0.83      0.84      0.83       620
+
+    accuracy                           0.95      4493
+   macro avg       0.90      0.90      0.90      4493
+weighted avg       0.95      0.95      0.95      4493
+
+ROC-AUC: 0.9853
+
+Saved comparison plot to 'roc_comparison.png'
+=== EXECUTION COMPLETED ===

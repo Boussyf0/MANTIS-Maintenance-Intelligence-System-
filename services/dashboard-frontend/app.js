@@ -291,12 +291,15 @@ async function fetchData() {
                             cycle: m.cycle || 0,
                             rul: m.lastRul,
                             status: m.status,
-                            sensors: {} // Not provided by API
+                            sensors: m.sensors || {}
                         };
                     } else {
                         state.machines[machineId].rul = m.lastRul;
                         state.machines[machineId].status = m.status;
                         state.machines[machineId].cycle = m.cycle || 0;
+                        if (m.sensors) {
+                            state.machines[machineId].sensors = m.sensors;
+                        }
                     }
                 });
 

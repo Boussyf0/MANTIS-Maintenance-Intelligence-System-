@@ -1,5 +1,4 @@
-# 🏭 MANTIS
-### MAiNtenance prédictive Temps-réel pour usines Intelligentes
+# 🏭 MANTIS: Cognitive Industrial Intelligence
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
@@ -7,113 +6,113 @@
 [![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
 
-> **Next-Gen Predictive Maintenance Platform for Industry 4.0**
-> 
-> MANTIS is an open-source, microservices-based platform designed to detect anomalies and predict the Remaining Useful Life (RUL) of industrial assets in real-time.
+> **"Predicting the Unpredictable"**
+>
+> **MANTIS** (Maintenance Analysis & Networked Technologies for Intelligent Systems) is an enterprise-grade **Predictive Maintenance (PdM)** platform designed for Industry 4.0. It bridges the gap between Operational Technology (OT) and Information Technology (IT) using advanced Deep Learning.
 
 ---
 
+## 🎨 Operational Intelligence Dashboard
+
 <p align="center">
-  <img src="docs/assets/dashboard.png" alt="MANTIS Dashboard" width="100%">
+  <img src="docs/assets/realtime_dashboard.jpg" alt="MANTIS Real-Time Dashboard" width="100%">
+  <br>
+  <em>Figure 1: Real-time sensor fusion and RUL (Remaining Useful Life) prediction view.</em>
 </p>
 
 ---
 
-## 🚀 Overview
+## 🚀 Why MANTIS?
 
-Unplanned downtime costs manufacturers **$50 billion annually**. MANTIS solves this by transitioning from reactive to **predictive maintenance**. It leverages Deep Learning (LSTM/CNN) and IIoT streaming to monitor equipment health, predict failures before they happen, and optimize maintenance schedules.
+Unplanned downtime costs manufacturers **$50 billion annually**. MANTIS transitions your strategy from *reactive* to **proactive**.
 
-**Key Capabilities:**
-*   **Real-time RUL Prediction**: Sub-second inference latency (487ms P99).
-*   **Anomaly Detection**: Auto-detection of varying operating conditions.
-*   **Scalable Architecture**: Event-driven microservices handled by Apache Kafka.
-*   **Interactive Dashboards**: Live visualization of sensor data and predictions.
+| 🧠 **Cognitive AI** | ⚡ **Real-Time Streaming** | 🛡️ **Enterprise Ready** |
+|:---:|:---:|:---:|
+| **CNN & LSTM Ensembles**<br>State-of-the-art anomaly detection trained on NASA C-MAPSS data. | **Apache Kafka Core**<br>Handle 100k+ sensor events/sec with sub-second latency (487ms P99). | **Microservices Architecture**<br>Fully containerized, distinct scaling for Ingestion, Inference, and UI. |
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ System Architecture
 
-MANTIS is built on a robust **Microservices Architecture**, ensuring modularity, scalability, and resilience.
+MANTIS is built on a robust **Event-Driven Architecture**, ensuring modularity and resilience.
 
 <p align="center">
   <img src="docs/assets/architecture.png" alt="Microservices Architecture" width="90%">
 </p>
 
-The system comprises 7 core services:
-1.  **Ingestion IIoT**: Polyglot connector (OPC UA, MQTT) for sensor data.
-2.  **Preprocessing**: Data cleaning, resampling, and windowing.
-3.  **Feature Extraction**: Time & Frequency domain analysis.
-4.  **Anomaly Detection**: Unsupervised learning (PyOD) for fault detection.
-5.  **RUL Prediction**: Deep Learning models (PyTorch) for lifespans.
-6.  **Orchestrator**: Decision engine for maintenance actions.
-7.  **Dashboard**: User interface for operators.
+### 🔧 The Data Mining Pipeline
+Our end-to-end pipeline ensures data integrity from the sensor to the dashboard.
+
+<p align="center">
+  <img src="docs/assets/ml_pipeline.png" alt="Machine Learning Pipeline" width="100%">
+</p>
+
+1.  **Ingestion**: High-throughput MQTT/OPC-UA gateways.
+2.  **Preprocessing**: Rolling window aggregation and signal denoising.
+3.  **Feature Extraction**: Time-domain (RMS, Kurtosis) & Frequency-domain analysis.
+4.  **Inference**: Distributed model serving for immediate fault detection.
 
 ---
 
-## 💻 Visual Tour
+## 📊 Performance & Benchmarks
 
-| **Live Monitoring** | **Deep Analysis** |
-|:---:|:---:|
-| <img src="docs/assets/monitoring.png" width="100%"> <br> *Monitor raw sensor streams (Vibration, Temp, Pressure) in real-time.* | <img src="docs/assets/analysis.png" width="100%"> <br> *Analyze RUL decay curves and feature importance for diagnostics.* |
+We believe in verifiable results. MANTIS achieves superior predictive performance comparisons.
 
-| **Smart Alerts** | **Fleet Overview** |
-|:---:|:---:|
-| <img src="docs/assets/alerts.png" width="100%"> <br> *Receive instant notifications when RUL drops below critical thresholds.* | <img src="docs/assets/dashboard.png" width="100%"> <br> *Global view of all assets, efficiency status, and maintenance queues.* |
+### 🎯 Model Precision (ROC Analysis)
+Our optimized models demonstrate high True Positive Rates with minimal False Alarms.
+
+<p align="center">
+  <img src="docs/assets/roc_comparison.png" alt="ROC Curve Analysis" width="70%">
+</p>
+
+### 📈 Live Model Metrics
+Continuous monitoring of model drift and performance metrics ensures reliability in production.
+
+<p align="center">
+  <img src="docs/assets/ml_metrics_dashboard.jpg" alt="ML Metrics Dashboard" width="100%">
+</p>
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Component | Tech Stack |
-|-----------|------------|
-| **Backend** | Java 17, Spring Boot, Python 3.11, FastAPI |
-| **AI / ML** | PyTorch, PyOD, MLflow, Feast, Scikit-learn |
-| **Streaming** | Apache Kafka, Kafka Streams |
-| **Database** | TimescaleDB (Time-series), PostgreSQL, InfluxDB, MinIO |
-| **Frontend** | React.js, Material UI, Recharts, Plotly |
-| **DevOps** | Docker, Kubernetes, Prometheus, Grafana |
+| Domain | Technologies |
+|:---|:---|
+| **Backend Core** | Java 17, Spring Boot 3, Python 3.11, FastAPI |
+| **Big Data & ML** | Apache Kafka, PyTorch, PyOD, Scikit-learn, MLflow |
+| **Data Storage** | TimescaleDB (Time-series), PostgreSQL, MinIO (Object Storage) |
+| **Frontend** | React 18, Material UI, Recharts, Plotly.js |
+| **DevOps** | Docker Compose, Prometheus, Grafana, Github Actions |
 
 ---
 
 ## ⚡ Quick Start
 
+Deploy the full stack in under 5 minutes.
+
 ### Prerequisites
 *   Docker & Docker Compose
-*   Python 3.10+ (for local scripts)
+*   3GB+ RAM available
 
 ### 1-Click Deployment
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/Boussyf0/MANTIS-Maintenance-Intelligence-System-
 cd MANTIS
 
-# Launch the full stack (Infrastructure + Services)
+# 2. Launch (Infrastructure + 7 Microservices)
 ./scripts/start-all.sh
 ```
 
-> The system will spin up 15+ containers including Kafka, Databases, and Microservices.
-
-### Access Points
-
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| **Dashboard** | `http://localhost:3000` | - |
-| **Grafana** | `http://localhost:3001` | `admin`/`admin` |
-| **MLflow** | `http://localhost:5000` | - |
-| **API Docs** | `http://localhost:8000/docs` | - |
+### 🔗 Access Points
+*   **Main Dashboard**: `http://localhost:3000`
+*   **Grafana Monitoring**: `http://localhost:3001` (User: `admin` / Pass: `admin`)
+*   **MLflow Tracking**: `http://localhost:5000`
 
 ---
 
-## 📊 Performance
-
-*   **Throughput**: 127,000 data points/sec
-*   **Latency**: < 500ms (Ingestion to Alert)
-*   **Accuracy**: RMSE 12.5 cycles (NASA C-MAPSS Dataset)
-
----
-
-## 🤝 Authors
+## 👥 Contributors
 
 *   **Abderrahim Boussyf** - *Lead Systems Architect*
 *   **Saleheddine Elkihel** - *Research Supervision*
@@ -121,7 +120,6 @@ cd MANTIS
 *   **Mohamed Essakouri** - *Research Supervision*
 
 ---
-
 <p align="center">
   <i>Developed at EMSI (Marrakech) - 2025</i>
 </p>

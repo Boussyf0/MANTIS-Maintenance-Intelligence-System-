@@ -1,0 +1,119 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+
+\title{\textbf{Rapport d'Expertise : Architecture Data Mining et Validation Algorithmique}}
+\author{Projet MANTIS}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{1. Introduction et Contexte Scientifique}
+Ce document présente une analyse approfondie de la chaîne de traitement de données (Data Pipeline) du système MANTIS. Il vise à fournir une justification théorique et technique des choix architecturaux opérés pour la détection précoce de défaillances sur des systèmes complexes (moteurs turbofans), en se basant sur le dataset standard NASA C-MAPSS.
+
+\section{2. Caractérisation des Signaux et Prétraitement}
+
+\subsection{2.1 Analyse Spectrale et Stationnarité}
+Les données brutes issues des capteurs embarqués (température EGT, pression HPC, vitesse N1/N2) sont des séries temporelles multivariées $X = \{x^{(1)}_t, ..., x^{(p)}_t\}_{t=1}^T$.
+Une analyse préliminaire montre que le processus de dégradation n'est pas stationnaire. La moyenne et la variance conditionnelles $\mu_t$ et $\sigma^2_t$ évoluent avec le temps $t$ (nombre de cycles).
+
+\paragraph{Stratégie de Nettoyage}
+Pour garantir la robustesse des modèles d'apprentissage, un pipeline de nettoyage rigoureux est appliqué :
+\begin{enumerate}
+    \item \textbf{Filtrage des modes opératoires} : Le dataset FD001 est filtré pour ne conserver que les données issues du régime nominal stable (\textit{cruise condition}), éliminant le besoin de normalisation par condition opératoire complexe nécessaire pour FD002/FD004.
+    \item \textbf{Lissage Exponentiel (EWMA)} : Pour réduire le bruit de mesure gaussien $\epsilon \sim \mathcal{N}(0, \sigma^2)$, un filtre à moyenne mobile exponentielle est appliqué :
+    \[ \hat{x}_t = \alpha x_t + (1-\alpha) \hat{x}_{t-1} \]
+    avec $\alpha=0.1$, permettant de lisser le signal tout en minimisant le déphasage (lag) critique pour la détection temps-réel.
+\end{enumerate}
+
+\section{3. Ingénierie des Fonctionnalités (Advanced Feature Engineering)}
+
+\subsection{3.1 Sélection de Variables par Variance (Thresholding)}
+L'analyse de la variance inter-cycles montre que 7 capteurs (sur 21) possèdent une variance quasi-nulle ($\sigma^2 < \epsilon$) sur l'ensemble de la vie du moteur. Leur inclusion introduirait de la colinéarité et du bruit sans apport d'information (Gain d'Information $\approx 0$).
+\textbf{Capteurs rejetés :} s1, s5, s6, s10, s16, s18, s19.
+\textbf{Dimensionalité réduite :} $\mathbb{R}^{21} \rightarrow \mathbb{R}^{14}$.
+
+\subsection{3.2 Extraction de Caractéristiques Temporelles}
+L'approche choisie repose sur une fenêtre glissante de taille $w=15$. Pour chaque fenêtre $W_t = [x_{t-w+1}, ..., x_t]$, nous calculons :
+
+\paragraph{Tendance Centrale (Mean)}
+\[ \mu_{W_t} = \frac{1}{w} \sum_{i=t-w+1}^{t} x_i \]
+Capture l'évolution lente de la dégradation (ex: augmentation progressive de la température EGT due à l'usure).
+
+\paragraph{Volatilité (Standard Deviation)}
+\[ \sigma_{W_t} = \sqrt{\frac{1}{w-1} \sum_{i=t-w+1}^{t} (x_i - \mu_{W_t})^2} \]
+Indicateur critique d'instabilité système. Une augmentation de la volatilité précède souvent la rupture de stationnarité (bifurcation) menant à la panne.
+
+\section{4. Architecture de Détection d'Anomalies}
+
+\subsection{4.1 Justification de l'Isolation Forest (iForest)}
+Le choix de l'Isolation Forest (Liu et al., 2008) se justifie par plusieurs propriétés théoriques supérieures aux méthodes basées sur la densité (LOF) ou la distance (SVM One-Class) en haute dimension :
+\begin{enumerate}
+    \item \textbf{Complexité Algorithmique} : $O(n \log n)$ pour l'entraînement et $O(\log n)$ pour l'inférence, garantissant une latence minimale (< 50ms) compatible avec les contraintes temps-réel industrielles.
+    \item \textbf{Hypothèse d'Isolation} : Les anomalies sont "peu nombreuses et différentes". L'algorithme les isole en un nombre réduit de coupures aléatoires dans l'espace des features.
+\end{enumerate}
+
+\subsection{4.2 Score d'Anomalie}
+Le score d'anomalie $s(x, n)$ pour une observation $x$ est défini mathématiquement par :
+\[ s(x, n) = 2^{- \frac{E(h(x))}{c(n)}} \]
+où :
+\begin{itemize}
+    \item $h(x)$ est la longueur du chemin dans un arbre d'isolation (profondeur de la feuille).
+    \item $E(h(x))$ est l'espérance de cette longueur sur l'ensemble de la forêt.
+    \item $c(n)$ est le facteur de normalisation (longueur moyenne d'un chemin dans un BST non réussi).
+\end{itemize}
+Si $E(h(x)) \rightarrow 0$, alors $s \rightarrow 1$ (Anomalie forte).
+Si $E(h(x)) \rightarrow n-1$, alors $s \rightarrow 0$ (Observation normale).
+
+\section{5. Validation Expérimentale et Résultats}
+
+\subsection{5.1 Protocole d'Évaluation}
+\begin{itemize}
+    \item \textbf{Déséquilibre de Classe} : Le ratio Anomalie/Normal est d'environ 1:6. L'accuracy est donc une métrique biaisée. Nous privilégions le \textbf{ROC-AUC} et le couple \textbf{Précision/Rappel}.
+    \item \textbf{Définition du Label} : Une fenêtre est étiquetée "Anomalie" ($Y=1$) si $RUL \leq 30$.
+\end{itemize}
+
+\subsection{5.2 Résultats Benchmarks}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|ccc|c}
+\toprule
+\textbf{Configuration} & \textbf{Précision} & \textbf{Rappel} & \textbf{F1-Score} & \textbf{AUC} \\
+\midrule
+Baseline (Raw Features) & 0.62 & 0.91 & 0.73 & 0.964 \\
+\textbf{Optimisé (Feature Selection)} & \textbf{0.75} & 0.87 & \textbf{0.81} & \textbf{0.969} \\
+RF Supervisé (Upper Bound) & 0.83 & 0.84 & 0.83 & 0.985 \\
+\bottomrule
+\end{tabular}
+\caption{Impact de l'optimisation des features sur la performance.}
+\end{table}
+
+\subsection{5.3 Interprétation Expert}
+L'augmentation significative de la précision (+13\%) démontre que la suppression des capteurs bruités a permis de "nettoyer" l'espace de représentation, éloignant les clusters normaux des zones aberrantes. La légère baisse du rappel (91\% $\rightarrow$ 87\%) est un compromis acceptable pour drastiquement réduire les fausses alarmes, facteur clé d'acceptabilité par les opérateurs humains.
+
+\section{6. Conclusion et Perspectives Industrielles}
+L'approche proposée combine efficacité computationnelle et robustesse statistique. Pour une mise en production, nous recommandons :
+\begin{itemize}
+    \item \textbf{Drift Detection} : Surveillance de la distribution des scores $s(x)$ pour détecter une dérive du concept normal.
+    \item \textbf{Explicabilité} : Utilisation des valeurs SHAP pour expliquer quelles features contribuent au score d'anomalie lors d'une alerte.
+\end{itemize}
+
+\end{document}

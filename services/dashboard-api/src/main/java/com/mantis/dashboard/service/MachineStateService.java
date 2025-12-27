@@ -33,7 +33,7 @@ public class MachineStateService {
 
     public synchronized void updateAnomalyStatus(String machineId, String timestamp, double score, boolean isAnomaly) {
         MachineState state = machineStateRepository.findById(machineId)
-                .orElse(new MachineState(machineId, timestamp, null, score, isAnomaly, 0, "NORMAL"));
+                .orElse(new MachineState(machineId, timestamp, null, score, isAnomaly, 0, "NORMAL", null));
 
         state.setLastUpdated(timestamp);
         state.setLastAnomalyScore(score);
@@ -46,7 +46,7 @@ public class MachineStateService {
 
     public synchronized void updateRUL(String machineId, String timestamp, double rul, int cycle) {
         MachineState state = machineStateRepository.findById(machineId)
-                .orElse(new MachineState(machineId, timestamp, rul, null, false, cycle, "NORMAL"));
+                .orElse(new MachineState(machineId, timestamp, rul, null, false, cycle, "NORMAL", null));
 
         state.setLastUpdated(timestamp);
         state.setLastRul(rul);
@@ -62,6 +62,15 @@ public class MachineStateService {
                 state.setStatus("NORMAL");
         }
 
+        machineStateRepository.save(state);
+    }
+
+    public synchronized void updateSensors(String machineId, String timestamp, java.util.Map<String, Double> sensors) {
+        MachineState state = machineStateRepository.findById(machineId)
+                .orElse(new MachineState(machineId, timestamp, null, null, false, 0, "NORMAL", sensors));
+
+        state.setLastUpdated(timestamp);
+        state.setSensors(sensors);
         machineStateRepository.save(state);
     }
 

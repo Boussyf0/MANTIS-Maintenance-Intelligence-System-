@@ -45,6 +45,7 @@ app:
     anomaly-events: ${ANOMALY_TOPIC:anomaly-events}
     rul-predictions: ${RUL_TOPIC:rul-predictions}
     alerts: ${ALERTS_TOPIC:alerts}
+    sensor-raw: ${SENSOR_TOPIC:raw-sensor-data}
 
 management:
   endpoints:
