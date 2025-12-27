@@ -28,7 +28,7 @@ Unplanned downtime costs manufacturers **$50 billion annually**. MANTIS transiti
 
 | 🧠 **Cognitive AI** | ⚡ **Real-Time Streaming** | 🛡️ **Enterprise Ready** |
 |:---:|:---:|:---:|
-| **CNN & LSTM Ensembles**<br>State-of-the-art anomaly detection trained on NASA C-MAPSS data. | **Apache Kafka Core**<br>Handle 100k+ sensor events/sec with sub-second latency (487ms P99). | **Microservices Architecture**<br>Fully containerized, distinct scaling for Ingestion, Inference, and UI. |
+| **Hybrid Intelligence**<br>Unsupervised **Isolation Forest** for anomaly detection & **LSTM** Deep Learning for RUL prediction (NASA C-MAPSS). | **Apache Kafka Core**<br>Handle 100k+ sensor events/sec with sub-second latency (487ms P99). | **Microservices Architecture**<br>Fully containerized, distinct scaling for Ingestion, Inference, and UI. |
 
 ---
 
