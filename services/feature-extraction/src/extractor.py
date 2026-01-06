@@ -104,12 +104,12 @@ class Extractor:
         stds_raw = np.array(features.get("std", []))
 
         if len(means_raw) == 21:
-             means = means_raw[USEFUL_INDICES]
-             stds = stds_raw[USEFUL_INDICES]
+            means = means_raw[USEFUL_INDICES]
+            stds = stds_raw[USEFUL_INDICES]
         elif len(means_raw) > 0:
-             # Fallback if dimension is unexpected, assume already filtered?
-             means = means_raw
-             stds = stds_raw
+            # Fallback if dimension is unexpected, assume already filtered?
+            means = means_raw
+            stds = stds_raw
         else:
             return None
 
@@ -138,10 +138,7 @@ class Extractor:
                 "avg_snr": float(avg_snr),
             },
             # We pass the FILTERED vectors for inference
-            "model_features": {
-                "mean": means.tolist(),
-                "std": stds.tolist()
-            },
+            "model_features": {"mean": means.tolist(), "std": stds.tolist()},
             "actual_rul": data.get("actual_rul"),
         }
 

@@ -15,7 +15,7 @@ Nous avons un script qui gère tout (arrêt, nettoyage, build, démarrage) :
 2.  **Lancer le simulateur de données :** (Dans un nouveau terminal, requis pour avoir des données)
     ```bash
     export KAFKA_BROKER=localhost:9093
-    python3 scripts/sensor-simulator.py
+    python scripts/sensor-simulator.py
     ```
 
 ---
